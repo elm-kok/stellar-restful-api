@@ -7,7 +7,7 @@ import (
 type Patient struct {
 	gorm.Model
 	PatientID string `gorm:"unique;size:56;PRIMARY_KEY"`
-	SecretKey string `gorm:"size:56"`
+	SecretKey []byte `gorm:"size:32"`
 }
 
 // DBMigrate will create and migrate the tables, and then make the some relationships if necessary
