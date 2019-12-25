@@ -44,7 +44,8 @@ func (a *App) Initialize(config *config.Config) {
 func (a *App) setRouters() {
 	// Routing for handling the Patients
 	a.Get("/Patients", a.handleRequest(handler.GetAllPatients))
-	a.Post("/Patients", a.handleRequest(handler.CreatePatient))
+	a.Post("/PatientsReg", a.handleRequest(handler.CreatePatient))
+	a.Post("/PatientsLogin", a.handleRequest(handler.PatientLogin))
 	a.Get("/Patients/{Patient}", a.handleRequest(handler.GetPatient))
 	a.Put("/Patients/{Patient}", a.handleRequest(handler.UpdatePatient))
 	a.Delete("/Patients/{Patient}", a.handleRequest(handler.DeletePatient))
