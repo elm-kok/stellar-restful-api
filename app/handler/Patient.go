@@ -5,8 +5,9 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
+	"hash/fnv"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -59,7 +60,7 @@ func partitionPackage(data []byte) [][]byte {
 	return slice
 }
 
-func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWriter, packs [][]byte) {
+func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWriter, packs [][]byte, key string) {
 	var i int
 	client := horizonclient.DefaultTestNetClient
 	accountRequest := horizonclient.AccountRequest{AccountID: PatientPub}
@@ -67,11 +68,10 @@ func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWrit
 	if err != nil {
 		log.Panic("Account fail: ", err)
 	}
-	for i = 0; i < len(packs); i++ {
+	for i = 1; i < len(packs); i++ {
 		j := i
-
 		op := txnbuild.ManageData{
-			Name:  "PK" + strconv.Itoa(j),
+			Name:  key + strconv.Itoa(j),
 			Value: []byte(string(packs[j][:])),
 		}
 		tx := txnbuild.Transaction{
@@ -105,12 +105,12 @@ func encrypt(dataString string, passphrase []byte) []byte {
 		panic(err.Error())
 	}
 	nonce := make([]byte, gcm.NonceSize())
-	/*
-		if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-			panic(err.Error())
-		}
-	*/
-	ciphertext := gcm.Seal(nil, nonce, data, nil)
+
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		panic(err.Error())
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, data, nil)
 	return ciphertext
 }
 
@@ -264,26 +264,26 @@ func AddDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//DocNameEn := encrypt(PD.DocName, Patient.SecretKey)
-
+	DocNameEn := encrypt(PD.DocName, Patient.SecretKey)
 	DocPubEn := encrypt(PD.DocPub, Patient.SecretKey)
-	DocPubEn2 := []byte(base64.StdEncoding.EncodeToString(DocPubEn))
-	DocPubEnPacks := partitionPackage(DocPubEn2)
+	DocPubEnPacks := partitionPackage(DocPubEn)
+	DocNameEnPacks := partitionPackage(DocNameEn)
 
-	println(string(DocPubEn2))
-	println("0", string(DocPubEnPacks[0]))
-	println("1", string(DocPubEnPacks[1]))
-	println("2", string(DocPubEnPacks[2]))
-
-	ss := "RXloS2k4VjBLTFdWM1V3VXNQeTNIdC9Bbys4eEVYVUtmMXVIdG8zV3p3VzQxbUVPR2lWVGNJR3N5c3ZBVXN3MQ=="
-	ss2 := "UTc4czFTTkZudkFvWVJuQ3lxdDhCZmlXc3kyTlI1Ylg="
-	DocPubEn3, _ := base64.StdEncoding.DecodeString(string(ss))
-	DocPubEn4, _ := base64.StdEncoding.DecodeString(string(ss2))
-	println(string(DocPubEn3))
-	println(string(DocPubEn4))
-
-	//submitTransaction(kp.Seed(), kp.Address(), w, DocPubEnPacks)
-
+	DocID := fnv.New32a()
+	DocID.Write(append([]byte(PD.DocPub), Patient.SecretKey...))
+	submitTransaction(kp.Seed(), kp.Address(), w, DocPubEnPacks, "DK"+strconv.Itoa(int(DocID.Sum32()))+"_")
+	submitTransaction(kp.Seed(), kp.Address(), w, DocNameEnPacks, "DN"+strconv.Itoa(int(DocID.Sum32()))+"_")
+	/*
+		s1 := "YURY+Iv8AgXzo2XP8PuaDLGluyYjNGBCAiQ8oSArJKItBQLvl7Czvxzy3Hq1LNHQfHn4Gv4u9S5s+zgdW8Aqmg=="
+		s2 := "np/kOglGWgfNCyscd6GLafK9zm4="
+		result1, _ := base64.StdEncoding.DecodeString(s1)
+		result2, _ := base64.StdEncoding.DecodeString(s2)
+		res := append(result1[:], result2[:]...)
+		println(string(res))
+		println()
+		println(decrypt(DocPubEn, Patient.SecretKey))
+		println(decrypt(res, Patient.SecretKey))
+	*/
 	client := horizonclient.DefaultTestNetClient
 	accountRequest := horizonclient.AccountRequest{AccountID: kp.Address()}
 	hAccount, err := client.AccountDetail(accountRequest)
