@@ -5,9 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,12 +20,23 @@ import (
 	"github.com/stellar/go/txnbuild"
 )
 
-type PatientStructure struct {
+type PatientKP struct {
 	PatientPub string
 	PatientPri string
 }
-type PatientReq struct {
+type PatientSeed struct {
 	Seed string
+}
+
+type PatientDoc struct {
+	DocPub  string
+	DocName string
+	Seed    string
+}
+type PatientHospital struct {
+	HospitalName string
+	HospitalUrl  string
+	Seed         string
 }
 
 func seedToKeypair(s string) (*keypair.Full, error) {
@@ -35,37 +45,58 @@ func seedToKeypair(s string) (*keypair.Full, error) {
 	return kp, err
 }
 
-func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWriter, DocPub []byte, i int) {
+func partitionPackage(data []byte) [][]byte {
+	var i int
+	length := 64
+	slice := make([][]byte, 1, len(data)/length+2)
+	for i = 0; i < len(data)/length+1; i++ {
+		if (i+1)*length > len(data) {
+			slice = append(slice, data[i*length:len(data)])
+		} else {
+			slice = append(slice, data[i*length:(i+1)*length])
+		}
+	}
+	return slice
+}
+
+func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWriter, packs [][]byte) {
+	var i int
 	client := horizonclient.DefaultTestNetClient
 	accountRequest := horizonclient.AccountRequest{AccountID: PatientPub}
 	hAccount, err := client.AccountDetail(accountRequest)
 	if err != nil {
 		log.Panic("Account fail: ", err)
 	}
-	op := txnbuild.ManageData{
-		Name:  "test" + strconv.Itoa(i),
-		Value: DocPub,
-	}
-	tx := txnbuild.Transaction{
-		SourceAccount: &hAccount,
-		Operations:    []txnbuild.Operation{&op},
-		Timebounds:    txnbuild.NewTimeout(300), // Use a real timeout in production!
-		Network:       network.TestNetworkPassphrase,
-	}
-	kp, _ := keypair.Parse(PatientPri)
-	txe, err := tx.BuildSignEncode(kp.(*keypair.Full))
-	if err != nil {
-		fmt.Println(err)
+	for i = 0; i < len(packs); i++ {
+		j := i
+
+		op := txnbuild.ManageData{
+			Name:  "PK" + strconv.Itoa(j),
+			Value: []byte(string(packs[j][:])),
+		}
+		tx := txnbuild.Transaction{
+			SourceAccount: &hAccount,
+			Operations:    []txnbuild.Operation{&op},
+			Timebounds:    txnbuild.NewTimeout(1000), // Use a real timeout in production!
+			Network:       network.TestNetworkPassphrase,
+		}
+		kp, _ := keypair.Parse(PatientPri)
+		txe, err := tx.BuildSignEncode(kp.(*keypair.Full))
+		if err != nil {
+			log.Panic("Sign fails", err)
+		}
+
+		_, err = client.SubmitTransactionXDR(txe)
+		if err != nil {
+			hError := err.(*horizonclient.Error)
+			log.Panic("Error submitting transaction:", hError.Problem)
+			respondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
-	_, err = client.SubmitTransactionXDR(txe)
-	if err != nil {
-		hError := err.(*horizonclient.Error)
-		log.Panic("Error submitting transaction:", hError.Problem)
-		respondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
 }
+
 func encrypt(dataString string, passphrase []byte) []byte {
 	data := []byte(dataString)
 	block, _ := aes.NewCipher(passphrase)
@@ -74,10 +105,12 @@ func encrypt(dataString string, passphrase []byte) []byte {
 		panic(err.Error())
 	}
 	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
-	}
-	ciphertext := gcm.Seal(nonce, nonce, data, nil)
+	/*
+		if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+			panic(err.Error())
+		}
+	*/
+	ciphertext := gcm.Seal(nil, nonce, data, nil)
 	return ciphertext
 }
 
@@ -99,25 +132,20 @@ func decrypt(data []byte, passphrase []byte) string {
 	}
 	return string(plaintext)
 }
-func GetAllPatients(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	Patients := []model.Patient{}
-	db.Find(&Patients)
-	respondJSON(w, http.StatusOK, Patients)
-}
 
-func CreatePatient(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	Patient := model.Patient{}
-	var PReq PatientReq
-	var PS PatientStructure
+	var PSeed PatientSeed
+	var PS PatientKP
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&PReq); err != nil {
+	if err := decoder.Decode(&PSeed); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
 
-	kp, err := seedToKeypair(PReq.Seed)
+	kp, err := seedToKeypair(PSeed.Seed)
 	if err != nil {
 		log.Panic("Keypair Error from enter seed.")
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
@@ -161,20 +189,20 @@ func CreatePatient(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, hAccount.Data)
 }
 
-func PatientLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	Patient := model.Patient{}
-	var PS PatientStructure
-	var PReq PatientReq
+	var PS PatientKP
+	var PSeed PatientSeed
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&PReq); err != nil {
+	if err := decoder.Decode(&PSeed); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	defer r.Body.Close()
 
-	kp, err := seedToKeypair(PReq.Seed)
+	kp, err := seedToKeypair(PSeed.Seed)
 	if err != nil {
 		log.Panic("Keypair Error from enter seed.")
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
@@ -208,14 +236,83 @@ func PatientLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, hAccount.Data)
 }
 
-/*
-DoctorA := []string{"GB4V7YQHN54MTTRG7BWUBZKTGQQ", "Anna Surassa Fhaumnuaypol"}
+func AddDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
-	DocPub := encrypt(DoctorA[0], key[:])
+	Patient := model.Patient{}
+	var PD PatientDoc
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&PD); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	kp, err := seedToKeypair(PD.Seed)
+	if err != nil {
+		log.Panic("Keypair Error from enter seed.")
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	Patient.PatientID = kp.Address()
+
+	if err := db.Where("patient_id = ?", kp.Address()).First(&Patient).Error; err != nil {
+		log.Panic(err)
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	//DocNameEn := encrypt(PD.DocName, Patient.SecretKey)
+
+	DocPubEn := encrypt(PD.DocPub, Patient.SecretKey)
+	DocPubEn2 := []byte(base64.StdEncoding.EncodeToString(DocPubEn))
+	DocPubEnPacks := partitionPackage(DocPubEn2)
+
+	println(string(DocPubEn2))
+	println("0", string(DocPubEnPacks[0]))
+	println("1", string(DocPubEnPacks[1]))
+	println("2", string(DocPubEnPacks[2]))
+
+	ss := "RXloS2k4VjBLTFdWM1V3VXNQeTNIdC9Bbys4eEVYVUtmMXVIdG8zV3p3VzQxbUVPR2lWVGNJR3N5c3ZBVXN3MQ=="
+	ss2 := "UTc4czFTTkZudkFvWVJuQ3lxdDhCZmlXc3kyTlI1Ylg="
+	DocPubEn3, _ := base64.StdEncoding.DecodeString(string(ss))
+	DocPubEn4, _ := base64.StdEncoding.DecodeString(string(ss2))
+	println(string(DocPubEn3))
+	println(string(DocPubEn4))
+
+	//submitTransaction(kp.Seed(), kp.Address(), w, DocPubEnPacks)
+
+	client := horizonclient.DefaultTestNetClient
+	accountRequest := horizonclient.AccountRequest{AccountID: kp.Address()}
+	hAccount, err := client.AccountDetail(accountRequest)
+	if err != nil {
+		log.Panic("Account not exists.", err)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, hAccount.Data)
+}
+func AddHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request)    {}
+func RemoveDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request)      {}
+func RemoveHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request) {}
+
+/*
+DocA := []string{"GB4V7YQHN54MTTRG7BWUBZKTGQQ", "Anna Surassa Fhaumnuaypol"}
+
+	DocPub := encrypt(DocA[0], key[:])
 	for i := 0; i < 100; i++ {
 		submitTransaction(PS.PatientPri, PS.PatientPub, w, DocPub, i)
 	}
 */
+
+func GetAllPatients(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	Patients := []model.Patient{}
+	db.Find(&Patients)
+	respondJSON(w, http.StatusOK, Patients)
+}
+
 func GetPatient(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 

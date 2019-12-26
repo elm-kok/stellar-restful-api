@@ -43,9 +43,15 @@ func (a *App) Initialize(config *config.Config) {
 // setRouters sets the all required routers
 func (a *App) setRouters() {
 	// Routing for handling the Patients
+
+	a.Post("/Patient/Register", a.handleRequest(handler.Register))
+	a.Post("/Patient/Login", a.handleRequest(handler.Login))
+	a.Post("/Patient/AddDoc", a.handleRequest(handler.AddDoc))
+	a.Post("/Patient/AddHospital", a.handleRequest(handler.AddHospital))
+	a.Post("/Patient/RemoveDoc", a.handleRequest(handler.RemoveDoc))
+	a.Post("/Patient/RemoveHospital", a.handleRequest(handler.RemoveHospital))
+
 	a.Get("/Patients", a.handleRequest(handler.GetAllPatients))
-	a.Post("/PatientsReg", a.handleRequest(handler.CreatePatient))
-	a.Post("/PatientsLogin", a.handleRequest(handler.PatientLogin))
 	a.Get("/Patients/{Patient}", a.handleRequest(handler.GetPatient))
 	a.Put("/Patients/{Patient}", a.handleRequest(handler.UpdatePatient))
 	a.Delete("/Patients/{Patient}", a.handleRequest(handler.DeletePatient))
