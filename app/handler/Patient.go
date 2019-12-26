@@ -34,7 +34,7 @@ type PatientDoc struct {
 	DocName string
 	Seed    string
 }
-type PatientHospital struct {
+type PatientHos struct {
 	HospitalName string
 	HospitalUrl  string
 	Seed         string
@@ -59,7 +59,40 @@ func partitionPackage(data []byte) [][]byte {
 	}
 	return slice
 }
+func submitStatus(PatientPri string, PatientPub string, w http.ResponseWriter, key string, status string) {
 
+	client := horizonclient.DefaultTestNetClient
+	accountRequest := horizonclient.AccountRequest{AccountID: PatientPub}
+	hAccount, err := client.AccountDetail(accountRequest)
+	if err != nil {
+		log.Panic("Account fail: ", err)
+	}
+
+	op := txnbuild.ManageData{
+		Name:  key,
+		Value: []byte(status),
+	}
+	tx := txnbuild.Transaction{
+		SourceAccount: &hAccount,
+		Operations:    []txnbuild.Operation{&op},
+		Timebounds:    txnbuild.NewTimeout(1000), // Use a real timeout in production!
+		Network:       network.TestNetworkPassphrase,
+	}
+	kp, _ := keypair.Parse(PatientPri)
+	txe, err := tx.BuildSignEncode(kp.(*keypair.Full))
+	if err != nil {
+		log.Panic("Sign fails", err)
+	}
+
+	_, err = client.SubmitTransactionXDR(txe)
+	if err != nil {
+		hError := err.(*horizonclient.Error)
+		log.Panic("Error submitting transaction:", hError.Problem)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+}
 func submitTransaction(PatientPri string, PatientPub string, w http.ResponseWriter, packs [][]byte, key string) {
 	var i int
 	client := horizonclient.DefaultTestNetClient
@@ -273,6 +306,7 @@ func AddDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	DocID.Write(append([]byte(PD.DocPub), Patient.SecretKey...))
 	submitTransaction(kp.Seed(), kp.Address(), w, DocPubEnPacks, "DK"+strconv.Itoa(int(DocID.Sum32()))+"_")
 	submitTransaction(kp.Seed(), kp.Address(), w, DocNameEnPacks, "DN"+strconv.Itoa(int(DocID.Sum32()))+"_")
+	submitStatus(kp.Seed(), kp.Address(), w, "D"+strconv.Itoa(int(DocID.Sum32())), "T")
 	/*
 		s1 := "YURY+Iv8AgXzo2XP8PuaDLGluyYjNGBCAiQ8oSArJKItBQLvl7Czvxzy3Hq1LNHQfHn4Gv4u9S5s+zgdW8Aqmg=="
 		s2 := "np/kOglGWgfNCyscd6GLafK9zm4="
@@ -294,18 +328,137 @@ func AddDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	respondJSON(w, http.StatusOK, hAccount.Data)
 }
-func AddHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request)    {}
-func RemoveDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request)      {}
-func RemoveHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request) {}
+func AddHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	Patient := model.Patient{}
+	var PH PatientHos
 
-/*
-DocA := []string{"GB4V7YQHN54MTTRG7BWUBZKTGQQ", "Anna Surassa Fhaumnuaypol"}
-
-	DocPub := encrypt(DocA[0], key[:])
-	for i := 0; i < 100; i++ {
-		submitTransaction(PS.PatientPri, PS.PatientPub, w, DocPub, i)
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&PH); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
-*/
+
+	defer r.Body.Close()
+
+	kp, err := seedToKeypair(PH.Seed)
+	if err != nil {
+		log.Panic("Keypair Error from enter seed.")
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	Patient.PatientID = kp.Address()
+
+	if err := db.Where("patient_id = ?", kp.Address()).First(&Patient).Error; err != nil {
+		log.Panic(err)
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	HosNameEn := encrypt(PH.HospitalName, Patient.SecretKey)
+	HosUrlEn := encrypt(PH.HospitalUrl, Patient.SecretKey)
+	HosUrlEnPacks := partitionPackage(HosUrlEn)
+	HosNameEnPacks := partitionPackage(HosNameEn)
+
+	HosID := fnv.New32a()
+	HosID.Write(append([]byte(PH.HospitalName), Patient.SecretKey...))
+	submitTransaction(kp.Seed(), kp.Address(), w, HosUrlEnPacks, "HU"+strconv.Itoa(int(HosID.Sum32()))+"_")
+	submitTransaction(kp.Seed(), kp.Address(), w, HosNameEnPacks, "HN"+strconv.Itoa(int(HosID.Sum32()))+"_")
+	submitStatus(kp.Seed(), kp.Address(), w, "H"+strconv.Itoa(int(HosID.Sum32())), "T")
+
+	client := horizonclient.DefaultTestNetClient
+	accountRequest := horizonclient.AccountRequest{AccountID: kp.Address()}
+	hAccount, err := client.AccountDetail(accountRequest)
+	if err != nil {
+		log.Panic("Account not exists.", err)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, hAccount.Data)
+}
+func RemoveDoc(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	Patient := model.Patient{}
+	var PD PatientDoc
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&PD); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	kp, err := seedToKeypair(PD.Seed)
+	if err != nil {
+		log.Panic("Keypair Error from enter seed.")
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	Patient.PatientID = kp.Address()
+
+	if err := db.Where("patient_id = ?", kp.Address()).First(&Patient).Error; err != nil {
+		log.Panic(err)
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	DocID := fnv.New32a()
+	DocID.Write(append([]byte(PD.DocPub), Patient.SecretKey...))
+	submitStatus(kp.Seed(), kp.Address(), w, "D"+strconv.Itoa(int(DocID.Sum32())), "F")
+
+	client := horizonclient.DefaultTestNetClient
+	accountRequest := horizonclient.AccountRequest{AccountID: kp.Address()}
+	hAccount, err := client.AccountDetail(accountRequest)
+	if err != nil {
+		log.Panic("Account not exists.", err)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, hAccount.Data)
+}
+func RemoveHospital(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
+	Patient := model.Patient{}
+	var PH PatientHos
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&PH); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	kp, err := seedToKeypair(PH.Seed)
+	if err != nil {
+		log.Panic("Keypair Error from enter seed.")
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	Patient.PatientID = kp.Address()
+
+	if err := db.Where("patient_id = ?", kp.Address()).First(&Patient).Error; err != nil {
+		log.Panic(err)
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	HosID := fnv.New32a()
+	HosID.Write(append([]byte(PH.HospitalName), Patient.SecretKey...))
+	submitStatus(kp.Seed(), kp.Address(), w, "H"+strconv.Itoa(int(HosID.Sum32())), "F")
+
+	client := horizonclient.DefaultTestNetClient
+	accountRequest := horizonclient.AccountRequest{AccountID: kp.Address()}
+	hAccount, err := client.AccountDetail(accountRequest)
+	if err != nil {
+		log.Panic("Account not exists.", err)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, hAccount.Data)
+}
 
 func GetAllPatients(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	Patients := []model.Patient{}
