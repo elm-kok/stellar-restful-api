@@ -1,55 +1,72 @@
-// Imports: Dependencies
 import React from 'react';
 import {PersistGate} from 'redux-persist/es/integration/react';
 import {Provider} from 'react-redux';
-import Icon from 'react-native-vector-icons/Ionicons';
-// Imports: Screens
-import {NavigationNativeContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Counter from './screens/Counter';
-import Doctor from './screens/Doctor';
-import Hospital from './screens/Hospital';
-import Settings from './screens/Settings';
-// Imports: Redux Persist Persister
-import {store, persistor} from './redux/store/store';
-const Tab = createBottomTabNavigator();
+import {View, Button} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {createStackNavigator} from 'react-navigation-stack';
+import {createSwitchNavigator, createAppContainer} from 'react-navigation';
+import {createMaterialBottomTabNavigator} from 'react-navigation-material-bottom-tabs';
 
+import Settings from './screens/Settings';
+import Doctor from './screens/Doctor';
+import Counter from './screens/Counter';
+import Hospital from './screens/Hospital';
+
+import AuthLoadingScreen from './screens/AuthLoadingScreen';
+import {store, persistor} from './redux/store/store';
+
+class SignInScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Please sign in',
+  };
+
+  render() {
+    return (
+      <View>
+        <Button title="Sign in!" onPress={this._signInAsync} />
+      </View>
+    );
+  }
+
+  _signInAsync = async () => {
+    await AsyncStorage.setItem('userToken', 'abc');
+    this.props.navigation.navigate('App');
+  };
+}
+
+const AppTab = createMaterialBottomTabNavigator(
+  {
+    Information: {screen: Counter},
+    Doctor: {screen: Doctor},
+    Hospital: {screen: Hospital},
+    Settings: {screen: Settings, params:{a:'aa'}},
+  },
+  {
+    initialRouteName: 'Information',
+    activeColor: '#f0edf6',
+    inactiveColor: '#3e2465',
+    barStyle: {backgroundColor: '#694fad'},
+  },
+);
+const AppContainer = createAppContainer(
+  createSwitchNavigator(
+    {
+      AuthLoading: AuthLoadingScreen,
+      App: AppTab,
+      Auth: SignInScreen,
+    },
+    {
+      initialRouteName: 'AuthLoading',
+    },
+  ),
+);
 // React Native: App
 export default App = () => {
   return (
     // Redux: Global Store
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <NavigationNativeContainer>
-          <Tab.Navigator
-            screenOptions={({route}) => ({
-              tabBarIcon: ({focused, color, size}) => {
-                let iconName;
-                if (route.name === 'Information') {
-                  iconName = focused
-                    ? 'ios-information-circle'
-                    : 'ios-information-circle-outline';
-                } else if (route.name === 'Doctor') {
-                  iconName = focused ? 'ios-people' : 'ios-people';
-                } else if (route.name === 'Hospital') {
-                  iconName = focused ? 'ios-filing' : 'ios-filing';
-                } else if (route.name === 'Settings') {
-                  iconName = focused ? 'ios-settings' : 'ios-settings';
-                }
-                // You can return any component that you like here!
-                return <Icon name={iconName} size={size} color={color} />;
-              },
-            })}
-            tabBarOptions={{
-              activeTintColor: 'tomato',
-              inactiveTintColor: 'gray',
-            }}>
-            <Tab.Screen name="Information" component={Counter} />
-            <Tab.Screen name="Doctor" component={Doctor} />
-            <Tab.Screen name="Hospital" component={Hospital} />
-            <Tab.Screen name="Settings" component={Settings} />
-          </Tab.Navigator>
-        </NavigationNativeContainer>
+        <AppContainer />
       </PersistGate>
     </Provider>
   );
