@@ -1,12 +1,14 @@
 import React from 'react';
 import {View, Button, TextInput} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import {connect} from 'react-redux';
+import {login} from '../redux/actions/authActions';
 
-export default class SignInScreen extends React.Component {
+class SignInScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: '',
+      _id: '',
       passwd: '',
       passwd_com: '',
       SS: 0,
@@ -24,8 +26,8 @@ export default class SignInScreen extends React.Component {
         <TextInput
           style={{height: 40}}
           placeholder="ID"
-          onChangeText={id => this.setState({id: id})}
-          value={this.state.id}
+          onChangeText={_id => this.setState({_id: _id})}
+          value={this.state._id}
         />
         {this.state.SS ? (
           <TextInput
@@ -63,7 +65,7 @@ export default class SignInScreen extends React.Component {
           <Button title="Sign in" onPress={this._signInAsync} />
         )}
         {this.state.SS ? (
-          <Button title="Sign up" onPress={this._signUpAsync} />
+          <Button title="Sign up" onPress={this._signInAsync} />
         ) : (
           <Button title="Sign up!" onPress={this._sel_SS} />
         )}
@@ -72,14 +74,33 @@ export default class SignInScreen extends React.Component {
   }
 
   _signInAsync = async () => {
-    await AsyncStorage.setItem('userToken', 'abc');
+    //await AsyncStorage.setItem('userToken', 'abc');
+    this.props.reduxLogin(this.state._id, this.state.passwd);
     this.props.navigation.navigate('App');
   };
   _signUpAsync = async () => {
-    await AsyncStorage.setItem('userToken', 'abc');
+    //await AsyncStorage.setItem('userToken', 'abc');
     this.props.navigation.navigate('App');
   };
+
   _sel_SS = async () => {
     this.setState({SS: !this.state.SS});
   };
 }
+const mapStateToProps = state => {
+  // Redux Store --> Component
+  return {
+    _id: state.authReducer._id,
+    passwd: state.authReducer.passwd,
+  };
+};
+
+// Map Dispatch To Props (Dispatch Actions To Reducers. Reducers Then Modify The Data And Assign It To Your Props)
+const mapDispatchToProps = dispatch => {
+  // Action
+  return {
+    // Login
+    reduxLogin: (_id, passwd) => dispatch(login(_id, passwd)),
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);

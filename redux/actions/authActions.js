@@ -1,5 +1,6 @@
 // Login
-export const login = (trueFalse) => ({
+export const login = (_id, passwd) => ({
   type: 'LOGIN',
-  trueFalse: trueFalse,
+  _id: _id,
+  passwd: passwd,
 });
