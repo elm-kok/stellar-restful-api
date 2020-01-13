@@ -1,4 +1,4 @@
-package com.reduxpersistdemo;
+package com.StellarUI;
 
 import android.app.Application;
 import android.content.Context;

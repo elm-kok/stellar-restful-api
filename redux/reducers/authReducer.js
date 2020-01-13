@@ -4,6 +4,8 @@ const initialState = {
   _id: '',
   passwd: '',
   userToken: '',
+  pri: '',
+  pub: '',
 };
 
 // Reducers (Modifies The State And Returns A New State)
@@ -18,6 +20,8 @@ const authReducer = (state = initialState, action, userToken) => {
         loggedIn: true,
         _id: action._id,
         passwd: action.passwd,
+        pri: action.pri,
+        pub: action.pub,
         userToken: 'abc',
       };
     }

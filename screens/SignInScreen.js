@@ -1,9 +1,9 @@
 import React from 'react';
 import {View, Button, TextInput} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
-
+import {store} from '../redux/store/store';
+import {RSA} from 'react-native-rsa-native';
 class SignInScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -74,9 +74,16 @@ class SignInScreen extends React.Component {
   }
 
   _signInAsync = async () => {
-    //await AsyncStorage.setItem('userToken', 'abc');
-    this.props.reduxLogin(this.state._id, this.state.passwd);
-    this.props.navigation.navigate('App');
+    let keypair = await RSA.generate(); // set key size
+    await this.props.reduxLogin(
+      this.state._id,
+      this.state.passwd,
+      keypair.private,
+      keypair.public,
+    );
+    if (store.getState().authReducer.loggedIn) {
+      this.props.navigation.navigate('App');
+    }
   };
   _signUpAsync = async () => {
     //await AsyncStorage.setItem('userToken', 'abc');
@@ -100,7 +107,8 @@ const mapDispatchToProps = dispatch => {
   // Action
   return {
     // Login
-    reduxLogin: (_id, passwd) => dispatch(login(_id, passwd)),
+    reduxLogin: (_id, passwd, privateKey, publicKey) =>
+      dispatch(login(_id, passwd, privateKey, publicKey)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);

@@ -5,8 +5,9 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
-		00E356F31AD99517003FC87E /* reduxPersistDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* reduxPersistDemoTests.m */; };
+		00E356F31AD99517003FC87E /* StellarUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* StellarUITests.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -14,11 +15,11 @@
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		2DCD954D1E0B4F2C00145EB5 /* reduxPersistDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* reduxPersistDemoTests.m */; };
-		419987A5117DC56A03E25E5F /* libPods-reduxPersistDemoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1AEE2A545ECF63A5E37AF5 /* libPods-reduxPersistDemoTests.a */; };
-		9B2E2BE8B11D11B6323534E9 /* libPods-reduxPersistDemo-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2343C0A2EAB6F92C58493627 /* libPods-reduxPersistDemo-tvOSTests.a */; };
-		C3DF841A9A484FDD3821A79F /* libPods-reduxPersistDemo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CFBE0F660FF90C00B9382D3B /* libPods-reduxPersistDemo-tvOS.a */; };
-		E5A71555917E39461BB0C3E6 /* libPods-reduxPersistDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96DAFBDFE3D60D2B92FD59 /* libPods-reduxPersistDemo.a */; };
+		2DCD954D1E0B4F2C00145EB5 /* StellarUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* StellarUITests.m */; };
+		419987A5117DC56A03E25E5F /* libPods-StellarUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1AEE2A545ECF63A5E37AF5 /* libPods-StellarUITests.a */; };
+		9B2E2BE8B11D11B6323534E9 /* libPods-StellarUI-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2343C0A2EAB6F92C58493627 /* libPods-StellarUI-tvOSTests.a */; };
+		C3DF841A9A484FDD3821A79F /* libPods-StellarUI-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CFBE0F660FF90C00B9382D3B /* libPods-StellarUI-tvOS.a */; };
+		E5A71555917E39461BB0C3E6 /* libPods-StellarUI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96DAFBDFE3D60D2B92FD59 /* libPods-StellarUI.a */; };
 		AE39A66BF7624E2EA1357116 /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 680B492E2B8C4F18B2818CB8 /* AntDesign.ttf */; };
 		214EAC3E9B604779AC34734E /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9E2C67BE81948F692B0CAAA /* Entypo.ttf */; };
 		415D0FA0416344AB90CAC6A2 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B2E523191BB04E8C86BB757E /* EvilIcons.ttf */; };
@@ -43,43 +44,43 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = reduxPersistDemo;
+			remoteInfo = StellarUI;
 		};
 		2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 2D02E47A1E0B4A5D006451C7;
-			remoteInfo = "reduxPersistDemo-tvOS";
+			remoteInfo = "StellarUI-tvOS";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		00E356EE1AD99517003FC87E /* reduxPersistDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = reduxPersistDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* StellarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StellarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* reduxPersistDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = reduxPersistDemoTests.m; sourceTree = "<group>"; };
-		095F9893C206392BD7179B3E /* Pods-reduxPersistDemo-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo-tvOSTests/Pods-reduxPersistDemo-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* reduxPersistDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = reduxPersistDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = reduxPersistDemo/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = reduxPersistDemo/AppDelegate.m; sourceTree = "<group>"; };
+		00E356F21AD99517003FC87E /* StellarUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StellarUITests.m; sourceTree = "<group>"; };
+		095F9893C206392BD7179B3E /* Pods-StellarUI-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-StellarUI-tvOSTests/Pods-StellarUI-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* StellarUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StellarUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = StellarUI/AppDelegate.h; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = StellarUI/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = reduxPersistDemo/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = reduxPersistDemo/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = reduxPersistDemo/main.m; sourceTree = "<group>"; };
-		13B7B3B1D598FF27A02F2430 /* Pods-reduxPersistDemo-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo-tvOSTests/Pods-reduxPersistDemo-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		2343C0A2EAB6F92C58493627 /* libPods-reduxPersistDemo-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reduxPersistDemo-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B96DAFBDFE3D60D2B92FD59 /* libPods-reduxPersistDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reduxPersistDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D02E47B1E0B4A5D006451C7 /* reduxPersistDemo-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "reduxPersistDemo-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D02E4901E0B4A5D006451C7 /* reduxPersistDemo-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "reduxPersistDemo-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		64E82C8608DB8C961FB3F30F /* Pods-reduxPersistDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemoTests.debug.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemoTests/Pods-reduxPersistDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
-		9BD1B845515F063DD15909A6 /* Pods-reduxPersistDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo.release.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo/Pods-reduxPersistDemo.release.xcconfig"; sourceTree = "<group>"; };
-		A5920F2D6C185C879A043256 /* Pods-reduxPersistDemo-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo-tvOS/Pods-reduxPersistDemo-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
-		A9E7AF7AD0D7E4495CE79903 /* Pods-reduxPersistDemo-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo-tvOS.release.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo-tvOS/Pods-reduxPersistDemo-tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		BB2B349084C4359EFE47BF56 /* Pods-reduxPersistDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemoTests.release.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemoTests/Pods-reduxPersistDemoTests.release.xcconfig"; sourceTree = "<group>"; };
-		C2F99252B51BC68F1EC67DF4 /* Pods-reduxPersistDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reduxPersistDemo.debug.xcconfig"; path = "Target Support Files/Pods-reduxPersistDemo/Pods-reduxPersistDemo.debug.xcconfig"; sourceTree = "<group>"; };
-		CFBE0F660FF90C00B9382D3B /* libPods-reduxPersistDemo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reduxPersistDemo-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC1AEE2A545ECF63A5E37AF5 /* libPods-reduxPersistDemoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reduxPersistDemoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = StellarUI/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = StellarUI/Info.plist; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = StellarUI/main.m; sourceTree = "<group>"; };
+		13B7B3B1D598FF27A02F2430 /* Pods-StellarUI-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-StellarUI-tvOSTests/Pods-StellarUI-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		2343C0A2EAB6F92C58493627 /* libPods-StellarUI-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-StellarUI-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B96DAFBDFE3D60D2B92FD59 /* libPods-StellarUI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-StellarUI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D02E47B1E0B4A5D006451C7 /* StellarUI-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "StellarUI-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D02E4901E0B4A5D006451C7 /* StellarUI-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "StellarUI-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		64E82C8608DB8C961FB3F30F /* Pods-StellarUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUITests.debug.xcconfig"; path = "Target Support Files/Pods-StellarUITests/Pods-StellarUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		9BD1B845515F063DD15909A6 /* Pods-StellarUI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI.release.xcconfig"; path = "Target Support Files/Pods-StellarUI/Pods-StellarUI.release.xcconfig"; sourceTree = "<group>"; };
+		A5920F2D6C185C879A043256 /* Pods-StellarUI-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-StellarUI-tvOS/Pods-StellarUI-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		A9E7AF7AD0D7E4495CE79903 /* Pods-StellarUI-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI-tvOS.release.xcconfig"; path = "Target Support Files/Pods-StellarUI-tvOS/Pods-StellarUI-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		BB2B349084C4359EFE47BF56 /* Pods-StellarUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUITests.release.xcconfig"; path = "Target Support Files/Pods-StellarUITests/Pods-StellarUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C2F99252B51BC68F1EC67DF4 /* Pods-StellarUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StellarUI.debug.xcconfig"; path = "Target Support Files/Pods-StellarUI/Pods-StellarUI.debug.xcconfig"; sourceTree = "<group>"; };
+		CFBE0F660FF90C00B9382D3B /* libPods-StellarUI-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-StellarUI-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC1AEE2A545ECF63A5E37AF5 /* libPods-StellarUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-StellarUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		680B492E2B8C4F18B2818CB8 /* AntDesign.ttf */ = {isa = PBXFileReference; name = "AntDesign.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
@@ -105,7 +106,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				419987A5117DC56A03E25E5F /* libPods-reduxPersistDemoTests.a in Frameworks */,
+				419987A5117DC56A03E25E5F /* libPods-StellarUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +114,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E5A71555917E39461BB0C3E6 /* libPods-reduxPersistDemo.a in Frameworks */,
+				E5A71555917E39461BB0C3E6 /* libPods-StellarUI.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3DF841A9A484FDD3821A79F /* libPods-reduxPersistDemo-tvOS.a in Frameworks */,
+				C3DF841A9A484FDD3821A79F /* libPods-StellarUI-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,20 +130,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B2E2BE8B11D11B6323534E9 /* libPods-reduxPersistDemo-tvOSTests.a in Frameworks */,
+				9B2E2BE8B11D11B6323534E9 /* libPods-StellarUI-tvOSTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00E356EF1AD99517003FC87E /* reduxPersistDemoTests */ = {
+		00E356EF1AD99517003FC87E /* StellarUITests */ = {
 			isa = PBXGroup;
 			children = (
-				00E356F21AD99517003FC87E /* reduxPersistDemoTests.m */,
+				00E356F21AD99517003FC87E /* StellarUITests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = reduxPersistDemoTests;
+			path = StellarUITests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -153,7 +154,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* reduxPersistDemo */ = {
+		13B07FAE1A68108700A75B9A /* StellarUI */ = {
 			isa = PBXGroup;
 			children = (
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -164,7 +165,7 @@
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = reduxPersistDemo;
+			name = StellarUI;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -172,10 +173,10 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				2B96DAFBDFE3D60D2B92FD59 /* libPods-reduxPersistDemo.a */,
-				CFBE0F660FF90C00B9382D3B /* libPods-reduxPersistDemo-tvOS.a */,
-				2343C0A2EAB6F92C58493627 /* libPods-reduxPersistDemo-tvOSTests.a */,
-				DC1AEE2A545ECF63A5E37AF5 /* libPods-reduxPersistDemoTests.a */,
+				2B96DAFBDFE3D60D2B92FD59 /* libPods-StellarUI.a */,
+				CFBE0F660FF90C00B9382D3B /* libPods-StellarUI-tvOS.a */,
+				2343C0A2EAB6F92C58493627 /* libPods-StellarUI-tvOSTests.a */,
+				DC1AEE2A545ECF63A5E37AF5 /* libPods-StellarUITests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -190,9 +191,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* reduxPersistDemo */,
+				13B07FAE1A68108700A75B9A /* StellarUI */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				00E356EF1AD99517003FC87E /* reduxPersistDemoTests */,
+				00E356EF1AD99517003FC87E /* StellarUITests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				A0909F261744A483F8BF2920 /* Pods */,
@@ -206,10 +207,10 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* reduxPersistDemo.app */,
-				00E356EE1AD99517003FC87E /* reduxPersistDemoTests.xctest */,
-				2D02E47B1E0B4A5D006451C7 /* reduxPersistDemo-tvOS.app */,
-				2D02E4901E0B4A5D006451C7 /* reduxPersistDemo-tvOSTests.xctest */,
+				13B07F961A680F5B00A75B9A /* StellarUI.app */,
+				00E356EE1AD99517003FC87E /* StellarUITests.xctest */,
+				2D02E47B1E0B4A5D006451C7 /* StellarUI-tvOS.app */,
+				2D02E4901E0B4A5D006451C7 /* StellarUI-tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -217,14 +218,14 @@
 		A0909F261744A483F8BF2920 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C2F99252B51BC68F1EC67DF4 /* Pods-reduxPersistDemo.debug.xcconfig */,
-				9BD1B845515F063DD15909A6 /* Pods-reduxPersistDemo.release.xcconfig */,
-				A5920F2D6C185C879A043256 /* Pods-reduxPersistDemo-tvOS.debug.xcconfig */,
-				A9E7AF7AD0D7E4495CE79903 /* Pods-reduxPersistDemo-tvOS.release.xcconfig */,
-				13B7B3B1D598FF27A02F2430 /* Pods-reduxPersistDemo-tvOSTests.debug.xcconfig */,
-				095F9893C206392BD7179B3E /* Pods-reduxPersistDemo-tvOSTests.release.xcconfig */,
-				64E82C8608DB8C961FB3F30F /* Pods-reduxPersistDemoTests.debug.xcconfig */,
-				BB2B349084C4359EFE47BF56 /* Pods-reduxPersistDemoTests.release.xcconfig */,
+				C2F99252B51BC68F1EC67DF4 /* Pods-StellarUI.debug.xcconfig */,
+				9BD1B845515F063DD15909A6 /* Pods-StellarUI.release.xcconfig */,
+				A5920F2D6C185C879A043256 /* Pods-StellarUI-tvOS.debug.xcconfig */,
+				A9E7AF7AD0D7E4495CE79903 /* Pods-StellarUI-tvOS.release.xcconfig */,
+				13B7B3B1D598FF27A02F2430 /* Pods-StellarUI-tvOSTests.debug.xcconfig */,
+				095F9893C206392BD7179B3E /* Pods-StellarUI-tvOSTests.release.xcconfig */,
+				64E82C8608DB8C961FB3F30F /* Pods-StellarUITests.debug.xcconfig */,
+				BB2B349084C4359EFE47BF56 /* Pods-StellarUITests.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -257,9 +258,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00E356ED1AD99517003FC87E /* reduxPersistDemoTests */ = {
+		00E356ED1AD99517003FC87E /* StellarUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "reduxPersistDemoTests" */;
+			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "StellarUITests" */;
 			buildPhases = (
 				A90CFD7CC887DD7A62BCFB3A /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
@@ -271,14 +272,14 @@
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
-			name = reduxPersistDemoTests;
-			productName = reduxPersistDemoTests;
-			productReference = 00E356EE1AD99517003FC87E /* reduxPersistDemoTests.xctest */;
+			name = StellarUITests;
+			productName = StellarUITests;
+			productReference = 00E356EE1AD99517003FC87E /* StellarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		13B07F861A680F5B00A75B9A /* reduxPersistDemo */ = {
+		13B07F861A680F5B00A75B9A /* StellarUI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "reduxPersistDemo" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "StellarUI" */;
 			buildPhases = (
 				38502D3B37F71D87DB176695 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
@@ -291,14 +292,14 @@
 			);
 			dependencies = (
 			);
-			name = reduxPersistDemo;
-			productName = reduxPersistDemo;
-			productReference = 13B07F961A680F5B00A75B9A /* reduxPersistDemo.app */;
+			name = StellarUI;
+			productName = StellarUI;
+			productReference = 13B07F961A680F5B00A75B9A /* StellarUI.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2D02E47A1E0B4A5D006451C7 /* reduxPersistDemo-tvOS */ = {
+		2D02E47A1E0B4A5D006451C7 /* StellarUI-tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "reduxPersistDemo-tvOS" */;
+			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "StellarUI-tvOS" */;
 			buildPhases = (
 				62E11303380BB9BC1725F29C /* [CP] Check Pods Manifest.lock */,
 				FD10A7F122414F3F0027D42C /* Start Packager */,
@@ -311,14 +312,14 @@
 			);
 			dependencies = (
 			);
-			name = "reduxPersistDemo-tvOS";
-			productName = "reduxPersistDemo-tvOS";
-			productReference = 2D02E47B1E0B4A5D006451C7 /* reduxPersistDemo-tvOS.app */;
+			name = "StellarUI-tvOS";
+			productName = "StellarUI-tvOS";
+			productReference = 2D02E47B1E0B4A5D006451C7 /* StellarUI-tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2D02E48F1E0B4A5D006451C7 /* reduxPersistDemo-tvOSTests */ = {
+		2D02E48F1E0B4A5D006451C7 /* StellarUI-tvOSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "reduxPersistDemo-tvOSTests" */;
+			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "StellarUI-tvOSTests" */;
 			buildPhases = (
 				6C03B2FD50915E354D555C5F /* [CP] Check Pods Manifest.lock */,
 				2D02E48C1E0B4A5D006451C7 /* Sources */,
@@ -330,9 +331,9 @@
 			dependencies = (
 				2D02E4921E0B4A5D006451C7 /* PBXTargetDependency */,
 			);
-			name = "reduxPersistDemo-tvOSTests";
-			productName = "reduxPersistDemo-tvOSTests";
-			productReference = 2D02E4901E0B4A5D006451C7 /* reduxPersistDemo-tvOSTests.xctest */;
+			name = "StellarUI-tvOSTests";
+			productName = "StellarUI-tvOSTests";
+			productReference = 2D02E4901E0B4A5D006451C7 /* StellarUI-tvOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -359,7 +360,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "reduxPersistDemo" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "StellarUI" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -372,10 +373,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* reduxPersistDemo */,
-				00E356ED1AD99517003FC87E /* reduxPersistDemoTests */,
-				2D02E47A1E0B4A5D006451C7 /* reduxPersistDemo-tvOS */,
-				2D02E48F1E0B4A5D006451C7 /* reduxPersistDemo-tvOSTests */,
+				13B07F861A680F5B00A75B9A /* StellarUI */,
+				00E356ED1AD99517003FC87E /* StellarUITests */,
+				2D02E47A1E0B4A5D006451C7 /* StellarUI-tvOS */,
+				2D02E48F1E0B4A5D006451C7 /* StellarUI-tvOSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -474,7 +475,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-reduxPersistDemo-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-StellarUI-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -496,7 +497,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-reduxPersistDemo-tvOS-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-StellarUI-tvOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -518,7 +519,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-reduxPersistDemo-tvOSTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-StellarUI-tvOSTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -540,7 +541,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-reduxPersistDemoTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-StellarUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -592,7 +593,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E356F31AD99517003FC87E /* reduxPersistDemoTests.m in Sources */,
+				00E356F31AD99517003FC87E /* StellarUITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,7 +619,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DCD954D1E0B4F2C00145EB5 /* reduxPersistDemoTests.m in Sources */,
+				2DCD954D1E0B4F2C00145EB5 /* StellarUITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,12 +628,12 @@
 /* Begin PBXTargetDependency section */
 		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* reduxPersistDemo */;
+			target = 13B07F861A680F5B00A75B9A /* StellarUI */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 		2D02E4921E0B4A5D006451C7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2D02E47A1E0B4A5D006451C7 /* reduxPersistDemo-tvOS */;
+			target = 2D02E47A1E0B4A5D006451C7 /* StellarUI-tvOS */;
 			targetProxy = 2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -644,7 +645,7 @@
 				13B07FB21A68108700A75B9A /* Base */,
 			);
 			name = LaunchScreen.xib;
-			path = reduxPersistDemo;
+			path = StellarUI;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -652,14 +653,14 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 64E82C8608DB8C961FB3F30F /* Pods-reduxPersistDemoTests.debug.xcconfig */;
+			baseConfigurationReference = 64E82C8608DB8C961FB3F30F /* Pods-StellarUITests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = reduxPersistDemoTests/Info.plist;
+				INFOPLIST_FILE = StellarUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -669,17 +670,17 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reduxPersistDemo.app/reduxPersistDemo";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StellarUI.app/StellarUI";
 			};
 			name = Debug;
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BB2B349084C4359EFE47BF56 /* Pods-reduxPersistDemoTests.release.xcconfig */;
+			baseConfigurationReference = BB2B349084C4359EFE47BF56 /* Pods-StellarUITests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = reduxPersistDemoTests/Info.plist;
+				INFOPLIST_FILE = StellarUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -689,18 +690,18 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reduxPersistDemo.app/reduxPersistDemo";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StellarUI.app/StellarUI";
 			};
 			name = Release;
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2F99252B51BC68F1EC67DF4 /* Pods-reduxPersistDemo.debug.xcconfig */;
+			baseConfigurationReference = C2F99252B51BC68F1EC67DF4 /* Pods-StellarUI.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
-				INFOPLIST_FILE = reduxPersistDemo/Info.plist;
+				INFOPLIST_FILE = StellarUI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -708,18 +709,18 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = reduxPersistDemo;
+				PRODUCT_NAME = StellarUI;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9BD1B845515F063DD15909A6 /* Pods-reduxPersistDemo.release.xcconfig */;
+			baseConfigurationReference = 9BD1B845515F063DD15909A6 /* Pods-StellarUI.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = reduxPersistDemo/Info.plist;
+				INFOPLIST_FILE = StellarUI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -727,14 +728,14 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = reduxPersistDemo;
+				PRODUCT_NAME = StellarUI;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
 		2D02E4971E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5920F2D6C185C879A043256 /* Pods-reduxPersistDemo-tvOS.debug.xcconfig */;
+			baseConfigurationReference = A5920F2D6C185C879A043256 /* Pods-StellarUI-tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -745,14 +746,14 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "reduxPersistDemo-tvOS/Info.plist";
+				INFOPLIST_FILE = "StellarUI-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.reduxPersistDemo-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.StellarUI-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -762,7 +763,7 @@
 		};
 		2D02E4981E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A9E7AF7AD0D7E4495CE79903 /* Pods-reduxPersistDemo-tvOS.release.xcconfig */;
+			baseConfigurationReference = A9E7AF7AD0D7E4495CE79903 /* Pods-StellarUI-tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -773,14 +774,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "reduxPersistDemo-tvOS/Info.plist";
+				INFOPLIST_FILE = "StellarUI-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.reduxPersistDemo-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.StellarUI-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -790,7 +791,7 @@
 		};
 		2D02E4991E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 13B7B3B1D598FF27A02F2430 /* Pods-reduxPersistDemo-tvOSTests.debug.xcconfig */;
+			baseConfigurationReference = 13B7B3B1D598FF27A02F2430 /* Pods-StellarUI-tvOSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -800,24 +801,24 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "reduxPersistDemo-tvOSTests/Info.plist";
+				INFOPLIST_FILE = "StellarUI-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.reduxPersistDemo-tvOSTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.StellarUI-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reduxPersistDemo-tvOS.app/reduxPersistDemo-tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StellarUI-tvOS.app/StellarUI-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
 			name = Debug;
 		};
 		2D02E49A1E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 095F9893C206392BD7179B3E /* Pods-reduxPersistDemo-tvOSTests.release.xcconfig */;
+			baseConfigurationReference = 095F9893C206392BD7179B3E /* Pods-StellarUI-tvOSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -827,17 +828,17 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "reduxPersistDemo-tvOSTests/Info.plist";
+				INFOPLIST_FILE = "StellarUI-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.reduxPersistDemo-tvOSTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.StellarUI-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reduxPersistDemo-tvOS.app/reduxPersistDemo-tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StellarUI-tvOS.app/StellarUI-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
 			name = Release;
@@ -944,7 +945,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "reduxPersistDemoTests" */ = {
+		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "StellarUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
@@ -953,7 +954,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "reduxPersistDemo" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "StellarUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -962,7 +963,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "reduxPersistDemo-tvOS" */ = {
+		2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "StellarUI-tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2D02E4971E0B4A5E006451C7 /* Debug */,
@@ -971,7 +972,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "reduxPersistDemo-tvOSTests" */ = {
+		2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "StellarUI-tvOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2D02E4991E0B4A5E006451C7 /* Debug */,
@@ -980,7 +981,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "reduxPersistDemo" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "StellarUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
