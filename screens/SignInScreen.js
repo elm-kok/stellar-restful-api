@@ -4,6 +4,16 @@ import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import {RSA} from 'react-native-rsa-native';
+import * as Keychain from 'react-native-keychain';
+
+const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
+const ACCESS_CONTROL_MAP = [
+  null,
+  Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+  Keychain.ACCESS_CONTROL.APPLICATION_PASSWORD,
+  Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
+];
+
 class SignInScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -75,6 +85,19 @@ class SignInScreen extends React.Component {
 
   _signInAsync = async () => {
     let keypair = await RSA.generate(); // set key size
+
+    await Keychain.setGenericPassword(this.state._id, this.state.passwd, {
+      accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+      securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
+      service: 'StellarKeypair',
+    });
+
+    await Keychain.setGenericPassword(this.state._id, keypair.private, {
+      accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+      securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
+      service: 'PrivateKey',
+    });
+    
     await this.props.reduxLogin(
       this.state._id,
       this.state.passwd,

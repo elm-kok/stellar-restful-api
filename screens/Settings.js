@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Text, View, StatusBar, Button} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import * as Keychain from 'react-native-keychain';
 
 class Settings extends React.Component {
   render() {
@@ -16,6 +17,7 @@ class Settings extends React.Component {
   }
   _signOutAsync = async () => {
     await AsyncStorage.clear();
+    await Keychain.resetGenericPassword();
     this.props.navigation.navigate('Auth');
   };
 }
