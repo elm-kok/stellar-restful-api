@@ -4,8 +4,9 @@ import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
-import {createHash, generateKeyPairSync} from 'crypto';
+import {createHash} from 'crypto';
 import {StellarSdk} from '../stellar';
+import {RSA} from 'react-native-rsa-native';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [
@@ -26,6 +27,9 @@ class SignInScreen extends React.Component {
       Name: '',
       Phone: '',
     };
+  }
+  componentWillUnmount() {
+    this.setState({});
   }
   static navigationOptions = {
     title: 'Please sign in',
@@ -98,25 +102,10 @@ class SignInScreen extends React.Component {
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
       service: 'StellarSecret',
     });
-    console.log('Aanana');
 
-    const {publicKey, privateKey} = generateKeyPairSync('rsa', {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem',
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-        cipher: 'aes-256-cbc',
-        passphrase: 'top secret',
-      },
-    });
-    console.log('Banana');
-    console.log(privateKey);
+    const RsaKeyPair = await RSA.generateKeys(2048);
 
-    await Keychain.setGenericPassword(this.state._id, privateKey, {
+    await Keychain.setGenericPassword(this.state._id, RsaKeyPair.private, {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
       service: 'ServerPrivateKey',
@@ -125,7 +114,7 @@ class SignInScreen extends React.Component {
     await this.props.reduxLogin(
       this.state._id,
       stellarKeyPair.publicKey(),
-      publicKey,
+      RsaKeyPair.public,
     );
     if (store.getState().authReducer.loggedIn) {
       this.props.navigation.navigate('App');
