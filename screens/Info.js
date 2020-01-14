@@ -6,7 +6,7 @@ import * as Keychain from 'react-native-keychain';
 class Info extends React.Component {
   async load() {
     try {
-      const credentials = await Keychain.getGenericPassword('PrivateKey');
+      const credentials = await Keychain.getGenericPassword('ServerPrivateKey');
       if (credentials) {
         console.log({...credentials, status: 'Credentials loaded!'});
       } else {

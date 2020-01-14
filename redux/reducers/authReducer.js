@@ -2,14 +2,12 @@
 const initialState = {
   loggedIn: false,
   _id: '',
-  passwd: '',
-  userToken: '',
-  pri: '',
-  pub: '',
+  serverPublicKey: '',
+  stellarPublicKey: '',
 };
 
 // Reducers (Modifies The State And Returns A New State)
-const authReducer = (state = initialState, action, userToken) => {
+const authReducer = (state = initialState, action) => {
   switch (action.type) {
     // Login
     case 'LOGIN': {
@@ -19,10 +17,8 @@ const authReducer = (state = initialState, action, userToken) => {
         // Redux Store
         loggedIn: true,
         _id: action._id,
-        passwd: action.passwd,
-        pri: action.pri,
-        pub: action.pub,
-        userToken: 'abc',
+        serverPublicKey: action.serverPublicKey,
+        stellarPublicKey: action.stellarPublicKey,
       };
     }
     // Default

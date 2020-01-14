@@ -3,8 +3,9 @@ import {View, Button, TextInput} from 'react-native';
 import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
-import {RSA} from 'react-native-rsa-native';
 import * as Keychain from 'react-native-keychain';
+import {createHash, generateKeyPairSync} from 'crypto';
+import {StellarSdk} from '../stellar';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [
@@ -84,32 +85,53 @@ class SignInScreen extends React.Component {
   }
 
   _signInAsync = async () => {
-    let keypair = await RSA.generate(); // set key size
+    const hashId = await createHash('sha256')
+      .update(this.state._id + this.state.passwd, 'utf-8')
+      .digest();
 
-    await Keychain.setGenericPassword(this.state._id, this.state.passwd, {
+    const arrByte = Uint8Array.from(hashId);
+
+    var stellarKeyPair = await StellarSdk.Keypair.fromRawEd25519Seed(arrByte);
+
+    await Keychain.setGenericPassword(this.state._id, stellarKeyPair.secret(), {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
-      service: 'StellarKeypair',
+      service: 'StellarSecret',
     });
+    console.log('Aanana');
 
-    await Keychain.setGenericPassword(this.state._id, keypair.private, {
+    const {publicKey, privateKey} = generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+        cipher: 'aes-256-cbc',
+        passphrase: 'top secret',
+      },
+    });
+    console.log('Banana');
+    console.log(privateKey);
+
+    await Keychain.setGenericPassword(this.state._id, privateKey, {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
-      service: 'PrivateKey',
+      service: 'ServerPrivateKey',
     });
-    
+
     await this.props.reduxLogin(
       this.state._id,
-      this.state.passwd,
-      keypair.private,
-      keypair.public,
+      stellarKeyPair.publicKey(),
+      publicKey,
     );
     if (store.getState().authReducer.loggedIn) {
       this.props.navigation.navigate('App');
     }
   };
   _signUpAsync = async () => {
-    //await AsyncStorage.setItem('userToken', 'abc');
     this.props.navigation.navigate('App');
   };
 
@@ -121,7 +143,6 @@ const mapStateToProps = state => {
   // Redux Store --> Component
   return {
     _id: state.authReducer._id,
-    passwd: state.authReducer.passwd,
   };
 };
 
@@ -130,8 +151,8 @@ const mapDispatchToProps = dispatch => {
   // Action
   return {
     // Login
-    reduxLogin: (_id, passwd, privateKey, publicKey) =>
-      dispatch(login(_id, passwd, privateKey, publicKey)),
+    reduxLogin: (_id, stellarPublicKey, serverPublicKey) =>
+      dispatch(login(_id, stellarPublicKey, serverPublicKey)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);
