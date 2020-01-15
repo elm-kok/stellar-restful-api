@@ -45,7 +45,7 @@ func (a *App) setRouters() {
 	// Routing for handling the Patients
 
 	a.Post("/Patient/Register", a.handleRequest(handler.Register))
-	//a.Post("/Patient/Login", a.handleRequest(handler.Login))
+	a.Post("/Patient/Login", a.handleRequest(handler.Login))
 }
 
 // Get wraps the router for GET method
