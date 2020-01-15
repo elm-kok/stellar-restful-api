@@ -10,5 +10,6 @@ func main() {
 
 	app := &app.App{}
 	app.Initialize(config)
+	println("Running at port: 3000")
 	app.Run(":3000")
 }
