@@ -5,7 +5,7 @@ import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {createHash} from 'crypto';
-import {StellarSdk} from '../stellar';
+import {StellarSdk, apiServer} from '../stellar';
 import {RSA} from 'react-native-rsa-native';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
@@ -24,7 +24,8 @@ class SignInScreen extends React.Component {
       passwd: '',
       passwd_com: '',
       SS: 0,
-      Name: '',
+      FName: '',
+      LName: '',
       Phone: '',
     };
   }
@@ -47,9 +48,17 @@ class SignInScreen extends React.Component {
         {this.state.SS ? (
           <TextInput
             style={{height: 40}}
-            placeholder="Name"
-            onChangeText={Name => this.setState({Name: Name})}
-            value={this.state.Name}
+            placeholder="FName"
+            onChangeText={FName => this.setState({FName: FName})}
+            value={this.state.FName}
+          />
+        ) : null}
+        {this.state.SS ? (
+          <TextInput
+            style={{height: 40}}
+            placeholder="LName"
+            onChangeText={LName => this.setState({LName: LName})}
+            value={this.state.LName}
           />
         ) : null}
         {this.state.SS ? (
@@ -80,31 +89,31 @@ class SignInScreen extends React.Component {
           <Button title="Sign in" onPress={this._signInAsync} />
         )}
         {this.state.SS ? (
-          <Button title="Sign up" onPress={this._signInAsync} />
+          <Button title="Sign up" onPress={this._signUpAsync} />
         ) : (
           <Button title="Sign up!" onPress={this._sel_SS} />
         )}
       </View>
     );
   }
-
-  _signInAsync = async () => {
+  _setUpAsync = async () => {
     const hashId = await createHash('sha256')
       .update(this.state._id + this.state.passwd, 'utf-8')
       .digest();
-
     const arrByte = Uint8Array.from(hashId);
-
     var stellarKeyPair = await StellarSdk.Keypair.fromRawEd25519Seed(arrByte);
+    const RsaKeyPair = await RSA.generateKeys(2048);
 
+    return {stellarKeyPair: stellarKeyPair, RsaKeyPair: RsaKeyPair};
+  };
+
+  _signInAsync = async () => {
+    const {stellarKeyPair, RsaKeyPair} = await this._setUpAsync();
     await Keychain.setGenericPassword(this.state._id, stellarKeyPair.secret(), {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
       service: 'StellarSecret',
     });
-
-    const RsaKeyPair = await RSA.generateKeys(2048);
-
     await Keychain.setGenericPassword(this.state._id, RsaKeyPair.private, {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
@@ -120,8 +129,44 @@ class SignInScreen extends React.Component {
       this.props.navigation.navigate('App');
     }
   };
+
   _signUpAsync = async () => {
-    this.props.navigation.navigate('App');
+    const {stellarKeyPair, RsaKeyPair} = await this._setUpAsync();
+    const request = new Request(apiServer + '/Patient/Register', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        StellarPub: stellarKeyPair.publicKey(),
+        ServerPub: RsaKeyPair.public,
+        FName: this.state.FName,
+        LName: this.state.LName,
+        Phone: this.state.Phone,
+      }),
+    });
+    await fetch(request)
+      .then(response => {
+        if (response.status === 201) {
+          return response.json();
+        } else {
+          console.log(response.status, 'Account already exist.');
+        }
+      })
+      .then(response => {
+        RSA.decrypt(response, RsaKeyPair.private).then(decryptedMessage => {
+          Keychain.setGenericPassword(this.state._id, decryptedMessage, {
+            accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+            securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
+            service: 'SecretKey',
+          });
+        });
+      })
+      .catch(error => {
+        console.log(error, 'Account already fund.');
+      });
+    this.setState({SS: 0});
   };
 
   _sel_SS = async () => {
