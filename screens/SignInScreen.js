@@ -5,7 +5,7 @@ import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {createHash} from 'crypto';
-import {StellarSdk, apiServer} from '../stellar';
+import {StellarSdk, apiServer, server} from '../stellar';
 import {RSA} from 'react-native-rsa-native';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
@@ -109,6 +109,40 @@ class SignInScreen extends React.Component {
 
   _signInAsync = async () => {
     const {stellarKeyPair, RsaKeyPair} = await this._setUpAsync();
+    const signature = stellarKeyPair.sign(RsaKeyPair.public).toString('base64');
+    const request = new Request(apiServer + '/Patient/Login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        StellarPub: stellarKeyPair.publicKey(),
+        ServerPub: RsaKeyPair.public,
+        Signature: signature,
+      }),
+    });
+
+    await fetch(request)
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          console.log(response.status, 'Account not exist.');
+        }
+      })
+      .then(response => {
+        RSA.decrypt(response, RsaKeyPair.private).then(decryptedMessage => {
+          Keychain.setGenericPassword(this.state._id, decryptedMessage, {
+            accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+            securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
+            service: 'SecretKey',
+          });
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
     await Keychain.setGenericPassword(this.state._id, stellarKeyPair.secret(), {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
