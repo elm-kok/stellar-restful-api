@@ -2,6 +2,9 @@
 const initialState = {
   loggedIn: false,
   _id: '',
+  FName: '',
+  LName: '',
+  Phone: '',
   serverPublicKey: '',
   stellarPublicKey: '',
 };
@@ -17,6 +20,9 @@ const authReducer = (state = initialState, action) => {
         // Redux Store
         loggedIn: true,
         _id: action._id,
+        FName: action.FName,
+        LName: action.LName,
+        Phone: action.Phone,
         serverPublicKey: action.serverPublicKey,
         stellarPublicKey: action.stellarPublicKey,
       };

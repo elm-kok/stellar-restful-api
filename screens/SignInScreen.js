@@ -7,6 +7,7 @@ import * as Keychain from 'react-native-keychain';
 import {createHash} from 'crypto';
 import {StellarSdk, apiServer, server} from '../stellar';
 import {RSA} from 'react-native-rsa-native';
+import { stat } from 'fs';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [
@@ -139,6 +140,14 @@ class SignInScreen extends React.Component {
             service: 'SecretKey',
           });
         });
+        await this.props.reduxLogin(
+          this.state._id,
+          response.fName,
+          response.lName,
+          response.phone,
+          RsaKeyPair.public,
+          stellarKeyPair.publicKey(),
+        );
       })
       .catch(error => {
         console.log(error);
@@ -153,12 +162,6 @@ class SignInScreen extends React.Component {
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
       service: 'ServerPrivateKey',
     });
-
-    await this.props.reduxLogin(
-      this.state._id,
-      stellarKeyPair.publicKey(),
-      RsaKeyPair.public,
-    );
     if (store.getState().authReducer.loggedIn) {
       this.props.navigation.navigate('App');
     }
@@ -166,6 +169,7 @@ class SignInScreen extends React.Component {
 
   _signUpAsync = async () => {
     const {stellarKeyPair, RsaKeyPair} = await this._setUpAsync();
+    const signature = stellarKeyPair.sign(RsaKeyPair.public).toString('base64');
     const request = new Request(apiServer + '/Patient/Register', {
       method: 'POST',
       headers: {
@@ -178,6 +182,7 @@ class SignInScreen extends React.Component {
         FName: this.state.FName,
         LName: this.state.LName,
         Phone: this.state.Phone,
+        Signature: signature,
       }),
     });
     await fetch(request)
@@ -211,6 +216,9 @@ const mapStateToProps = state => {
   // Redux Store --> Component
   return {
     _id: state.authReducer._id,
+    FName:state.authReducer.fName,
+    LName:state.authReducer.lName,
+    Phone:state.authReducer.phone
   };
 };
 
@@ -219,8 +227,10 @@ const mapDispatchToProps = dispatch => {
   // Action
   return {
     // Login
-    reduxLogin: (_id, stellarPublicKey, serverPublicKey) =>
-      dispatch(login(_id, stellarPublicKey, serverPublicKey)),
+    reduxLogin: (_id, fName, lName, phone, serverPublicKey, stellarPublicKey) =>
+      dispatch(
+        login(_id, fName, lName, phone, serverPublicKey, stellarPublicKey),
+      ),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);
