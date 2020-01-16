@@ -14,9 +14,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/elm-kok/stellar-restful-api/app/model"
 	"github.com/stellar/go/keypair"
 
-	"github.com/elm-kok/stellar-restful-api/app/model"
 	"github.com/jinzhu/gorm"
 	"github.com/stellar/go/clients/horizonclient"
 )
@@ -30,14 +30,23 @@ type Patient struct {
 	LName      string
 	Phone      string
 }
-type PatientPayload struct {
+type PatientReg struct {
+	StellarPub string
+	ServerPub  string
+	FName      string
+	LName      string
+	Phone      string
+	Signature  string
+}
+type PatientLogin struct {
 	StellarPub string
 	ServerPub  string
 	Signature  string
 }
 
 var patient Patient
-var patientPayload PatientPayload
+var patientLogin PatientLogin
+var patientReg PatientReg
 
 func encrypt(dataString string, passphrase []byte) []byte {
 	data := []byte(dataString)
@@ -102,22 +111,39 @@ func BytesToPublicKey(pub []byte) *rsa.PublicKey {
 }
 func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	log.Println("REG.")
-	Patient := model.Patient{}
+
+	//Patient := model.Patient{}
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&Patient); err != nil {
+	if err := decoder.Decode(&patientReg); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
 
-	if err := db.Table("patients").Where("stellar_pub = ?", Patient.StellarPub).First(&patient).Error; err == nil {
+	kp := keypair.MustParse(patientReg.StellarPub)
+	sig, _ := base64.StdEncoding.DecodeString(patientReg.Signature)
+	err := kp.Verify([]byte(patientReg.ServerPub), sig)
+	if err != nil {
+		log.Println(err)
+		respondError(w, http.StatusUnauthorized, err.Error())
+	}
+
+	if err := db.Table("patients").Where("stellar_pub = ?", patientReg.StellarPub).First(&patient).Error; err == nil {
 		respondError(w, http.StatusNotAcceptable, "ID already exists.")
 		return
 	}
+
 	client := horizonclient.DefaultTestNetClient
-	_, err := client.Fund(Patient.StellarPub)
+	accountRequest := horizonclient.AccountRequest{AccountID: patientReg.StellarPub}
+	_, err = client.AccountDetail(accountRequest)
+	if err == nil {
+		log.Panic("Account exists on Stellar.", err)
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	_, err = client.Fund(patientReg.StellarPub)
 	if err != nil {
-		log.Panic("Account already exists or has been fund.")
+		log.Panic("Account already has been fund.")
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
@@ -126,9 +152,15 @@ func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	rand.Read(token)
 	secretKey := sha256.Sum256(token)
 
+	Patient := model.Patient{}
+	Patient.FName = patientReg.FName
+	Patient.LName = patientReg.LName
+	Patient.Phone = patientReg.Phone
+	Patient.ServerPub = patientReg.ServerPub
+	Patient.StellarPub = patientReg.StellarPub
 	Patient.Secret1 = secretKey[:32]
 
-	seretEncrypt := EncryptWithPublicKey(Patient.Secret1, BytesToPublicKey([]byte(Patient.ServerPub)))
+	seretEncrypt := EncryptWithPublicKey(Patient.Secret1, BytesToPublicKey([]byte(patientReg.ServerPub)))
 
 	sEnc := base64.StdEncoding.EncodeToString(seretEncrypt)
 
@@ -142,20 +174,22 @@ func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	log.Println("Login.")
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&patientPayload); err != nil {
+	if err := decoder.Decode(&patientLogin); err != nil {
 		log.Println("Incorrect format request.")
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
-	kp := keypair.MustParse(patientPayload.StellarPub)
-	sig, _ := base64.StdEncoding.DecodeString(patientPayload.Signature)
-	err := kp.Verify([]byte(patientPayload.ServerPub), sig)
+
+	kp := keypair.MustParse(patientLogin.StellarPub)
+	sig, _ := base64.StdEncoding.DecodeString(patientLogin.Signature)
+	err := kp.Verify([]byte(patientLogin.ServerPub), sig)
 	if err != nil {
 		log.Println(err)
+		respondError(w, http.StatusUnauthorized, err.Error())
 	}
 	client := horizonclient.DefaultTestNetClient
-	accountRequest := horizonclient.AccountRequest{AccountID: patientPayload.StellarPub}
+	accountRequest := horizonclient.AccountRequest{AccountID: patientLogin.StellarPub}
 	_, err = client.AccountDetail(accountRequest)
 	if err != nil {
 		log.Panic("Account not exists on Stellar.", err)
@@ -163,12 +197,18 @@ func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.Table("patients").Where("stellar_pub = ?", patientPayload.StellarPub).First(&patient).Error; err != nil {
+	if err := db.Table("patients").Where("stellar_pub = ?", patientLogin.StellarPub).First(&patient).Error; err != nil {
 		log.Panic("Account not exists on Server.", err)
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	seretEncrypt := EncryptWithPublicKey(patient.Secret1, BytesToPublicKey([]byte(patientPayload.ServerPub)))
+	seretEncrypt := EncryptWithPublicKey(patient.Secret1, BytesToPublicKey([]byte(patientLogin.ServerPub)))
 	sEnc := base64.StdEncoding.EncodeToString(seretEncrypt)
-	respondJSON(w, http.StatusOK, sEnc)
+	patientReturn := json.Marshal{
+		"FName":  patient.FName,
+		"LName":  patient.LName,
+		"Phone":  patient.Phone,
+		"Secret": sEnc,
+	}
+	respondJSON(w, http.StatusOK, patientReturn)
 }
