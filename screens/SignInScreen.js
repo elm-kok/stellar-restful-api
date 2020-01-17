@@ -7,7 +7,6 @@ import * as Keychain from 'react-native-keychain';
 import {createHash} from 'crypto';
 import {StellarSdk, apiServer, server} from '../stellar';
 import {RSA} from 'react-native-rsa-native';
-import { stat } from 'fs';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [
@@ -30,9 +29,11 @@ class SignInScreen extends React.Component {
       Phone: '',
     };
   }
+
   componentWillUnmount() {
     this.setState({});
   }
+
   static navigationOptions = {
     title: 'Please sign in',
   };
@@ -133,18 +134,20 @@ class SignInScreen extends React.Component {
         }
       })
       .then(response => {
-        RSA.decrypt(response, RsaKeyPair.private).then(decryptedMessage => {
-          Keychain.setGenericPassword(this.state._id, decryptedMessage, {
-            accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
-            securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
-            service: 'SecretKey',
-          });
-        });
-        await this.props.reduxLogin(
+        RSA.decrypt(response.Secret, RsaKeyPair.private).then(
+          decryptedMessage => {
+            Keychain.setGenericPassword(this.state._id, decryptedMessage, {
+              accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+              securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
+              service: 'SecretKey',
+            });
+          },
+        );
+        this.props.reduxLogin(
           this.state._id,
-          response.fName,
-          response.lName,
-          response.phone,
+          response.FName,
+          response.LName,
+          response.Phone,
           RsaKeyPair.public,
           stellarKeyPair.publicKey(),
         );
@@ -216,9 +219,9 @@ const mapStateToProps = state => {
   // Redux Store --> Component
   return {
     _id: state.authReducer._id,
-    FName:state.authReducer.fName,
-    LName:state.authReducer.lName,
-    Phone:state.authReducer.phone
+    FName: state.authReducer.fName,
+    LName: state.authReducer.lName,
+    Phone: state.authReducer.phone,
   };
 };
 

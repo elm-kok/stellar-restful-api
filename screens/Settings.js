@@ -1,9 +1,13 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Text, View, StatusBar, Button} from 'react-native';
+import {persistor, store} from '../redux/store/store';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Keychain from 'react-native-keychain';
 
 class Settings extends React.Component {
+  componentWillUnmount() {
+    this.setState({});
+  }
   render() {
     return (
       <View>
@@ -17,8 +21,12 @@ class Settings extends React.Component {
   }
   _signOutAsync = async () => {
     await AsyncStorage.clear();
+    await persistor.purge();
+    await persistor.flush();
     await Keychain.resetGenericPassword();
+    console.log(store.getState());
     this.props.navigation.navigate('Auth');
   };
 }
+
 export default Settings;

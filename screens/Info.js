@@ -23,9 +23,12 @@ class Info extends React.Component {
           ID: {store.getState().authReducer._id}
         </Text>
         <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          Password: {store.getState().authReducer.passwd}
+          Password: {store.getState().authReducer.LName}
         </Text>
-        <Button title="Load Cre" onPress={this.load} />
+        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
+          Phone: {store.getState().authReducer.Phone}
+        </Text>
+        <Button title="Load Credential." onPress={this.load} />
       </View>
     );
   }
