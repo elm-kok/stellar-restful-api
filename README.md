@@ -1,4 +1,4 @@
-# Redux Persist (6.x) Demo
+# Senior Project: Stellar UI
 *  [Built With](#built-with)
 *  [Pending Items](#pending-items)
 *  [Color Scheme](#color-scheme)
@@ -31,13 +31,13 @@
 npm install
 ```
 
-**2. Install Cocoapods:**
+**2. apply config:**
 ```
-cd ios
-pod install
+yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
 
 **3. Start iOS Simulator:**
 ```
-react-native run-ios
+react-native run-android
+react-native run-android
 ```
