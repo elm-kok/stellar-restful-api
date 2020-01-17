@@ -43,10 +43,17 @@ type PatientLogin struct {
 	ServerPub  string
 	Signature  string
 }
+type PatientReturn struct {
+	FName  string
+	LName  string
+	Phone  string
+	Secret string
+}
 
 var patient Patient
 var patientLogin PatientLogin
 var patientReg PatientReg
+var patientReturn PatientReturn
 
 func encrypt(dataString string, passphrase []byte) []byte {
 	data := []byte(dataString)
@@ -204,11 +211,11 @@ func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	seretEncrypt := EncryptWithPublicKey(patient.Secret1, BytesToPublicKey([]byte(patientLogin.ServerPub)))
 	sEnc := base64.StdEncoding.EncodeToString(seretEncrypt)
-	patientReturn := json.Marshal{
-		"FName":  patient.FName,
-		"LName":  patient.LName,
-		"Phone":  patient.Phone,
-		"Secret": sEnc,
-	}
+
+	patientReturn.FName = patient.FName
+	patientReturn.LName = patient.LName
+	patientReturn.Phone = patient.Phone
+	patientReturn.Secret = sEnc
+
 	respondJSON(w, http.StatusOK, patientReturn)
 }
