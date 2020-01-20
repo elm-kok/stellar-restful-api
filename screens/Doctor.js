@@ -1,6 +1,9 @@
 import React from 'react';
 import {Text, View, TouchableOpacity, StyleSheet, Button} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
+import {submit} from '../stellar';
+import {store} from '../redux/store/store';
+import * as Keychain from 'react-native-keychain';
 
 class Doctor extends React.Component {
   constructor(props) {
@@ -13,10 +16,27 @@ class Doctor extends React.Component {
   onSuccess = e => {
     this.setState({QRString: e.data, isQR: false});
   };
-  onQR () {
+  onQR = () => {
     this.setState({isQR: true});
   };
-
+  onSubmit = async () => {
+    console.log('Start');
+    try {
+      const credentials = await Keychain.getGenericPassword('StellarSecret');
+      if (credentials) {
+        console.log({...credentials, status: 'Credentials loaded!'});
+      } else {
+        console.log({status: 'No credentials stored.'});
+      }
+      submit(
+        store.getState().authReducer.stellarPublicKey,
+        credentials.password,
+        this.state.QRString,
+      );
+    } catch (err) {
+      console.log({status: 'Could not load credentials. ' + err});
+    }
+  };
   render() {
     return (
       <View>
@@ -39,7 +59,10 @@ class Doctor extends React.Component {
             }
           />
         ) : (
-          <Button title="Scan QRCode" onPress={this.onQR} />
+          <>
+            <Button title="Scan QRCode" onPress={this.onQR} />
+            <Button title="Submit" onPress={this.onSubmit} />
+          </>
         )}
       </View>
     );

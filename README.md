@@ -36,7 +36,7 @@ npm install
 yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
 
-**3. Start iOS Simulator:**
+**3. Start Android Simulator:**
 ```
 react-native run-android
 react-native run-android

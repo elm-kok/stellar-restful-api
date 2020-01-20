@@ -4,8 +4,8 @@ export const login = (
   fName,
   lName,
   phone,
-  stellarPublicKey,
   serverPublicKey,
+  stellarPublicKey,
 ) => ({
   type: 'LOGIN',
   _id: _id,
