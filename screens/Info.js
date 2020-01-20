@@ -23,7 +23,10 @@ class Info extends React.Component {
           ID: {store.getState().authReducer._id}
         </Text>
         <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          Password: {store.getState().authReducer.LName}
+          FName: {store.getState().authReducer.FName}
+        </Text>
+        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
+          LName: {store.getState().authReducer.LName}
         </Text>
         <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
           Phone: {store.getState().authReducer.Phone}
