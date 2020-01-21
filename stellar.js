@@ -3,8 +3,6 @@ import {createCipher, createDecipher} from 'crypto';
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 var apiServer = 'http://10.202.131.127:3000';
 
-const IV_LENGTH = 16; // For AES, this is always 16
-
 function encrypt(text, ENCRYPTION_KEY) {
   let cipher = createCipher('aes-256-cbc', Buffer.from(ENCRYPTION_KEY));
   let encrypted = cipher.update(text);
@@ -46,7 +44,7 @@ export async function submit(publicKey, secretString, data, secretKey) {
   const key = hashToInt32(data + secretKey.toString());
   const strEncrypt = encrypt(data, secretKey);
   const content = chunkString(strEncrypt, 31);
-  console.log('Con: ',content);
+  console.log('Con: ', content);
   const account = await server.loadAccount(publicKey);
   const fee = await server.fetchBaseFee();
   var i;

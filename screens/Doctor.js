@@ -11,6 +11,7 @@ class Doctor extends React.Component {
     this.state = {
       isQR: false,
       QRString: 'initial state QRString.',
+      result: '',
     };
   }
   onSuccess = e => {
@@ -62,7 +63,8 @@ class Doctor extends React.Component {
         store.getState().authReducer.stellarPublicKey,
         credentialsSecretKey.password,
       );
-      console.log('INFO: ',info);
+      console.log('INFO: ', info);
+      this.setState({result: info});
     } catch (err) {
       console.log({status: 'Could not load credentials. ' + err});
     }
@@ -95,6 +97,7 @@ class Doctor extends React.Component {
             <Button title="getInfo" onPress={this.onInfo} />
           </>
         )}
+        <Text >{this.state.result}</Text>
       </View>
     );
   }
