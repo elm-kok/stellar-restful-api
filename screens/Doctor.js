@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, View, TouchableOpacity, StyleSheet, Button} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import {submit} from '../stellar';
+import {submit, getInfo} from '../stellar';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 
@@ -20,19 +20,49 @@ class Doctor extends React.Component {
     this.setState({isQR: true});
   };
   onSubmit = async () => {
-    console.log('Start');
     try {
-      const credentials = await Keychain.getGenericPassword('StellarSecret');
-      if (credentials) {
-        console.log({...credentials, status: 'Credentials loaded!'});
+      const credentialsStellarSecret = await Keychain.getGenericPassword(
+        'StellarSecret',
+      );
+      const credentialsSecretKey = await Keychain.getGenericPassword(
+        'SecretKey',
+      );
+      if (credentialsStellarSecret && credentialsSecretKey) {
+        console.log({
+          ...credentialsStellarSecret,
+          status: 'Credentials loaded!',
+        });
       } else {
-        console.log({status: 'No credentials stored.'});
+        console.log({status: 'No credentials stored. StellarSecret'});
       }
       submit(
         store.getState().authReducer.stellarPublicKey,
-        credentials.password,
+        credentialsStellarSecret.password,
         this.state.QRString,
+        credentialsSecretKey.password,
       );
+    } catch (err) {
+      console.log({status: 'Could not load credentials. ' + err});
+    }
+  };
+  onInfo = async () => {
+    try {
+      const credentialsSecretKey = await Keychain.getGenericPassword(
+        'SecretKey',
+      );
+      if (credentialsSecretKey) {
+        console.log({
+          ...credentialsSecretKey,
+          status: 'Credentials loaded!',
+        });
+      } else {
+        console.log({status: 'No credentials stored.'});
+      }
+      const info = await getInfo(
+        store.getState().authReducer.stellarPublicKey,
+        credentialsSecretKey.password,
+      );
+      console.log('INFO: ',info);
     } catch (err) {
       console.log({status: 'Could not load credentials. ' + err});
     }
@@ -62,6 +92,7 @@ class Doctor extends React.Component {
           <>
             <Button title="Scan QRCode" onPress={this.onQR} />
             <Button title="Submit" onPress={this.onSubmit} />
+            <Button title="getInfo" onPress={this.onInfo} />
           </>
         )}
       </View>
