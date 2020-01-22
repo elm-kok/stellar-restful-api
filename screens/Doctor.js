@@ -95,10 +95,10 @@ class Doctor extends React.Component {
             <Button title="Scan QRCode" onPress={this.onQR} />
             <Button title="Submit" onPress={this.onSubmit} />
             <Button title="getInfo" onPress={this.onInfo} />
+            <DoctorDetail />
           </>
         )}
         <Text>{this.state.result}</Text>
-        <DoctorDetail />
       </View>
     );
   }

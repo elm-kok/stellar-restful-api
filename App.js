@@ -23,7 +23,7 @@ const AppTab = createMaterialBottomTabNavigator(
   {
     initialRouteName: 'Information',
     activeColor: '#f0edf6',
-    inactiveColor: '#3e2465',
+    inactiveColor: '#1e1411',
     barStyle: {backgroundColor: '#694fad'},
   },
 );
