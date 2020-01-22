@@ -4,7 +4,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {submit, getInfo} from '../stellar';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
-
+import DoctorDetail from '../screens/DoctorDetail';
 class Doctor extends React.Component {
   constructor(props) {
     super(props);
@@ -97,7 +97,8 @@ class Doctor extends React.Component {
             <Button title="getInfo" onPress={this.onInfo} />
           </>
         )}
-        <Text >{this.state.result}</Text>
+        <Text>{this.state.result}</Text>
+        <DoctorDetail />
       </View>
     );
   }
