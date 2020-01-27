@@ -10,7 +10,7 @@ import (
 	"github.com/elm-kok/stellar-restful-api/config"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // App has router and db instances
@@ -22,16 +22,23 @@ type App struct {
 // Initialize initializes the app with predefined configuration
 func (a *App) Initialize(config *config.Config) {
 	//dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True",
-	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True",
-		config.DB.Username,
-		config.DB.Password,
-		config.DB.Host,
-		config.DB.Port,
-		config.DB.Name,
-		config.DB.Charset)
-	db, err := gorm.Open(config.DB.Dialect, dbURI)
+	/*
+		dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True",
+			config.DB.Username,
+			config.DB.Password,
+			config.DB.Host,
+			config.DB.Port,
+			config.DB.Name,
+			config.DB.Charset)
+		db, err := gorm.Open(config.DB.Dialect, dbURI)
+	*/
+	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", config.DB.Host, config.DB.Username, config.DB.Name, config.DB.Password) //Build connection string
+	fmt.Println(dbURI)
+
+	db, err := gorm.Open("postgres", dbURI)
+
 	if err != nil {
-		println(config.DB.Dialect, dbURI)
+		println(config.DB.Dialect, err)
 		log.Fatal("Could not connect database")
 	}
 
