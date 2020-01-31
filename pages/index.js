@@ -1,21 +1,33 @@
-import Layout from "../components/Layout";
-import Link from "next/link";
-const PostLink = props => (
-  <li>
-    <Link as={`/p/${props.id}`} href={`/post?title=${props.title}`}>
-      <a>{props.title}</a>
-    </Link>
-  </li>
-);
-const Index = () => (
-  <Layout>
-    <h1>My blog</h1>
-    <ul>
-      <PostLink id="hello-nextjs" title="Hello Next.js" />
-      <PostLink id="learn-nextjs" title="Learn Next.js Magic !" />
-      <PostLink id="build-nextjs" title="Build" />
-      <PostLink id="deploy-nextjs" title="Deploy With Zeit" />
-    </ul>
-  </Layout>
-);
-export default Index;
+import React, { Component, View } from "react";
+import dynamic from "next/dynamic";
+const QrReader = dynamic(() => import("react-qr-reader"), {
+  ssr: false
+});
+export default class QR extends Component {
+  state = {
+    result: "No result"
+  };
+
+  handleScan = data => {
+    if (data) {
+      this.setState({
+        result: data
+      });
+    }
+  };
+  handleError = err => {
+    console.error(err);
+  };
+  render() {
+    return (
+      <>
+        <QrReader
+          onError={this.handleError}
+          onScan={this.handleScan}
+          style={{ width: "20%" }}
+        />
+        <p>{this.state.result}</p>
+      </>
+    );
+  }
+}
