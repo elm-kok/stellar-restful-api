@@ -4,7 +4,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const bodyParser = require("body-parser");
-const routes = require("./components/routes");
+const router = require("./routes/routes");
 
 app
   .prepare()
@@ -12,13 +12,7 @@ app
     const server = express();
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: false }));
-
-    server.use("/api", routes);
-    server.get("/p/:id", (req, res) => {
-      const actualPage = "/post";
-      const queryParams = { title: req.params.id };
-      app.render(req, res, actualPage, queryParams);
-    });
+    server.use("/api", router);
     server.get("*", (req, res) => {
       return handle(req, res);
     });

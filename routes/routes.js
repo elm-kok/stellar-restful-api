@@ -2,6 +2,7 @@ const express = require("express");
 const mysql = require("mysql");
 const router = express.Router();
 const dotenv = require("dotenv").config();
+const cors = require("cors");
 
 const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
@@ -10,6 +11,11 @@ const connection = mysql.createConnection({
   password: process.env.DATABASE_PASSWORD,
   port: 3306
 });
+
+var corsOptions = {
+  origin: "http://localhost:3001",
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 console.log("Connecting...");
 connection.connect(function(err) {
@@ -364,6 +370,15 @@ router.post("/SERVICE/", function(req, res, next) {
   });
 });
 
+router.post("/secret/", cors(corsOptions), function(req, res, next) {
+  var sql = "INSERT INTO STELLARKEY (CID, HOSPCODE, SPK, SecretKey) VALUES ?";
+  var values = [
+    [req.body.cid, req.body.HOSPCODE, req.body.spk, req.body.secretkey]
+  ];
+  connection.query(sql, [values], function(err, result) {
+    if (err) console.log(err);
+  });
+});
 module.exports = router;
 
 // ACCIDENT D

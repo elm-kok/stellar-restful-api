@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { Typography, Button, Grid } from "@material-ui/core";
 import QRCode from "qrcode.react";
 import dynamic from "next/dynamic";
+import { PublicKey, SecretKey, HOSPCODE } from "../stellar";
 
+const StellarSdk = require("stellar-sdk");
 const QrReader = dynamic(() => import("react-qr-reader"), {
   ssr: false
 });
@@ -11,19 +13,45 @@ export default class QR extends Component {
   state = {
     result: "",
     camera: true,
-    msg: ""
+    msg: "",
+    QR: {}
   };
   _clear = () => {
-    this.setState({ result: "", camera: true, msg: "" });
+    this.setState({ result: "", camera: true, msg: "", QR: {} });
   };
   handleScan = data => {
     if (data) {
       const dataJson = JSON.parse(data);
       if (dataJson.Type == "Patient") {
+        const KP = StellarSdk.Keypair.fromSecret(SecretKey);
         this.setState({
-          result: dataJson
+          result: dataJson,
+          QR: JSON.stringify({
+            Type: "Hospital",
+            HospitalName: "Chulalongkorn Hospital",
+            EndPoint: "chulalongkornhospital.go.th/patientID_",
+            SPK: PublicKey,
+            Signature: KP.sign(
+              Buffer.from(dataJson.ID + dataJson.SPK)
+            ).toString("base64")
+          }),
+          camera: false,
+          msg: ""
         });
-        this.setState({ camera: false });
+        //ins(dataJson.ID, dataJson.SPK, dataJson.SecretKey);
+        fetch("http://localhost:3001/api/secret", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            cid: dataJson.ID,
+            HOSPCODE: HOSPCODE,
+            spk: dataJson.SPK,
+            secretkey: dataJson.SecretKey
+          })
+        });
       } else {
         this.setState({
           msg: "Wrong QRCode."
@@ -54,7 +82,7 @@ export default class QR extends Component {
         ) : (
           <Grid container spacing={5} style={{ padding: 50 }}>
             <Grid item xs={6}>
-              <QRCode size="256" value={this.state.result.Name} />
+              <QRCode size="256" value={this.state.QR} />
             </Grid>
             <Grid item xs={6}>
               <Grid item xs={12}>
