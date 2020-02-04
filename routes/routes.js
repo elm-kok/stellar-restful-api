@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const router = express.Router();
 const dotenv = require("dotenv").config();
 const cors = require("cors");
+const { getInfo, verifySignature } = require("../stellar");
 
 const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
@@ -23,6 +24,37 @@ connection.connect(function(err) {
   console.log("Connected!");
 });
 console.log(connection.config);
+
+async function verify(doc_spk, signature, _id, callback) {
+  const querycmd =
+    "SELECT * FROM STELLARKEY WHERE STELLARKEY.CID = " + _id + ";";
+  connection.query(querycmd, async function(error, results) {
+    if (error) {
+      return callback(new Error("An error occured during query " + error));
+    }
+    if (!verifySignature(doc_spk, signature, _id)) {
+      console.log("Signature fail for DOCTOR SPK: " + doc_spk);
+      return callback(false);
+    }
+    console.log(results[0]);
+    const Info = await getInfo(results[0].SPK, results[0].SecretKey);
+    console.log(Info);
+    for (var it = Info.values(), val = null; (val = it.next().value); ) {
+      const valJson = JSON.parse(val);
+      if (valJson.Type == "Doctor" && valJson.SPK == doc_spk) {
+        return callback(true);
+      }
+    }
+    return callback(false);
+  });
+}
+router.post("/test", async function(req, res) {
+  verify(req.body.SPK, req.body.signature, req.body._id, function(result) {
+    console.log(result);
+    if (result) res.json("OK");
+    else res.json("Fail");
+  });
+});
 
 /* GET home page. */
 router.get("/", function(req, res, next) {

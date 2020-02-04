@@ -8,10 +8,13 @@
     "@material-ui/icons": "^4.5.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "next": "^9.2.1",
+    "nodemon": "^2.0.2",
     "qrcode.react": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -20,7 +23,7 @@
     "typeface-roboto": "^0.0.75"
   },
   "scripts": {
-    "dev": "node server.js",
+    "dev": "nodemon server.js",
     "build": "next build",
     "start": "next start"
   }
