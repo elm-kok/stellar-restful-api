@@ -23,13 +23,18 @@ function encrypt(text, ENCRYPTION_KEY) {
 }
 
 function decrypt(text, ENCRYPTION_KEY) {
-  let encryptedText = Buffer.from(text, 'base64');
-  let decipher = createDecipher('aes-256-cbc', Buffer.from(ENCRYPTION_KEY));
-  let decrypted = decipher.update(encryptedText);
+  try {
+    let encryptedText = Buffer.from(text, 'base64');
+    let decipher = createDecipher('aes-256-cbc', Buffer.from(ENCRYPTION_KEY));
+    let decrypted = decipher.update(encryptedText);
 
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-  return decrypted.toString();
+    return decrypted.toString();
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 function hashToInt32(str) {
   var hash = 5381,
