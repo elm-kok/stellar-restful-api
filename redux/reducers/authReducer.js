@@ -4,8 +4,6 @@ const initialState = {
   _id: '',
   FName: '',
   LName: '',
-  Phone: '',
-  serverPublicKey: '',
   stellarPublicKey: '',
 };
 
@@ -22,8 +20,6 @@ const authReducer = (state = initialState, action) => {
         _id: action._id,
         FName: action.FName,
         LName: action.LName,
-        Phone: action.Phone,
-        serverPublicKey: action.serverPublicKey,
         stellarPublicKey: action.stellarPublicKey,
       };
     }

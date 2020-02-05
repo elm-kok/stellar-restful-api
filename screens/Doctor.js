@@ -26,7 +26,7 @@ class Doctor extends React.Component {
         'StellarSecret',
       );
       const credentialsSecretKey = await Keychain.getGenericPassword(
-        'SecretKey',
+        'SecretKeyDoctor',
       );
       if (credentialsStellarSecret && credentialsSecretKey) {
         console.log({
@@ -49,7 +49,7 @@ class Doctor extends React.Component {
   onInfo = async () => {
     try {
       const credentialsSecretKey = await Keychain.getGenericPassword(
-        'SecretKey',
+        'SecretKeyDoctor',
       );
       if (credentialsSecretKey) {
         console.log({

@@ -6,7 +6,7 @@ import * as Keychain from 'react-native-keychain';
 class Info extends React.Component {
   async load() {
     try {
-      const credentials = await Keychain.getGenericPassword('StellarSecret');
+      const credentials = await Keychain.getGenericPassword('SecretKeyDoctor');
       if (credentials) {
         console.log({...credentials, status: 'Credentials loaded!'});
       } else {
@@ -27,9 +27,6 @@ class Info extends React.Component {
         </Text>
         <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
           LName: {store.getState().authReducer.LName}
-        </Text>
-        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          Phone: {store.getState().authReducer.Phone}
         </Text>
         <Button title="Load Credential." onPress={this.load} />
       </View>

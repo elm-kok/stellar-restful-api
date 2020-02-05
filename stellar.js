@@ -1,8 +1,19 @@
 var StellarSdk = require('stellar-sdk');
 import {createCipher, createDecipher} from 'crypto';
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-var apiServer = 'http://10.207.171.102:3000';
+var apiServer = 'http://10.202.198.95:3000';
 
+async function testAccountInit(publicKey) {
+  try {
+    const response = await fetch(
+      `https://friendbot.stellar.org?addr=${encodeURIComponent(publicKey)}`,
+    );
+    const responseJSON = await response.json();
+    console.log('SUCCESS! You have a new account :)\n', responseJSON);
+  } catch (e) {
+    console.error('ERROR!', e);
+  }
+}
 function encrypt(text, ENCRYPTION_KEY) {
   let cipher = createCipher('aes-256-cbc', Buffer.from(ENCRYPTION_KEY));
   let encrypted = cipher.update(text);
@@ -35,15 +46,17 @@ function hashToInt32(str) {
 function chunkString(str, length) {
   return str.match(new RegExp('.{1,' + length + '}', 'g'));
 }
+
 export async function submit(publicKey, secretString, data, secretKey) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
   console.log('Secret Key: ', secretKey);
+  testAccountInit(publicKey);
 
   const key = hashToInt32(data + secretKey.toString());
   const strEncrypt = encrypt(data, secretKey);
-  const content = chunkString(strEncrypt, 31);
+  const content = chunkString(strEncrypt, 63);
   console.log('Contents: ', content);
   const account = await server.loadAccount(publicKey);
   const fee = await server.fetchBaseFee();
@@ -73,6 +86,7 @@ export async function submit(publicKey, secretString, data, secretKey) {
 }
 
 export async function getInfo(publicKey, secretKey) {
+  testAccountInit(publicKey);
   var resultOb = {};
   var result = new Set();
   await server
