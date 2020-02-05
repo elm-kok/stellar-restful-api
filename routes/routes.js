@@ -4,6 +4,8 @@ const router = express.Router();
 const dotenv = require("dotenv").config();
 const cors = require("cors");
 const { getInfo, verifySignature } = require("../stellar");
+const StellarSdk = require("stellar-sdk");
+const { SecretKey } = require("../stellar");
 
 const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
@@ -36,12 +38,22 @@ async function verify(doc_spk, signature, _id, callback) {
       console.log("Signature fail for DOCTOR SPK: " + doc_spk);
       return callback(false);
     }
-    console.log(results[0]);
     const Info = await getInfo(results[0].SPK, results[0].SecretKey);
+    var hasDoc = false;
+    var hasSig = false;
+    const KP = StellarSdk.Keypair.fromSecret(SecretKey);
     console.log(Info);
     for (var it = Info.values(), val = null; (val = it.next().value); ) {
       const valJson = JSON.parse(val);
       if (valJson.Type == "Doctor" && valJson.SPK == doc_spk) {
+        hasDoc = true;
+      }
+      if (valJson.Type == "Signature") {
+        hasSig =
+          KP.sign(Buffer.from(_id + results[0].SPK)).toString("base64") ==
+          valJson.Value;
+      }
+      if (hasSig && hasDoc) {
         return callback(true);
       }
     }

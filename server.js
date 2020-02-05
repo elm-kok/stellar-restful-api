@@ -5,8 +5,6 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const bodyParser = require("body-parser");
 const router = require("./routes/routes");
-const jwt = require('jsonwebtoken');
-const jwtSecret = "mysuperdupersecret";
 
 app
   .prepare()
