@@ -22,15 +22,17 @@ function decrypt(text, ENCRYPTION_KEY) {
     return null;
   }
 }
-function verifySignature(publicKey, signature, _id) {
+function verifySignature(publicKey, signature, _id, date) {
+  /*
   const today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
   const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
   const yyyy = today.getFullYear();
+  */
   try {
     const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
     return kp.verify(
-      Buffer.from(_id + "_" + dd + "/" + mm + "/" + yyyy),
+      Buffer.from(_id + "_" + date),
       Buffer.from(signature, "base64")
     );
   } catch (err) {
@@ -51,7 +53,7 @@ async function getInfo(publicKey, secretKey) {
     .call()
     .then(function(accountResult) {
       Object.keys(accountResult.data_attr)
-        .sort()
+        //.sort()
         .forEach(function(key) {
           if (resultOb[key.split("_")[0]] == undefined) {
             resultOb[key.split("_")[0]] = "";

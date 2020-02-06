@@ -2,7 +2,6 @@ const express = require("express");
 const mysql = require("mysql");
 const router = express.Router();
 const dotenv = require("dotenv").config();
-const cors = require("cors");
 const { getInfo, verifySignature } = require("../stellar");
 const StellarSdk = require("stellar-sdk");
 const { SecretKey } = require("../stellar");
@@ -19,11 +18,6 @@ const connection = mysql.createConnection({
   port: 3306
 });
 
-var corsOptions = {
-  origin: "http://localhost:3001",
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-
 console.log("Connecting...");
 connection.connect(function(err) {
   if (err) return new Error("An error occured during SQL connection " + err);
@@ -31,7 +25,7 @@ connection.connect(function(err) {
 });
 console.log(connection.config);
 
-async function verify(doc_spk, signature, _id, callback) {
+async function verify(doc_spk, signature, _id, date, callback) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.CID = " +
     connection.escape(_id) +
@@ -40,7 +34,7 @@ async function verify(doc_spk, signature, _id, callback) {
     if (error) {
       return callback(new Error("An error occured during query " + error));
     }
-    if (!verifySignature(doc_spk, signature, _id)) {
+    if (!verifySignature(doc_spk, signature, _id, date)) {
       console.log("Signature fail for DOCTOR SPK: " + doc_spk);
       return callback(false);
     }
@@ -63,15 +57,27 @@ async function verify(doc_spk, signature, _id, callback) {
         return callback(true);
       }
     }
+    if (!hasDoc) {
+      console.log("No Doctor: ", doc_spk, " on Patient's ledger.");
+    }
+    if (!hasSig) {
+      console.log("Invalid Signature on Hospital.");
+    }
     return callback(false);
   });
 }
 router.post("/test", async function(req, res) {
-  verify(req.body.SPK, req.body.signature, req.body._id, function(result) {
-    console.log(result);
-    if (result) res.json("OK");
-    else res.json("Fail");
-  });
+  verify(
+    req.body.SPK,
+    req.body.signature,
+    req.body._id,
+    req.body.date,
+    function(result) {
+      console.log(result);
+      if (result) res.json("OK");
+      else res.json("Fail");
+    }
+  );
 });
 
 router.post("/DRUG_OPD/", function(req, res, next) {
@@ -176,7 +182,7 @@ router.post("/LAB/", function(req, res, next) {
   });
 });
 
-router.post("/secret/", cors(corsOptions), function(req, res, next) {
+router.post("/secret/", function(req, res, next) {
   var values = [
     [req.body.cid, req.body.HOSPCODE, req.body.spk, req.body.secretkey]
   ];
