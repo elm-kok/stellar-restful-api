@@ -33,7 +33,9 @@ console.log(connection.config);
 
 async function verify(doc_spk, signature, _id, callback) {
   const querycmd =
-    "SELECT * FROM STELLARKEY WHERE STELLARKEY.CID = " + _id + ";";
+    "SELECT * FROM STELLARKEY WHERE STELLARKEY.CID = " +
+    connection.escape(_id) +
+    ";";
   connection.query(querycmd, async function(error, results) {
     if (error) {
       return callback(new Error("An error occured during query " + error));
@@ -84,10 +86,18 @@ router.post("/DRUG_OPD/", function(req, res, next) {
     "SELECT DRUG_OPD.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUG_OPD.HOSPCODE, DRUG_OPD.PID, DRUG_OPD.SEQ, DRUG_OPD.DATE_SERV, CODE_CLINIC.DESCRIPTION AS CLINIC, CODE_DIDSTD.DRUGNAME AS DRUGNAME, CODE_DIDSTD.DGDSFNM AS COMSUME, CODE_DIDSTD.COMP AS DCOMP, DRUG_OPD.DNAME, DRUG_OPD.AMOUNT, CODE_DRUGUNIT.DESCRIPTION AS DUNIT, DRUG_OPD.UNIT_PACKING, DRUG_OPD.DRUGPRICE, DRUG_OPD.DRUGCOST, PROVIDER.PRENAME AS PROV_PRENAME, PROVIDER.NAME AS PROV_NAME, PROVIDER.LNAME AS PROV_LNAME, DRUG_OPD.PROVIDER AS PROV_NO FROM DRUG_OPD LEFT JOIN CODE_DIDSTD ON DRUG_OPD.DIDSTD=CODE_DIDSTD.STD_CODE LEFT JOIN CODE_DRUGUNIT ON DRUG_OPD.UNIT=CODE_DRUGUNIT.CODE LEFT JOIN CODE_CLINIC ON DRUG_OPD.CLINIC=CODE_CLINIC.CODE LEFT JOIN PROVIDER ON DRUG_OPD.PROVIDER=PROVIDER.PROVIDER LEFT JOIN CODE_HOSPITAL ON DRUG_OPD.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
   if (ID)
     querycmd =
-      querycmd + " WHERE ID=" + ID + " && DRUG_OPD.HOSPCODE=" + HOSPCODE;
+      querycmd +
+      " WHERE ID=" +
+      connection.escape(ID) +
+      " && DRUG_OPD.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   if (PID)
     querycmd =
-      querycmd + " WHERE PID=" + PID + " && DRUG_OPD.HOSPCODE=" + HOSPCODE;
+      querycmd +
+      " WHERE PID=" +
+      connection.escape(PID) +
+      " && DRUG_OPD.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   console.log(querycmd);
   connection.query(querycmd, (err, results) => {
     if (err) {
@@ -110,10 +120,18 @@ router.post("/DRUGALLERGY/", function(req, res, next) {
     "SELECT DRUGALLERGY.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUGALLERGY.HOSPCODE, DRUGALLERGY.PID, DRUGALLERGY.DATERECORD, DRUGALLERGY.DNAME, CODE_DRUGALLERGY_TYPEDX.DESCRIPTION AS TYPEDX, CODE_DRUGALLERGY_INFORMANT.DESCRIPTION AS INFORMANT, CODE_DRUGALLERGY_ALEVEL.DESCRIPTION AS ALEVEL FROM DRUGALLERGY LEFT JOIN CODE_DRUGALLERGY_TYPEDX ON DRUGALLERGY.TYPEDX=CODE_DRUGALLERGY_TYPEDX.CODE LEFT JOIN CODE_DRUGALLERGY_INFORMANT ON DRUGALLERGY.INFORMANT=CODE_DRUGALLERGY_INFORMANT.CODE LEFT JOIN CODE_DRUGALLERGY_ALEVEL ON DRUGALLERGY.ALEVEL=CODE_DRUGALLERGY_ALEVEL.CODE LEFT JOIN CODE_HOSPITAL ON DRUGALLERGY.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
   if (ID)
     querycmd =
-      querycmd + " WHERE ID=" + ID + " && DRUGALLERGY.HOSPCODE=" + HOSPCODE;
+      querycmd +
+      " WHERE ID=" +
+      connection.escape(ID) +
+      " && DRUGALLERGY.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   if (PID)
     querycmd =
-      querycmd + " WHERE PID=" + PID + " && DRUGALLERGY.HOSPCODE=" + HOSPCODE;
+      querycmd +
+      " WHERE PID=" +
+      connection.escape(PID) +
+      " && DRUGALLERGY.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   console.log(querycmd);
   connection.query(querycmd, (err, results) => {
     if (err) {
@@ -135,10 +153,19 @@ router.post("/LAB/", function(req, res, next) {
   var querycmd =
     "SELECT LABFU.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, LABFU.HOSPCODE, LABFU.PID, LABFU.SEQ, LABFU.DATE_SERV, LABFU.LABTEST AS LABID, CODE_LABFU_LABTEST.DESCRIPTION AS LABTEST, LABFU.LABRESULT FROM LABFU LEFT JOIN CODE_LABFU_LABTEST ON LABFU.LABTEST=CODE_LABFU_LABTEST.CODE LEFT JOIN CODE_HOSPITAL ON LABFU.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
   if (ID)
-    querycmd = querycmd + " WHERE ID=" + ID + " && LABFU.HOSPCODE=" + HOSPCODE;
+    querycmd =
+      querycmd +
+      " WHERE ID=" +
+      connection.escape(ID) +
+      " && LABFU.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   if (PID)
     querycmd =
-      querycmd + " WHERE PID=" + PID + " && LABFU.HOSPCODE=" + HOSPCODE;
+      querycmd +
+      " WHERE PID=" +
+      connection.escape(PID) +
+      " && LABFU.HOSPCODE=" +
+      connection.escape(HOSPCODE);
   console.log(querycmd);
   connection.query(querycmd, (err, results) => {
     if (err) {
@@ -150,10 +177,14 @@ router.post("/LAB/", function(req, res, next) {
 });
 
 router.post("/secret/", cors(corsOptions), function(req, res, next) {
-  var sql = "INSERT INTO STELLARKEY (CID, HOSPCODE, SPK, SecretKey) VALUES ?";
   var values = [
     [req.body.cid, req.body.HOSPCODE, req.body.spk, req.body.secretkey]
   ];
+  var sql =
+    "INSERT INTO STELLARKEY (CID, HOSPCODE, SPK, SecretKey) VALUES ? ON DUPLICATE KEY UPDATE SPK=" +
+    connection.escape(req.body.spk) +
+    ",SecretKey=" +
+    connection.escape(req.body.secretkey);
   connection.query(sql, [values], function(err, result) {
     if (err) console.log(err);
   });
