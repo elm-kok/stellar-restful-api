@@ -12,6 +12,8 @@ import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {server} from '../stellar';
+import {connect} from 'react-redux';
+import {addHospital} from '../redux/actions/hospitalAction';
 
 class HospitalQR extends React.Component {
   constructor(props) {
@@ -55,13 +57,19 @@ class HospitalQR extends React.Component {
       this.setState({statusText: 'Upload EndPoint...'});
       var endpoint = this.state.QRString;
       delete endpoint['Signature'];
+      const seq = (await server.loadAccount(spk)).sequenceNumber();
       await submit(
         store.getState().authReducer.stellarPublicKey,
         StellarSecret.password,
         JSON.stringify(endpoint),
         SecretKeyDoctor.password,
       );
+      this.setState({statusText: 'Dispatch EndPoint...'});
+      await store.dispatch(
+        addHospital(seq, endpoint.HospitalName, endpoint.EndPoint),
+      );
       this.setState({modalVisible2: false});
+      console.log(store.getState().hospitalReducer.HospitalList);
       this.props.navigation.navigate('Hospital');
     } catch (err) {
       this.setState({modalVisible2: false});
@@ -189,4 +197,5 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
+
 export default HospitalQR;

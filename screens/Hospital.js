@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, View, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {store} from '../redux/store/store';
 
 class Hospital extends React.Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class Hospital extends React.Component {
         <Text style={{fontSize: 50, color: '#FF9A4C', textAlign: 'center'}}>
           Where is your medical record.
         </Text>
+        <Text>{store.getState().hospitalReducer.HospitalList}</Text>
         <TouchableOpacity
           style={{
             borderWidth: 1,

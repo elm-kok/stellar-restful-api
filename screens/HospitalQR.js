@@ -53,51 +53,53 @@ class HospitalQR extends React.Component {
   render() {
     return (
       <>
-        <Text
-          style={{
-            top: 80,
-            textAlign: 'center', // <-- the magic
-            fontSize: 24,
-          }}>
-          For Hospital Scanning...
-        </Text>
-        <View
-          style={{
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          {this.state.result ? (
-            <QRCode value={this.state.result} size={350} />
-          ) : null}
-        </View>
-        <TouchableOpacity
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            position: 'absolute',
-            top: 10,
-            right: 10,
-          }}
-          onPress={this.onClose}>
-          <Icon name="ios-close" size={50} color="#e3a699" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            position: 'absolute',
-            bottom: 10,
-            right: 10,
-          }}
-          onPress={this.onNext}>
-          <Icon name="ios-arrow-round-forward" size={50} color="#01a699" />
-        </TouchableOpacity>
+        {this.state.result ? (
+          <>
+            <Text
+              style={{
+                top: 80,
+                textAlign: 'center', // <-- the magic
+                fontSize: 24,
+              }}>
+              For Hospital Scanning...
+            </Text>
+            <View
+              style={{
+                width: '100%',
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <QRCode value={this.state.result} size={350} />
+            </View>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                position: 'absolute',
+                top: 10,
+                right: 10,
+              }}
+              onPress={this.onClose}>
+              <Icon name="ios-close" size={50} color="#e3a699" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                position: 'absolute',
+                bottom: 10,
+                right: 10,
+              }}
+              onPress={this.onNext}>
+              <Icon name="ios-arrow-round-forward" size={50} color="#01a699" />
+            </TouchableOpacity>
+          </>
+        ) : null}
       </>
     );
   }

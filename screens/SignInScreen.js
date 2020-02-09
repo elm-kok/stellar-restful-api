@@ -6,7 +6,6 @@ import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {createHash, randomBytes} from 'crypto';
 import {StellarSdk} from '../stellar';
-import {cos} from 'react-native-reanimated';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [

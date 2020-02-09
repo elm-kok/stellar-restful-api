@@ -1,14 +1,14 @@
 // Imports: Dependencies
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 
 // Imports: Reducers
 import authReducer from './authReducer';
-import counterReducer from './counterReducer';
+import hospitalReducer from './hospitalReducer';
 
 // Redux: Root Reducer
 const rootReducer = combineReducers({
   authReducer: authReducer,
-  counterReducer: counterReducer,
+  hospitalReducer: hospitalReducer,
 });
 
 // Exports
