@@ -14,9 +14,28 @@ const hospitalReducer = (state = initialState, action) => {
         // State
         ...state,
         // Redux Store
+        //1 -> Approve
+        //0 -> Disable
+        //remove -> Reject
         HospitalList: state.HospitalList.concat([
-          [action.seq, action.HospitalName, action.HospitalEndPoint],
+          {
+            seq: action.seq,
+            name: action.HospitalName,
+            endPoint: action.HospitalEndPoint,
+            status: 1,
+          },
         ]),
+      };
+    }
+    case 'Update': {
+      return {
+        // State
+        ...state,
+        // Redux Store
+        //1 -> Approve
+        //0 -> Disable
+        //remove -> Reject
+        HospitalList: action.hospitalList,
       };
     }
     // Default

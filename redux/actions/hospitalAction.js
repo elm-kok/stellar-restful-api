@@ -4,3 +4,8 @@ export const addHospital = (seq, HospitalName, HospitalEndPoint) => ({
   HospitalName: HospitalName,
   HospitalEndPoint: HospitalEndPoint,
 });
+
+export const updateHospital = hospitalList => ({
+  type: 'Update',
+  hospitalList: hospitalList,
+});

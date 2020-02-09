@@ -12,7 +12,6 @@ import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {server} from '../stellar';
-import {connect} from 'react-redux';
 import {addHospital} from '../redux/actions/hospitalAction';
 
 class HospitalQR extends React.Component {
