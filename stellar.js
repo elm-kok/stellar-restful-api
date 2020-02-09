@@ -3,7 +3,6 @@ import {createCipher, createDecipher} from 'crypto';
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const apiServer = 'http://10.202.198.95:3000';
 
-
 async function testAccountInit(publicKey) {
   try {
     const response = await fetch(
@@ -53,7 +52,7 @@ function chunkString(str, length) {
   return str.match(new RegExp('.{1,' + length + '}', 'g'));
 }
 
-export async function submit(publicKey, secretString, data, secretKey, type) {
+export async function submit(publicKey, secretString, data, secretKey) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
@@ -75,7 +74,7 @@ export async function submit(publicKey, secretString, data, secretKey, type) {
     })
       .addOperation(
         StellarSdk.Operation.manageData({
-          name: type + seq + '_' + i.toString(),
+          name: seq + '_' + i.toString(),
           value: content[i].toString('binary'),
         }),
       )

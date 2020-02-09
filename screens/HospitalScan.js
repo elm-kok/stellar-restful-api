@@ -1,48 +1,71 @@
 import React from 'react';
-import {Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {submit} from '../stellar';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {server} from '../stellar';
 
 class HospitalQR extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       QRString: 'initial state QRString.',
+      modalVisible: false,
+      modalVisible2: false,
+      statusText: '',
     };
   }
   onClose = () => {
     this.props.navigation.navigate('Hospital');
   };
   onSuccess = e => {
-    this.setState({QRString: e.data, isQR: false});
-    this.props.navigation.navigate('Hospital');
+    this.setState({QRString: JSON.parse(e.data), modalVisible: true});
+    //this.props.navigation.navigate('Hospital');
   };
   onSubmit = async () => {
     try {
-      const credentialsStellarSecret = await Keychain.getGenericPassword(
-        'StellarSecret',
-      );
-      const credentialsSecretKey = await Keychain.getGenericPassword(
+      this.setState({
+        modalVisible: false,
+        modalVisible2: true,
+        statusText: 'Preparing...',
+      });
+      const spk = store.getState().authReducer.stellarPublicKey;
+      const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
+      const SecretKeyDoctor = await Keychain.getGenericPassword(
         'SecretKeyDoctor',
       );
-      if (credentialsStellarSecret && credentialsSecretKey) {
-        console.log({
-          ...credentialsStellarSecret,
-          status: 'Credentials loaded!',
-        });
-      } else {
-        console.log({status: 'No credentials stored. StellarSecret'});
-      }
-      submit(
-        store.getState().authReducer.stellarPublicKey,
-        credentialsStellarSecret.password,
-        this.state.QRString,
-        credentialsSecretKey.password,
+      const SecretKeyHospital = await Keychain.getGenericPassword(
+        'SecretKeyHospital',
       );
+      this.setState({statusText: 'Upload Signature...'});
+      await submit(
+        store.getState().authReducer.stellarPublicKey,
+        StellarSecret.password,
+        this.state.QRString.Signature,
+        SecretKeyHospital.password,
+      );
+      this.setState({statusText: 'Upload EndPoint...'});
+      var endpoint = this.state.QRString;
+      delete endpoint['Signature'];
+      await submit(
+        store.getState().authReducer.stellarPublicKey,
+        StellarSecret.password,
+        JSON.stringify(endpoint),
+        SecretKeyDoctor.password,
+      );
+      this.setState({modalVisible2: false});
+      this.props.navigation.navigate('Hospital');
     } catch (err) {
+      this.setState({modalVisible2: false});
+      this.props.navigation.navigate('Hospital');
       console.log({status: 'Could not load credentials. ' + err});
     }
   };
@@ -62,15 +85,80 @@ class HospitalQR extends React.Component {
           onPress={this.onClose}>
           <Icon name="ios-close" size={50} color="#01a699" />
         </TouchableOpacity>
-        <QRCodeScanner
-          ref={node => {
-            this.scanner = node;
-          }}
-          onRead={this.onSuccess}
-          topContent={
-            <Text style={styles.centerText}>Scan Hospital's QRCode.</Text>
-          }
-        />
+        {!this.state.modalVisible && !this.state.modalVisible2 ? (
+          <QRCodeScanner
+            ref={node => {
+              this.scanner = node;
+            }}
+            onRead={this.onSuccess}
+            topContent={
+              <Text style={styles.centerText}>Scan Hospital's QRCode.</Text>
+            }
+          />
+        ) : null}
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <>
+            <Text style={{fontSize: 24}}>
+              Add {this.state.QRString.HospitalName}
+            </Text>
+            <Text style={{fontSize: 24}}>
+              End point {this.state.QRString.EndPoint}
+            </Text>
+
+            <TouchableOpacity
+              onPress={this.onSubmit}
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                position: 'absolute',
+                bottom: 10,
+                right: 10,
+              }}>
+              <Icon name="ios-checkmark" size={50} color="#01a699" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                position: 'absolute',
+                bottom: 10,
+                right: 50,
+              }}
+              onPress={() => {
+                this.setState({modalVisible: false});
+              }}>
+              <Icon name="ios-close" size={50} color="#01a699" />
+            </TouchableOpacity>
+          </>
+        </Modal>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible2}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <Text
+            style={{
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}>
+            {this.state.statusText}
+          </Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
       </>
     );
   }
