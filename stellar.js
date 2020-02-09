@@ -1,7 +1,8 @@
-var StellarSdk = require('stellar-sdk');
+const StellarSdk = require('stellar-sdk');
 import {createCipher, createDecipher} from 'crypto';
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-var apiServer = 'http://10.202.198.95:3000';
+const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const apiServer = 'http://10.202.198.95:3000';
+
 
 async function testAccountInit(publicKey) {
   try {
@@ -52,7 +53,7 @@ function chunkString(str, length) {
   return str.match(new RegExp('.{1,' + length + '}', 'g'));
 }
 
-export async function submit(publicKey, secretString, data, secretKey) {
+export async function submit(publicKey, secretString, data, secretKey, type) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
@@ -64,6 +65,7 @@ export async function submit(publicKey, secretString, data, secretKey) {
   const content = chunkString(strEncrypt, 63);
   console.log('Contents: ', content);
   const account = await server.loadAccount(publicKey);
+  const seq = account.sequenceNumber();
   const fee = await server.fetchBaseFee();
   var i;
   for (i = 0; i < content.length; i++) {
@@ -73,7 +75,7 @@ export async function submit(publicKey, secretString, data, secretKey) {
     })
       .addOperation(
         StellarSdk.Operation.manageData({
-          name: key + '_' + i.toString(),
+          name: type + seq + '_' + i.toString(),
           value: content[i].toString('binary'),
         }),
       )
@@ -99,22 +101,23 @@ export async function getInfo(publicKey, secretKey) {
     .accountId(publicKey)
     .call()
     .then(function(accountResult) {
-      Object.keys(accountResult.data_attr)
-        .sort()
-        .forEach(function(key) {
-          if (resultOb[key.split('_')[0]] == undefined) {
-            resultOb[key.split('_')[0]] = '';
-          }
-          resultOb[key.split('_')[0]] += Buffer.from(
-            accountResult.data_attr[key],
-            'base64',
-          ).toString('binary');
-        });
+      Object.keys(accountResult.data_attr).forEach(function(key) {
+        if (resultOb[key.split('_')[0]] == undefined) {
+          resultOb[key.split('_')[0]] = '';
+        }
+        resultOb[key.split('_')[0]] += Buffer.from(
+          accountResult.data_attr[key],
+          'base64',
+        ).toString('binary');
+      });
 
       Object.keys(resultOb)
         .sort()
         .forEach(function(key) {
-          result.add(decrypt(resultOb[key], secretKey));
+          const deRes = decrypt(resultOb[key], secretKey);
+          if (deRes) {
+            result.add(deRes);
+          }
         });
     })
     .catch(function(err) {
