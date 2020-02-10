@@ -5,6 +5,7 @@ import * as Keychain from 'react-native-keychain';
 
 class Info extends React.Component {
   async load() {
+
     try {
       const credentials = await Keychain.getGenericPassword('SecretKeyDoctor');
       if (credentials) {

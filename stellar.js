@@ -3,15 +3,15 @@ import {createCipher, createDecipher} from 'crypto';
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const apiServer = 'http://10.202.198.95:3000';
 
-async function testAccountInit(publicKey) {
+export async function testAccountInit(publicKey) {
   try {
     const response = await fetch(
       `https://friendbot.stellar.org?addr=${encodeURIComponent(publicKey)}`,
     );
     const responseJSON = await response.json();
-    console.log('SUCCESS! You have a new account :)\n', responseJSON);
+    //console.log('SUCCESS! You have a new account :)\n', responseJSON);
   } catch (e) {
-    console.error('ERROR!', e);
+    //console.error('ERROR!', e);
   }
 }
 function encrypt(text, ENCRYPTION_KEY) {
@@ -36,20 +36,14 @@ function decrypt(text, ENCRYPTION_KEY) {
     return null;
   }
 }
-function hashToInt32(str) {
-  var hash = 5381,
-    i = str.length;
-  while (i) {
-    hash = (hash * 33) ^ str.charCodeAt(--i);
-  }
 
-  /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
-   * integers. Since we want the results to be always positive, convert the
-   * signed int to an unsigned by doing an unsigned bitshift. */
-  return hash >>> 0;
-}
 function chunkString(str, length) {
-  return str.match(new RegExp('.{1,' + length + '}', 'g'));
+  try {
+    return str.match(new RegExp('.{1,' + length + '}', 'g'));
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 
 export async function submit(publicKey, secretString, data, secretKey) {
@@ -59,12 +53,12 @@ export async function submit(publicKey, secretString, data, secretKey) {
   console.log('Secret Key: ', secretKey);
   testAccountInit(publicKey);
 
-  const key = hashToInt32(data + secretKey.toString());
   const strEncrypt = encrypt(data, secretKey);
   const content = chunkString(strEncrypt, 63);
   console.log('Contents: ', content);
   const account = await server.loadAccount(publicKey);
   const seq = account.sequenceNumber();
+  console.log('SEQ: ', seq);
   const fee = await server.fetchBaseFee();
   var i;
   for (i = 0; i < content.length; i++) {
@@ -81,14 +75,20 @@ export async function submit(publicKey, secretString, data, secretKey) {
       .setTimeout(300)
       .build();
     transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+    var transactionResult = null;
     try {
-      const transactionResult = await server.submitTransaction(transaction);
+      transactionResult = await server.submitTransaction(transaction);
       //console.log(transactionResult);
     } catch (err) {
+      console.log('Re-Submit...');
+      while (!transactionResult) {
+        transactionResult = await server.submitTransaction(transaction);
+      }
       console.error(err);
     }
   }
   console.log('Finish.');
+  return seq;
 }
 
 export async function getInfo(publicKey, secretKey) {
@@ -123,5 +123,176 @@ export async function getInfo(publicKey, secretKey) {
       console.error(err);
     });
   return result;
+}
+export async function submitByKey(
+  publicKey,
+  secretString,
+  data,
+  secretKey,
+  key,
+) {
+  console.log('Data: ', data);
+  console.log('Pub: ', publicKey);
+  console.log('Pri: ', secretString);
+  console.log('Secret Key: ', secretKey);
+  console.log('Seq: ', key);
+  testAccountInit(publicKey);
+
+  const strEncrypt = encrypt(data, secretKey);
+  var content = null;
+  if (data) {
+    content = await chunkString(strEncrypt, 63);
+  }
+  console.log('Contents: ', content);
+  const account = await server.loadAccount(publicKey);
+  const seq = key;
+  const fee = await server.fetchBaseFee();
+  var i;
+  for (i = 0; i < content.length; i++) {
+    const transaction = new StellarSdk.TransactionBuilder(account, {
+      fee,
+      networkPassphrase: StellarSdk.Networks.TESTNET,
+    })
+      .addOperation(
+        StellarSdk.Operation.manageData({
+          name: seq + '_' + i.toString(),
+          value: content[i].toString('binary'),
+        }),
+      )
+      .setTimeout(300)
+      .build();
+    transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+    var transactionResult = null;
+    try {
+      transactionResult = await server.submitTransaction(transaction);
+      //console.log(transactionResult);
+    } catch (err) {
+      console.log('Re-Submit...');
+      while (!transactionResult) {
+        transactionResult = await server.submitTransaction(transaction);
+      }
+      console.error(err);
+    }
+  }
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(async function(accountResult) {
+      var i;
+      for (i = content.length; i < 16; ++i) {
+        console.log('remove: ', seq + '_' + i.toString());
+        if (accountResult.data_attr[key + '_' + i.toString()]) {
+          const transaction = new StellarSdk.TransactionBuilder(account, {
+            fee,
+            networkPassphrase: StellarSdk.Networks.TESTNET,
+          })
+            .addOperation(
+              StellarSdk.Operation.manageData({
+                name: seq + '_' + i.toString(),
+                value: null,
+              }),
+            )
+            .setTimeout(300)
+            .build();
+          transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+          var transactionResult = null;
+          try {
+            transactionResult = await server.submitTransaction(transaction);
+            //console.log(transactionResult);
+          } catch (err) {
+            console.log('Re-Submit...');
+            while (!transactionResult) {
+              transactionResult = await server.submitTransaction(transaction);
+            }
+            console.error(err);
+          }
+        } else {
+          console.log('Finish.');
+          break;
+        }
+      }
+    });
+}
+export async function getInfoByKey(publicKey, secretKey, key) {
+  testAccountInit(publicKey);
+  var resultOb = {};
+  var result = new Set();
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(function(accountResult) {
+      var i;
+      for (i = 0; i < 16; ++i) {
+        if (accountResult.data_attr[key + '_' + i.toString()]) {
+          if (resultOb[key] == undefined) {
+            resultOb[key] = '';
+          }
+          resultOb[key] += Buffer.from(
+            accountResult.data_attr[key + '_' + i.toString()],
+            'base64',
+          ).toString('binary');
+        } else {
+          const deRes = decrypt(resultOb[key], secretKey);
+          if (deRes) {
+            result.add(deRes);
+          }
+          break;
+        }
+      }
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  return result;
+}
+
+export async function clearInfo(publicKey, secretString, seq) {
+  console.log('Pub: ', publicKey);
+  console.log('Pri: ', secretString);
+  testAccountInit(publicKey);
+
+  const account = await server.loadAccount(publicKey);
+  console.log('SEQ: ', seq);
+  const fee = await server.fetchBaseFee();
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(async function(accountResult) {
+      var i;
+      for (i = 0; i < 16; i++) {
+        if (accountResult.data_attr[seq + '_' + i.toString()]) {
+          const transaction = new StellarSdk.TransactionBuilder(account, {
+            fee,
+            networkPassphrase: StellarSdk.Networks.TESTNET,
+          })
+            .addOperation(
+              StellarSdk.Operation.manageData({
+                name: seq + '_' + i.toString(),
+                value: null,
+              }),
+            )
+            .setTimeout(300)
+            .build();
+          transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+          var transactionResult = null;
+          try {
+            transactionResult = await server.submitTransaction(transaction);
+            //console.log(transactionResult);
+          } catch (err) {
+            console.log('Re-Submit...');
+            while (!transactionResult) {
+              transactionResult = await server.submitTransaction(transaction);
+            }
+            console.error(err);
+          }
+        } else {
+          break;
+        }
+      }
+    });
+  console.log('Finish.');
 }
 export {StellarSdk, server, apiServer};

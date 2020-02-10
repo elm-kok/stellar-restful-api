@@ -47,17 +47,20 @@ class HospitalQR extends React.Component {
         'SecretKeyHospital',
       );
       this.setState({statusText: 'Upload Signature...'});
-      await submit(
+      const sig = JSON.stringify({
+        Signature: this.state.QRString.Signature,
+        Status: 1,
+      });
+      const seq_sig = await submit(
         store.getState().authReducer.stellarPublicKey,
         StellarSecret.password,
-        this.state.QRString.Signature,
+        sig,
         SecretKeyHospital.password,
       );
       this.setState({statusText: 'Upload EndPoint...'});
       var endpoint = this.state.QRString;
       delete endpoint['Signature'];
-      const seq = (await server.loadAccount(spk)).sequenceNumber();
-      await submit(
+      const seq_end = await submit(
         store.getState().authReducer.stellarPublicKey,
         StellarSecret.password,
         JSON.stringify(endpoint),
@@ -65,7 +68,7 @@ class HospitalQR extends React.Component {
       );
       this.setState({statusText: 'Dispatch EndPoint...'});
       await store.dispatch(
-        addHospital(seq, endpoint.HospitalName, endpoint.EndPoint),
+        addHospital(seq_sig, seq_end, endpoint.HospitalName, endpoint.EndPoint),
       );
       this.setState({modalVisible2: false});
       console.log(store.getState().hospitalReducer.HospitalList);

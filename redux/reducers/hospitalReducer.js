@@ -19,9 +19,10 @@ const hospitalReducer = (state = initialState, action) => {
         //remove -> Reject
         HospitalList: state.HospitalList.concat([
           {
-            seq: action.seq,
-            name: action.HospitalName,
-            endPoint: action.HospitalEndPoint,
+            seq_sig: action.seq_sig,
+            seq_end: action.seq_end,
+            name: action.name,
+            endPoint: action.endPoint,
             status: 1,
           },
         ]),

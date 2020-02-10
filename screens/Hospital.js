@@ -6,17 +6,19 @@ import {
   TouchableHighlight,
   StyleSheet,
   Dimensions,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {store} from '../redux/store/store';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import {updateHospital} from '../redux/actions/hospitalAction';
-import {submit} from '../stellar';
+import {submitByKey, getInfoByKey, clearInfo} from '../stellar';
 import * as Keychain from 'react-native-keychain';
 class Hospital extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {hospitalList: []};
+    this.state = {hospitalList: [], modalVisible: false};
   }
   componentDidMount() {
     this.setState({
@@ -26,20 +28,101 @@ class Hospital extends React.Component {
   onPress = () => {
     this.props.navigation.navigate('HospitalQR');
   };
-  async rejectRow(seq) {
-    const _index = this.state.hospitalList.findIndex(i => i.seq === seq);
+  async disableRow(seq_sig) {
+    this.setState({modalVisible: true});
+    console.log(seq_sig);
+    const _index = this.state.hospitalList.findIndex(
+      i => i.seq_sig === seq_sig,
+    );
     if (_index > -1) {
-      this.state.hospitalList.splice(_index, 1);
+      this.state.hospitalList[_index].status = 0;
     }
+    const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
+    const SecretKeyHospital = await Keychain.getGenericPassword(
+      'SecretKeyHospital',
+    );
+    const info = JSON.parse(
+      (
+        await getInfoByKey(
+          store.getState().authReducer.stellarPublicKey,
+          SecretKeyHospital.password,
+          seq_sig,
+        )
+      )
+        .values()
+        .next().value,
+    );
+    const sig = JSON.stringify({
+      Signature: info.Signature,
+      Status: 0,
+    });
+    console.log(sig);
+    await submitByKey(
+      store.getState().authReducer.stellarPublicKey,
+      StellarSecret.password,
+      sig,
+      SecretKeyHospital.password,
+      seq_sig,
+    );
+
     await store.dispatch(updateHospital(this.state.hospitalList));
     this.setState({
       hospitalList: store.getState().hospitalReducer.HospitalList,
     });
+    this.setState({modalVisible: false});
   }
 
+  async rejectRow(seq_sig, seq_end) {
+    this.setState({modalVisible: true});
+    console.log(seq_sig);
+    console.log(seq_end);
+    const seq_sig_index = this.state.hospitalList.findIndex(
+      i => i.seq_sig === seq_sig,
+    );
+    const seq_end_index = this.state.hospitalList.findIndex(
+      i => i.seq_end === seq_end,
+    );
+    if (seq_sig_index > -1 && seq_end_index > -1) {
+      this.state.hospitalList.splice(seq_sig_index, 1);
+      const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
+      await clearInfo(
+        store.getState().authReducer.stellarPublicKey,
+        StellarSecret.password,
+        seq_sig,
+      );
+      await clearInfo(
+        store.getState().authReducer.stellarPublicKey,
+        StellarSecret.password,
+        seq_end,
+      );
+      await store.dispatch(updateHospital(this.state.hospitalList));
+      this.setState({
+        hospitalList: store.getState().hospitalReducer.HospitalList,
+      });
+    }
+    this.setState({modalVisible: false});
+  }
   render() {
     return (
       <>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <Text
+            style={{
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}>
+            submitting...
+          </Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
         <Text style={{fontSize: 50, color: '#FF9A4C', textAlign: 'center'}}>
           Where is your medical record.
         </Text>
@@ -50,12 +133,14 @@ class Hospital extends React.Component {
               <View style={styles.rowBack}>
                 <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                  onPress={() => this.disableRow(data.item.seq)}>
+                  onPress={() => this.disableRow(data.item.seq_sig)}>
                   <Text style={styles.backTextWhite}>Disable</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnRight]}
-                  onPress={() => this.rejectRow(data.item.seq)}>
+                  onPress={() =>
+                    this.rejectRow(data.item.seq_sig, data.item.seq_end)
+                  }>
                   <Text style={styles.backTextWhite}>Reject</Text>
                 </TouchableOpacity>
               </View>
@@ -64,12 +149,15 @@ class Hospital extends React.Component {
                 style={styles.rowFront}
                 underlayColor={'#AAA'}>
                 <View>
-                  <Text>{data.item.name}</Text>
+                  <Text>
+                    {data.item.name} status: {data.item.status} Sig:{' '}
+                    {data.item.seq_sig} End: {data.item.seq_end}
+                  </Text>
                 </View>
               </TouchableHighlight>
             </SwipeRow>
           )}
-          keyExtractor={item => item.seq}
+          keyExtractor={item => item.seq_end}
         />
         <TouchableOpacity
           style={{
