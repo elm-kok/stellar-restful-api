@@ -36,43 +36,42 @@ class Hospital extends React.Component {
         i => i.seq_sig === seq_sig,
       );
       if (_index > -1) {
-        this.state.hospitalList[_index].status = 0;
-      }
-      const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
-      const SecretKeyHospital = await Keychain.getGenericPassword(
-        'SecretKeyHospital',
-      );
-      const info = JSON.parse(
-        (
-          await getInfoByKey(
-            store.getState().authReducer.stellarPublicKey,
-            SecretKeyHospital.password,
-            seq_sig,
+        const StellarSecret = await Keychain.getGenericPassword(
+          'StellarSecret',
+        );
+        const SecretKeyHospital = await Keychain.getGenericPassword(
+          'SecretKeyHospital',
+        );
+        const info = JSON.parse(
+          (
+            await getInfoByKey(
+              store.getState().authReducer.stellarPublicKey,
+              SecretKeyHospital.password,
+              seq_sig,
+            )
           )
-        )
-          .values()
-          .next().value,
-      );
-      const sig = JSON.stringify({
-        Signature: info.Signature,
-        Status: 0,
-      });
-      console.log(sig);
-      const subResult = await submitByKey(
-        store.getState().authReducer.stellarPublicKey,
-        StellarSecret.password,
-        sig,
-        SecretKeyHospital.password,
-        seq_sig,
-      );
-      if (!subResult || !info) {
-        this.setState({modalVisible: false});
-        return;
+            .values()
+            .next().value,
+        );
+        const sig = JSON.stringify({
+          Signature: info.Signature,
+          Status: 0,
+        });
+        const subResult = await submitByKey(
+          store.getState().authReducer.stellarPublicKey,
+          StellarSecret.password,
+          sig,
+          SecretKeyHospital.password,
+          seq_sig,
+        );
+        if (subResult && info) {
+          this.state.hospitalList[_index].status = 0;
+          await store.dispatch(updateHospital(this.state.hospitalList));
+          this.setState({
+            hospitalList: store.getState().hospitalReducer.HospitalList,
+          });
+        }
       }
-      await store.dispatch(updateHospital(this.state.hospitalList));
-      this.setState({
-        hospitalList: store.getState().hospitalReducer.HospitalList,
-      });
       this.setState({modalVisible: false});
     } catch (err) {
       this.setState({modalVisible: false});

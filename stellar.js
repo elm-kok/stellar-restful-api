@@ -135,10 +135,7 @@ export async function submitByKey(
   testAccountInit(publicKey);
 
   const strEncrypt = encrypt(data, secretKey);
-  var content = null;
-  if (data) {
-    content = await chunkString(strEncrypt, 63);
-  }
+  var content = await chunkString(strEncrypt, 63);
   console.log('Contents: ', content);
   const account = await server.loadAccount(publicKey);
   const seq = key;
@@ -160,12 +157,10 @@ export async function submitByKey(
     transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
     try {
       const transactionResult = await server.submitTransaction(transaction);
-      //console.log(transactionResult);
     } catch (err) {
       console.error(err);
       return false;
     }
-    return true;
   }
   const isFail = await server
     .accounts()
@@ -265,7 +260,7 @@ export async function clearInfo(publicKey, secretString, seq) {
                 value: null,
               }),
             )
-            .setTimeout(1000)
+            .setTimeout(600)
             .build();
           transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
           try {
