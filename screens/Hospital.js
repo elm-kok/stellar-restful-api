@@ -29,78 +29,98 @@ class Hospital extends React.Component {
     this.props.navigation.navigate('HospitalQR');
   };
   async disableRow(seq_sig) {
-    this.setState({modalVisible: true});
-    console.log(seq_sig);
-    const _index = this.state.hospitalList.findIndex(
-      i => i.seq_sig === seq_sig,
-    );
-    if (_index > -1) {
-      this.state.hospitalList[_index].status = 0;
-    }
-    const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
-    const SecretKeyHospital = await Keychain.getGenericPassword(
-      'SecretKeyHospital',
-    );
-    const info = JSON.parse(
-      (
-        await getInfoByKey(
-          store.getState().authReducer.stellarPublicKey,
-          SecretKeyHospital.password,
-          seq_sig,
-        )
-      )
-        .values()
-        .next().value,
-    );
-    const sig = JSON.stringify({
-      Signature: info.Signature,
-      Status: 0,
-    });
-    console.log(sig);
-    await submitByKey(
-      store.getState().authReducer.stellarPublicKey,
-      StellarSecret.password,
-      sig,
-      SecretKeyHospital.password,
-      seq_sig,
-    );
-
-    await store.dispatch(updateHospital(this.state.hospitalList));
-    this.setState({
-      hospitalList: store.getState().hospitalReducer.HospitalList,
-    });
-    this.setState({modalVisible: false});
-  }
-
-  async rejectRow(seq_sig, seq_end) {
-    this.setState({modalVisible: true});
-    console.log(seq_sig);
-    console.log(seq_end);
-    const seq_sig_index = this.state.hospitalList.findIndex(
-      i => i.seq_sig === seq_sig,
-    );
-    const seq_end_index = this.state.hospitalList.findIndex(
-      i => i.seq_end === seq_end,
-    );
-    if (seq_sig_index > -1 && seq_end_index > -1) {
-      this.state.hospitalList.splice(seq_sig_index, 1);
+    try {
+      this.setState({modalVisible: true});
+      console.log(seq_sig);
+      const _index = this.state.hospitalList.findIndex(
+        i => i.seq_sig === seq_sig,
+      );
+      if (_index > -1) {
+        this.state.hospitalList[_index].status = 0;
+      }
       const StellarSecret = await Keychain.getGenericPassword('StellarSecret');
-      await clearInfo(
+      const SecretKeyHospital = await Keychain.getGenericPassword(
+        'SecretKeyHospital',
+      );
+      const info = JSON.parse(
+        (
+          await getInfoByKey(
+            store.getState().authReducer.stellarPublicKey,
+            SecretKeyHospital.password,
+            seq_sig,
+          )
+        )
+          .values()
+          .next().value,
+      );
+      const sig = JSON.stringify({
+        Signature: info.Signature,
+        Status: 0,
+      });
+      console.log(sig);
+      const subResult = await submitByKey(
         store.getState().authReducer.stellarPublicKey,
         StellarSecret.password,
+        sig,
+        SecretKeyHospital.password,
         seq_sig,
       );
-      await clearInfo(
-        store.getState().authReducer.stellarPublicKey,
-        StellarSecret.password,
-        seq_end,
-      );
+      if (!subResult || !info) {
+        this.setState({modalVisible: false});
+        return;
+      }
       await store.dispatch(updateHospital(this.state.hospitalList));
       this.setState({
         hospitalList: store.getState().hospitalReducer.HospitalList,
       });
+      this.setState({modalVisible: false});
+    } catch (err) {
+      this.setState({modalVisible: false});
+      console.log(err);
     }
-    this.setState({modalVisible: false});
+  }
+
+  async rejectRow(seq_sig, seq_end) {
+    try {
+      this.setState({modalVisible: true});
+      console.log(seq_sig);
+      console.log(seq_end);
+      const seq_sig_index = this.state.hospitalList.findIndex(
+        i => i.seq_sig === seq_sig,
+      );
+      const seq_end_index = this.state.hospitalList.findIndex(
+        i => i.seq_end === seq_end,
+      );
+      if (seq_sig_index > -1 && seq_end_index > -1) {
+        const StellarSecret = await Keychain.getGenericPassword(
+          'StellarSecret',
+        );
+        const sig_clear = await clearInfo(
+          store.getState().authReducer.stellarPublicKey,
+          StellarSecret.password,
+          seq_sig,
+        );
+        const end_clear = await clearInfo(
+          store.getState().authReducer.stellarPublicKey,
+          StellarSecret.password,
+          seq_end,
+        );
+        console.log('TRUE/FALSE: ', sig_clear, end_clear);
+        if (sig_clear && end_clear) {
+          this.state.hospitalList.splice(seq_sig_index, 1);
+          await store.dispatch(updateHospital(this.state.hospitalList));
+          this.setState({
+            hospitalList: store.getState().hospitalReducer.HospitalList,
+          });
+        }
+      }
+      this.setState({modalVisible: false});
+    } catch (err) {
+      this.setState({
+        modalVisible: false,
+      });
+      console.log(err);
+    }
   }
   render() {
     return (

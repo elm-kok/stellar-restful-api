@@ -72,19 +72,15 @@ export async function submit(publicKey, secretString, data, secretKey) {
           value: content[i].toString('binary'),
         }),
       )
-      .setTimeout(300)
+      .setTimeout(100)
       .build();
     transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-    var transactionResult = null;
     try {
-      transactionResult = await server.submitTransaction(transaction);
+      const transactionResult = await server.submitTransaction(transaction);
       //console.log(transactionResult);
     } catch (err) {
-      console.log('Re-Submit...');
-      while (!transactionResult) {
-        transactionResult = await server.submitTransaction(transaction);
-      }
       console.error(err);
+      return false;
     }
   }
   console.log('Finish.');
@@ -159,22 +155,19 @@ export async function submitByKey(
           value: content[i].toString('binary'),
         }),
       )
-      .setTimeout(300)
+      .setTimeout(100)
       .build();
     transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-    var transactionResult = null;
     try {
-      transactionResult = await server.submitTransaction(transaction);
+      const transactionResult = await server.submitTransaction(transaction);
       //console.log(transactionResult);
     } catch (err) {
-      console.log('Re-Submit...');
-      while (!transactionResult) {
-        transactionResult = await server.submitTransaction(transaction);
-      }
       console.error(err);
+      return false;
     }
+    return true;
   }
-  await server
+  const isFail = await server
     .accounts()
     .accountId(publicKey)
     .call()
@@ -193,26 +186,24 @@ export async function submitByKey(
                 value: null,
               }),
             )
-            .setTimeout(300)
+            .setTimeout(100)
             .build();
           transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-          var transactionResult = null;
           try {
-            transactionResult = await server.submitTransaction(transaction);
+            const transactionResult = await server.submitTransaction(
+              transaction,
+            );
             //console.log(transactionResult);
           } catch (err) {
-            console.log('Re-Submit...');
-            while (!transactionResult) {
-              transactionResult = await server.submitTransaction(transaction);
-            }
             console.error(err);
+            return false;
           }
-        } else {
-          console.log('Finish.');
-          break;
         }
       }
+      console.log('Finish.');
+      return true;
     });
+  return isFail;
 }
 export async function getInfoByKey(publicKey, secretKey, key) {
   testAccountInit(publicKey);
@@ -256,7 +247,7 @@ export async function clearInfo(publicKey, secretString, seq) {
   const account = await server.loadAccount(publicKey);
   console.log('SEQ: ', seq);
   const fee = await server.fetchBaseFee();
-  await server
+  const isFail = await server
     .accounts()
     .accountId(publicKey)
     .call()
@@ -274,25 +265,23 @@ export async function clearInfo(publicKey, secretString, seq) {
                 value: null,
               }),
             )
-            .setTimeout(300)
+            .setTimeout(1000)
             .build();
           transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-          var transactionResult = null;
           try {
-            transactionResult = await server.submitTransaction(transaction);
+            const transactionResult = await server.submitTransaction(
+              transaction,
+            );
             //console.log(transactionResult);
           } catch (err) {
-            console.log('Re-Submit...');
-            while (!transactionResult) {
-              transactionResult = await server.submitTransaction(transaction);
-            }
             console.error(err);
+            return false;
           }
-        } else {
-          break;
         }
       }
+      return true;
     });
   console.log('Finish.');
+  return isFail;
 }
 export {StellarSdk, server, apiServer};

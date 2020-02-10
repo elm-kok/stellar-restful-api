@@ -66,6 +66,10 @@ class HospitalQR extends React.Component {
         JSON.stringify(endpoint),
         SecretKeyDoctor.password,
       );
+      if (!seq_end || !seq_sig) {
+        this.setState({modalVisible2: false});
+        return;
+      }
       this.setState({statusText: 'Dispatch EndPoint...'});
       await store.dispatch(
         addHospital(seq_sig, seq_end, endpoint.HospitalName, endpoint.EndPoint),
