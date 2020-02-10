@@ -55,7 +55,7 @@ class Hospital extends React.Component {
         );
         const sig = JSON.stringify({
           Signature: info.Signature,
-          Status: 0,
+          Status: !info.Status,
         });
         const subResult = await submitByKey(
           store.getState().authReducer.stellarPublicKey,
@@ -65,7 +65,7 @@ class Hospital extends React.Component {
           seq_sig,
         );
         if (subResult && info) {
-          this.state.hospitalList[_index].status = 0;
+          this.state.hospitalList[_index].status = !info.Status ? 1 : 0;
           await store.dispatch(updateHospital(this.state.hospitalList));
           this.setState({
             hospitalList: store.getState().hospitalReducer.HospitalList,
@@ -150,11 +150,19 @@ class Hospital extends React.Component {
           renderItem={data => (
             <SwipeRow rightOpenValue={-150}>
               <View style={styles.rowBack}>
-                <TouchableOpacity
-                  style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                  onPress={() => this.disableRow(data.item.seq_sig)}>
-                  <Text style={styles.backTextWhite}>Disable</Text>
-                </TouchableOpacity>
+                {data.item.status ? (
+                  <TouchableOpacity
+                    style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                    onPress={() => this.disableRow(data.item.seq_sig)}>
+                    <Text style={styles.backTextWhite}>Disable</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                    onPress={() => this.disableRow(data.item.seq_sig)}>
+                    <Text style={styles.backTextWhite}>Enable</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnRight]}
                   onPress={() =>
