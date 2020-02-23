@@ -33,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           //packages.add(new KeychainPackage());
           //packages.add(new SvgPackage());
+          //packages.add(new RNScryptPackage());
           return packages;
         }
 

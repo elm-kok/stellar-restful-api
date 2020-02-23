@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
-import {createHash, randomBytes} from 'crypto';
+import {createHash, randomBytes, pbkdf2Sync} from 'crypto';
 import {StellarSdk} from '../stellar';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
@@ -74,8 +74,21 @@ class SignInScreen extends React.Component {
   }
 
   _signInAsync = async () => {
+    /*
     const hashId = await createHash('sha256')
       .update(this.state._id + this.state.passwd, 'utf-8')
+      .digest();
+      */
+    const hashId_raw = pbkdf2Sync(
+      this.state._id + this.state.passwd,
+      '',
+      1000,
+      64,
+      'sha512',
+    );
+    console.log(hashId_raw.toString('base64'));
+    const hashId = createHash('sha256')
+      .update(hashId_raw)
       .digest();
     const arrByte = Uint8Array.from(hashId);
     const stellarKeyPair = await StellarSdk.Keypair.fromRawEd25519Seed(arrByte);
