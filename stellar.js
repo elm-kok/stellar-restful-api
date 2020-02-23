@@ -22,7 +22,7 @@ function decrypt(text, ENCRYPTION_KEY) {
     return null;
   }
 }
-function verifySignature(publicKey, signature, _id, date) {
+function verifySignature(publicKey, signature, pid, key) {
   /*
   const today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
@@ -32,7 +32,7 @@ function verifySignature(publicKey, signature, _id, date) {
   try {
     const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
     return kp.verify(
-      Buffer.from(_id + "_" + date),
+      Buffer.from(pid + "_" + publicKey + "_" + key),
       Buffer.from(signature, "base64")
     );
   } catch (err) {
@@ -40,6 +40,40 @@ function verifySignature(publicKey, signature, _id, date) {
     return false;
   }
   // data -> 111...11_01/02/2020
+}
+
+async function getInfoByKey(publicKey, secretKey, key) {
+  testAccountInit(publicKey);
+  var resultOb = {};
+  var result = new Set();
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(function(accountResult) {
+      var i;
+      for (i = 0; i < 16; ++i) {
+        if (accountResult.data_attr[key + "_" + i.toString()]) {
+          if (resultOb[key] == undefined) {
+            resultOb[key] = "";
+          }
+          resultOb[key] += Buffer.from(
+            accountResult.data_attr[key + "_" + i.toString()],
+            "base64"
+          ).toString("binary");
+        } else {
+          const deRes = decrypt(resultOb[key], secretKey);
+          if (deRes) {
+            result.add(deRes);
+          }
+          break;
+        }
+      }
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  return result;
 }
 
 async function getInfo(publicKey, secretKey) {
@@ -83,5 +117,6 @@ module.exports = {
   SecretKey,
   HOSPCODE,
   verifySignature,
-  getInfo
+  getInfo,
+  getInfoByKey
 };

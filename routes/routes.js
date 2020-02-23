@@ -2,9 +2,11 @@ const express = require("express");
 const mysql = require("mysql");
 const router = express.Router();
 const dotenv = require("dotenv").config();
-const { getInfo, verifySignature } = require("../stellar");
+const { getInfoByKey, verifySignature } = require("../stellar");
 const StellarSdk = require("stellar-sdk");
-const { SecretKey } = require("../stellar");
+const { PublicKey } = require("../stellar");
+const crypto = require("crypto");
+
 /*
 DRUG_OPD
 DRUGALLERGY
@@ -25,59 +27,96 @@ connection.connect(function(err) {
 });
 console.log(connection.config);
 
-async function verify(doc_spk, signature, _id, date, callback) {
-  const querycmd =
-    "SELECT * FROM STELLARKEY WHERE STELLARKEY.CID = " +
-    connection.escape(_id) +
-    ";";
-  connection.query(querycmd, async function(error, results) {
-    if (error) {
-      return callback(new Error("An error occured during query " + error));
-    }
-    if (!verifySignature(doc_spk, signature, _id, date)) {
-      console.log("Signature fail for DOCTOR SPK: " + doc_spk);
-      return callback(false);
-    }
-    const Info = await getInfo(results[0].SPK, results[0].SecretKey);
-    var hasDoc = false;
-    var hasSig = false;
-    const KP = StellarSdk.Keypair.fromSecret(SecretKey);
-    console.log(Info);
-    for (var it = Info.values(), val = null; (val = it.next().value); ) {
-      const valJson = JSON.parse(val);
-      if (valJson.Type == "Doctor" && valJson.SPK == doc_spk) {
-        hasDoc = true;
+async function verify(signature, pid, type, key, callback) {
+  if (type == "Patient") {
+    const querycmd =
+      "SELECT * FROM STELLARKEY WHERE STELLARKEY.PID = " +
+      connection.escape(pid) +
+      ";";
+    connection.query(querycmd, async function(error, results) {
+      if (error) {
+        return callback(new Error("An error occured during query " + error));
       }
-      if (valJson.Type == "Signature") {
-        hasSig =
-          KP.sign(Buffer.from(_id + results[0].SPK)).toString("base64") ==
-          valJson.Value;
+      if (!verifySignature(results[0].SPK, signature, pid, results[0].Key)) {
+        console.log("Signature fail for Patient PID: " + pid);
+        return callback(false);
       }
-      if (hasSig && hasDoc) {
+      const Info = JSON.parse(
+        (
+          await getInfoByKey(
+            results[0].SPK,
+            results[0].SecretKey,
+            results[0].Key
+          )
+        )
+          .values()
+          .next().value
+      );
+      const KP = StellarSdk.Keypair.fromPublicKey(PublicKey);
+      if (
+        KP.verify(
+          Buffer.from(pid + "_" + results[0].SPK + "_" + results[0].Key),
+          Buffer.from(Info.Signature, "base64")
+        ) &&
+        Info.Status
+      ) {
         return callback(true);
       }
-    }
-    if (!hasDoc) {
-      console.log("No Doctor: ", doc_spk, " on Patient's ledger.");
-    }
-    if (!hasSig) {
-      console.log("Invalid Signature on Hospital.");
-    }
+      return callback(false);
+    });
+  }
+  if (type == "Doctor") {
+    const querycmd =
+      "SELECT * FROM STELLARKEY WHERE STELLARKEY.PID = " +
+      connection.escape(pid) +
+      ";";
+    connection.query(querycmd, async function(error, results) {
+      if (error) {
+        return callback(new Error("An error occured during query " + error));
+      }
+      const Info = JSON.parse(
+        (await getInfoByKey(results[0].SPK, results[0].SecretKey, key))
+          .values()
+          .next().value
+      );
+      if (!verifySignature(Info.SPK, signature, pid, key)) {
+        console.log("Signature fail for Patient PID: " + pid);
+        return callback(false);
+      }
+    });
     return callback(false);
-  });
+  }
+  return callback(false);
 }
+
 router.post("/test", async function(req, res) {
-  verify(
-    req.body.SPK,
-    req.body.signature,
-    req.body._id,
-    req.body.date,
-    function(result) {
-      console.log(result);
-      if (result) res.json("OK");
-      else res.json("Fail");
-    }
+  const result = crypto.pbkdf2Sync("passwd", "", 1000, 64, "sha512").toString(
+    "base64"
   );
+  console.log(result);
+  res.json(result);
+  /*
+  verify(req.body.SPK, req.body.Signature, req.body.PID, function(result) {
+    console.log(result);
+    if (result) res.json("OK");
+    else res.json("Fail");
+  });
+  */
+});
+router.post("/findPid/", function(req, res) {
+  var HOSPCODE = req.body.HOSPCODE;
+  var ID = req.body.ID;
+  const querycmd =
+    "SELECT PID FROM PERSON WHERE CID=" +
+    connection.escape(ID) +
+    " AND HOSPCODE=" +
+    connection.escape(HOSPCODE);
+  connection.query(querycmd, (err, results) => {
+    if (err) {
+      return new Error("An error occured during query " + err);
+    }
+    res.json(results[0]);
+  });
 });
 
 router.post("/DRUG_OPD/", function(req, res, next) {

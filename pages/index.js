@@ -19,39 +19,59 @@ export default class QR extends Component {
   _clear = () => {
     this.setState({ result: "", camera: true, msg: "", QR: {} });
   };
-  handleScan = data => {
+  handleScan = async data => {
     if (data) {
-      const dataJson = JSON.parse(data);
+      const dataJson = await JSON.parse(data);
       if (dataJson.Type == "Patient") {
-        const KP = StellarSdk.Keypair.fromSecret(SecretKey);
-        this.setState({
-          result: dataJson,
-          QR: JSON.stringify({
-            Type: "Hospital",
-            HospitalName: "Chulalongkorn Hospital",
-            EndPoint: "chulalongkornhospital.go.th/patientID_",
-            SPK: PublicKey,
-            Signature: KP.sign(
-              Buffer.from(dataJson.ID + dataJson.SPK)
-            ).toString("base64")
-          }),
-          camera: false,
-          msg: ""
-        });
-        //ins(dataJson.ID, dataJson.SPK, dataJson.SecretKey);
-        fetch("http://localhost:3001/api/secret", {
-          method: "POST",
+        await fetch("http://localhost:3001/api/findPID", {
+          method: "post",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            cid: dataJson.ID,
             HOSPCODE: HOSPCODE,
-            spk: dataJson.SPK,
-            secretkey: dataJson.SecretKey
+            ID: dataJson.ID
           })
-        });
+        })
+          .then(response => response.json())
+          .then(async responseJson => {
+            console.log("response object:", responseJson.PID);
+            const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+            this.setState({
+              result: dataJson,
+              QR: JSON.stringify({
+                Type: "Hospital",
+                HospitalName: "Chulalongkorn Hospital",
+                EndPoint: "http://localhost:3001/api/",
+                HOSCODE: HOSPCODE,
+                PID: responseJson.PID,
+                //SPK: PublicKey,
+                Signature: KP.sign(
+                  Buffer.from(
+                    responseJson.PID + "_" + dataJson.SPK + "_" + dataJson.Key
+                  )
+                ).toString("base64")
+              }),
+              camera: false,
+              msg: ""
+            });
+            //ins(dataJson.ID, dataJson.SPK, dataJson.SecretKey);
+            await fetch("http://localhost:3001/api/secret", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                pid: dataJson.PID,
+                HOSPCODE: HOSPCODE,
+                spk: dataJson.SPK,
+                key: dataJson.key,
+                secretkey: dataJson.SecretKey
+              })
+            });
+          });
       } else {
         this.setState({
           msg: "Wrong QRCode."
