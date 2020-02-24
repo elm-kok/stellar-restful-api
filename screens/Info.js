@@ -11,8 +11,8 @@ class Info extends React.Component {
     };
   }
   async componentDidMount() {
-    const result = pbkdf2Sync('passwd', '', 1000, 64, 'sha512').toString(
-      'base64',
+    const result = pbkdf2Sync('passwd123', '', 1000, 64, 'sha512').toString(
+      'hex',
     );
     console.log(result);
     this.setState({ss: result});
