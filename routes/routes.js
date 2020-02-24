@@ -90,9 +90,9 @@ async function verify(signature, pid, type, key, callback) {
 }
 
 router.post("/test", async function(req, res) {
-  const result = crypto.pbkdf2Sync("passwd", "", 1000, 64, "sha512").toString(
-    "base64"
-  );
+  const result = crypto
+    .pbkdf2Sync("passwd", "", 1000, 64, "sha512")
+    .toString("base64");
   console.log(result);
   res.json(result);
   /*
@@ -222,14 +222,12 @@ router.post("/LAB/", function(req, res, next) {
 });
 
 router.post("/secret/", function(req, res, next) {
-  var values = [
-    [req.body.cid, req.body.HOSPCODE, req.body.spk, req.body.secretkey]
-  ];
+  var values = [[req.body.spk, req.body.pid, req.body.seq, req.body.HOSPCODE]];
   var sql =
-    "INSERT INTO STELLARKEY (CID, HOSPCODE, SPK, SecretKey) VALUES ? ON DUPLICATE KEY UPDATE SPK=" +
+    "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE spk=" +
     connection.escape(req.body.spk) +
-    ",SecretKey=" +
-    connection.escape(req.body.secretkey);
+    ",SEQ=" +
+    connection.escape(req.body.seq);
   connection.query(sql, [values], function(err, result) {
     if (err) console.log(err);
   });

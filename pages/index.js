@@ -3,6 +3,8 @@ import { Typography, Button, Grid } from "@material-ui/core";
 import QRCode from "qrcode.react";
 import dynamic from "next/dynamic";
 import { PublicKey, SecretKey, HOSPCODE } from "../stellar";
+import { algo } from "crypto-js";
+import pbkdf2 from "crypto-js/pbkdf2";
 
 const StellarSdk = require("stellar-sdk");
 const QrReader = dynamic(() => import("react-qr-reader"), {
@@ -22,7 +24,14 @@ export default class QR extends Component {
   handleScan = async data => {
     if (data) {
       const dataJson = await JSON.parse(data);
-      if (dataJson.Type == "Patient") {
+      if (dataJson.type == "Patient") {
+        const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+        const sig = KP.sign(Buffer.from(dataJson.spk)).toString("base64");
+        const key512Bits1000Iterations = pbkdf2(sig, "", {
+          keySize: 512 / 32,
+          hasher: algo.SHA512,
+          iterations: 1000
+        }).toString();
         await fetch("http://localhost:3001/api/findPID", {
           method: "post",
           headers: {
@@ -31,32 +40,27 @@ export default class QR extends Component {
           },
           body: JSON.stringify({
             HOSPCODE: HOSPCODE,
-            ID: dataJson.ID
+            ID: dataJson.cid
           })
         })
           .then(response => response.json())
           .then(async responseJson => {
             console.log("response object:", responseJson.PID);
-            const KP = StellarSdk.Keypair.fromSecret(SecretKey);
             this.setState({
               result: dataJson,
+              /*
+              Sign(HospitalPrivateKey, PID+PatientSPK), HospitalName, HospitalEndPoint, HospitalCode
+              */
               QR: JSON.stringify({
                 Type: "Hospital",
                 HospitalName: "Chulalongkorn Hospital",
                 EndPoint: "http://localhost:3001/api/",
                 HOSCODE: HOSPCODE,
-                PID: responseJson.PID,
-                //SPK: PublicKey,
-                Signature: KP.sign(
-                  Buffer.from(
-                    responseJson.PID + "_" + dataJson.SPK + "_" + dataJson.Key
-                  )
-                ).toString("base64")
+                Signature: key512Bits1000Iterations
               }),
               camera: false,
               msg: ""
             });
-            //ins(dataJson.ID, dataJson.SPK, dataJson.SecretKey);
             await fetch("http://localhost:3001/api/secret", {
               method: "POST",
               headers: {
@@ -64,11 +68,10 @@ export default class QR extends Component {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                pid: dataJson.PID,
+                pid: dataJson.cid,
                 HOSPCODE: HOSPCODE,
-                spk: dataJson.SPK,
-                key: dataJson.key,
-                secretkey: dataJson.SecretKey
+                spk: dataJson.spk,
+                seq: dataJson.seq
               })
             });
           });
@@ -106,10 +109,12 @@ export default class QR extends Component {
             </Grid>
             <Grid item xs={6}>
               <Grid item xs={12}>
-                <Typography variant="h3">{this.state.result.Name}</Typography>
+                <Typography variant="h3">{this.state.result.name}</Typography>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="h3">ID: {this.state.result.ID}</Typography>
+                <Typography variant="h3">
+                  ID: {this.state.result.cid}
+                </Typography>
               </Grid>
               <Grid item xs={12} style={{ paddingTop: 30 }}>
                 <Button
