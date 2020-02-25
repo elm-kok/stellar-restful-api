@@ -4,7 +4,7 @@ const crypto = require("crypto");
 
 const PublicKey = "GASRGGYGQKU37DI537C4LZZRDA5RVL4DLVG4WKJUO4DTOAALGGU3X4NL";
 const SecretKey = "SAKBRQ345WYCSPLSD72ULTCUAAXAEVOLC63SHQ7WB3RRSPM72TZSAFND";
-const HOSPCODE = "10739";
+const HOSPCODE = "09082";
 
 function decrypt(text, ENCRYPTION_KEY) {
   try {
@@ -41,9 +41,20 @@ function verifySignature(publicKey, signature, pid, key) {
   }
   // data -> 111...11_01/02/2020
 }
+function verifySignatureWithoutKey(publicKey, signature) {
+  try {
+    const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
+    return kp.verify(
+      Buffer.from(publicKey + "_" + HOSPCODE),
+      Buffer.from(signature, "base64")
+    );
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
 
 async function getInfoByKey(publicKey, secretKey, key) {
-  testAccountInit(publicKey);
   var resultOb = {};
   var result = new Set();
   await server
@@ -74,6 +85,36 @@ async function getInfoByKey(publicKey, secretKey, key) {
       console.error(err);
     });
   return result;
+}
+
+async function getInfoByKeyWithoutEncrypt(publicKey, key) {
+  var resultOb = {};
+  var result = new Set();
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(function(accountResult) {
+      var i;
+      for (i = 0; i < 16; ++i) {
+        if (accountResult.data_attr[key + "_" + i.toString()]) {
+          if (resultOb[key] == undefined) {
+            resultOb[key] = "";
+          }
+          resultOb[key] += Buffer.from(
+            accountResult.data_attr[key + "_" + i.toString()],
+            "base64"
+          ).toString("binary");
+        } else {
+          result.add(resultOb[key]);
+          break;
+        }
+      }
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  return [...result][0];
 }
 
 async function getInfo(publicKey, secretKey) {
@@ -118,5 +159,9 @@ module.exports = {
   HOSPCODE,
   verifySignature,
   getInfo,
-  getInfoByKey
+  getInfoByKey,
+  StellarSdk,
+  server,
+  verifySignatureWithoutKey,
+  getInfoByKeyWithoutEncrypt
 };

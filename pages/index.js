@@ -25,13 +25,6 @@ export default class QR extends Component {
     if (data) {
       const dataJson = await JSON.parse(data);
       if (dataJson.type == "Patient") {
-        const KP = StellarSdk.Keypair.fromSecret(SecretKey);
-        const sig = KP.sign(Buffer.from(dataJson.spk)).toString("base64");
-        const key512Bits1000Iterations = pbkdf2(sig, "", {
-          keySize: 512 / 32,
-          hasher: algo.SHA512,
-          iterations: 1000
-        }).toString();
         await fetch("http://localhost:3001/api/findPID", {
           method: "post",
           headers: {
@@ -46,11 +39,17 @@ export default class QR extends Component {
           .then(response => response.json())
           .then(async responseJson => {
             console.log("response object:", responseJson.PID);
+            const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+            const sig = KP.sign(
+              Buffer.from(responseJson.PID + "_" + dataJson.spk)
+            ).toString("base64");
+            const key512Bits1000Iterations = pbkdf2(sig, "", {
+              keySize: 512 / 32,
+              hasher: algo.SHA512,
+              iterations: 1000
+            }).toString();
             this.setState({
               result: dataJson,
-              /*
-              Sign(HospitalPrivateKey, PID+PatientSPK), HospitalName, HospitalEndPoint, HospitalCode
-              */
               QR: JSON.stringify({
                 Type: "Hospital",
                 HospitalName: "Chulalongkorn Hospital",
@@ -68,7 +67,7 @@ export default class QR extends Component {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                pid: dataJson.cid,
+                pid: responseJson.PID,
                 HOSPCODE: HOSPCODE,
                 spk: dataJson.spk,
                 seq: dataJson.seq

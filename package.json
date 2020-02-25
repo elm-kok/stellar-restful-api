@@ -16,7 +16,8 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
-    "stellar-sdk": "^3.3.0"
+    "stellar-sdk": "^3.3.0",
+    "util": "^0.12.2"
   },
   "scripts": {
     "dev": "node server.js",
