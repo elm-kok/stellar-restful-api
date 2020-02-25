@@ -1,5 +1,3 @@
-import {act} from 'react-test-renderer';
-
 // Initial State
 const initialState = {
   HospitalList: [],
@@ -9,7 +7,7 @@ const initialState = {
 const hospitalReducer = (state = initialState, action) => {
   switch (action.type) {
     // Login
-    case 'Add': {
+    case 'AddHospital': {
       return {
         // State
         ...state,
@@ -29,7 +27,7 @@ const hospitalReducer = (state = initialState, action) => {
         ]),
       };
     }
-    case 'Update': {
+    case 'UpdateHospital': {
       return {
         // State
         ...state,

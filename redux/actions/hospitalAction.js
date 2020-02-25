@@ -1,5 +1,5 @@
 export const addHospital = (seq_sig, seq_end, name, hospcode, endPoint) => ({
-  type: 'Add',
+  type: 'AddHospital',
   seq_sig: seq_sig,
   seq_end: seq_end,
   HospitalName: name,
@@ -8,6 +8,6 @@ export const addHospital = (seq_sig, seq_end, name, hospcode, endPoint) => ({
 });
 
 export const updateHospital = hospitalList => ({
-  type: 'Update',
+  type: 'UpdateHospital',
   hospitalList: hospitalList,
 });
