@@ -4,6 +4,7 @@ import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {pbkdf2Sync} from 'crypto';
 import {testAccountInit} from '../stellar';
+
 class Info extends React.Component {
   constructor(props) {
     super(props);
@@ -19,7 +20,7 @@ class Info extends React.Component {
   }
   async load() {
     try {
-      const credentials = await Keychain.getGenericPassword('SecretKeyDoctor');
+      const credentials = await Keychain.getGenericPassword('StellarSecret');
       if (credentials) {
         console.log({...credentials, status: 'Credentials loaded!'});
       } else {
