@@ -13,6 +13,8 @@ import SignInScreen from './screens/SignInScreen';
 import AuthLoadingScreen from './screens/AuthLoadingScreen';
 import HospitalQR from './screens/HospitalQR';
 import HospitalScan from './screens/HospitalScan';
+import DoctorQR from './screens/DoctorQR';
+import DoctorScan from './screens/DoctorScan';
 
 const AppTab = createMaterialBottomTabNavigator(
   {
@@ -36,6 +38,8 @@ const AppContainer = createAppContainer(
       Auth: SignInScreen,
       HospitalScan: HospitalScan,
       HospitalQR: HospitalQR,
+      DoctorScan: DoctorScan,
+      DoctorQR: DoctorQR,
     },
     {
       initialRouteName: 'AuthLoading',

@@ -12,9 +12,9 @@ import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {clearInfo} from '../stellar';
-import {addHospital, updateHospital} from '../redux/actions/hospitalAction';
+import {addDoctor, updateDoctor} from '../redux/actions/doctorAction';
 
-class HospitalQR extends React.Component {
+class DoctorQR extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,17 +25,17 @@ class HospitalQR extends React.Component {
     };
   }
   onClose = () => {
-    this.props.navigation.navigate('Hospital');
+    this.props.navigation.navigate('Doctor');
   };
   onSuccess = e => {
     this.setState({QRString: JSON.parse(e.data), modalVisible: true});
-    //this.props.navigation.navigate('Hospital');
+    //this.props.navigation.navigate('Doctor');
   };
   onSubmit = async () => {
     try {
       var check = -1;
       var i;
-      var hospital = store.getState().hospitalReducer.HospitalList;
+      var doctor = store.getState().doctorReducer.DoctorList;
       this.setState({
         modalVisible: false,
         modalVisible2: true,
@@ -47,13 +47,10 @@ class HospitalQR extends React.Component {
       const SecretKeyDoctor = (
         await Keychain.getGenericPassword('SecretKeyDoctor')
       ).password;
-      for (i = 0; i < hospital.length; ++i) {
-        if (this.state.QRString.HospitalName === hospital[i].name) {
+      for (i = 0; i < doctor.length; ++i) {
+        if (this.state.QRString.DoctorName === doctor[i].name) {
           check = i;
-          await clearInfo(spk, StellarSecret, hospital[i].seq_sig);
-          await clearInfo(spk, StellarSecret, hospital[i].seq_end);
-          hospital[i].endPoint = this.state.QRString.EndPoint;
-          hospital[i].hospCode = this.state.QRString.HOSCODE;
+          await clearInfo(spk, StellarSecret, doctor[i].seq_sig);
           break;
         }
       }
@@ -63,42 +60,27 @@ class HospitalQR extends React.Component {
         Status: 1,
       });
       const seq_sig = await submitWithoutEncrypt(spk, StellarSecret, sig);
-      this.setState({statusText: 'Upload EndPoint...'});
-      var endpoint = this.state.QRString;
-      delete endpoint['Signature'];
-      const seq_end = await submit(
-        spk,
-        StellarSecret,
-        JSON.stringify(endpoint),
-        SecretKeyDoctor,
-      );
-      if (!seq_end || !seq_sig) {
+
+      if (!seq_sig) {
         this.setState({modalVisible2: false});
         return;
       }
       console.log('FOUND duplicate: ', check);
-      this.setState({statusText: 'Dispatch EndPoint...'});
+      this.setState({statusText: 'Dispatch Doctor...'});
       if (check > -1) {
-        hospital[check].seq_sig = seq_sig;
-        hospital[check].seq_end = seq_end;
-        await store.dispatch(updateHospital(hospital));
+        doctor[check].seq_sig = seq_sig;
+        await store.dispatch(updateDoctor(doctor));
       } else {
         await store.dispatch(
-          addHospital(
-            seq_sig,
-            seq_end,
-            endpoint.HospitalName,
-            endpoint.HOSCODE,
-            endpoint.EndPoint,
-          ),
+          addDoctor(seq_sig, this.state.QRString.DoctorName),
         );
       }
       this.setState({modalVisible2: false});
-      console.log(store.getState().hospitalReducer.HospitalList);
-      this.props.navigation.navigate('Hospital');
+      console.log(store.getState().doctorReducer.DoctorList);
+      this.props.navigation.navigate('Doctor');
     } catch (err) {
       this.setState({modalVisible2: false});
-      this.props.navigation.navigate('Hospital');
+      this.props.navigation.navigate('Doctor');
       console.log({status: 'Could not load credentials. ' + err});
     }
   };
@@ -125,7 +107,7 @@ class HospitalQR extends React.Component {
             }}
             onRead={this.onSuccess}
             topContent={
-              <Text style={styles.centerText}>Scan Hospital's QRCode.</Text>
+              <Text style={styles.centerText}>Scan Doctor's QRCode.</Text>
             }
           />
         ) : null}
@@ -138,10 +120,7 @@ class HospitalQR extends React.Component {
           }}>
           <>
             <Text style={{fontSize: 24}}>
-              Add {this.state.QRString.HospitalName}
-            </Text>
-            <Text style={{fontSize: 24}}>
-              End point {this.state.QRString.EndPoint}
+              Add {this.state.QRString.DoctorName}
             </Text>
 
             <TouchableOpacity
@@ -223,4 +202,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HospitalQR;
+export default DoctorQR;

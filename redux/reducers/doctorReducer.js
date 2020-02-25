@@ -2,11 +2,11 @@ import {act} from 'react-test-renderer';
 
 // Initial State
 const initialState = {
-  HospitalList: [],
+  DoctorList: [],
 };
 
 // Reducers (Modifies The State And Returns A New State)
-const hospitalReducer = (state = initialState, action) => {
+const doctorReducer = (state = initialState, action) => {
   switch (action.type) {
     // Login
     case 'Add': {
@@ -17,13 +17,10 @@ const hospitalReducer = (state = initialState, action) => {
         //1 -> Approve
         //0 -> Disable
         //remove -> Reject
-        HospitalList: state.HospitalList.concat([
+        DoctorList: state.DoctorList.concat([
           {
             seq_sig: action.seq_sig,
-            seq_end: action.seq_end,
-            name: action.HospitalName,
-            hospCode: action.hospCode,
-            endPoint: action.HospitalEndPoint,
+            name: action.DoctorName,
             status: 1,
           },
         ]),
@@ -37,7 +34,7 @@ const hospitalReducer = (state = initialState, action) => {
         //1 -> Approve
         //0 -> Disable
         //remove -> Reject
-        HospitalList: action.hospitalList,
+        DoctorList: action.doctorList,
       };
     }
     // Default
@@ -48,4 +45,4 @@ const hospitalReducer = (state = initialState, action) => {
 };
 
 // Exports
-export default hospitalReducer;
+export default doctorReducer;

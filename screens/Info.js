@@ -3,6 +3,7 @@ import {Text, View, Button} from 'react-native';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {pbkdf2Sync} from 'crypto';
+import {testAccountInit} from '../stellar';
 class Info extends React.Component {
   constructor(props) {
     super(props);
@@ -14,7 +15,6 @@ class Info extends React.Component {
     const result = pbkdf2Sync('passwd123', '', 1000, 64, 'sha512').toString(
       'hex',
     );
-    console.log(result);
     this.setState({ss: result});
   }
   async load() {
@@ -43,6 +43,12 @@ class Info extends React.Component {
           LName: {store.getState().authReducer.LName}
         </Text>
         <Button title="Load Credential." onPress={this.load} />
+        <Button
+          title="Init Testnet"
+          onPress={() =>
+            testAccountInit(store.getState().authReducer.stellarPublicKey)
+          }
+        />
         <Text>{this.state.ss}</Text>
       </View>
     );

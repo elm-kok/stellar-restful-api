@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
-import Counter from './Counter';
+import Info from './Info';
 import Doctor from './Doctor';
 import Hospital from './Hospital';
 import Settings from './Settings';
@@ -35,7 +35,7 @@ export default Home = () => {
           activeTintColor: 'tomato',
           inactiveTintColor: 'gray',
         }}>
-        <Tab.Screen name="Information" component={Counter} />
+        <Tab.Screen name="Information" component={Info} />
         <Tab.Screen name="Doctor" component={Doctor} />
         <Tab.Screen name="Hospital" component={Hospital} />
         <Tab.Screen name="Settings" component={Settings} />

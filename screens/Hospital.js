@@ -13,7 +13,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {store} from '../redux/store/store';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import {updateHospital} from '../redux/actions/hospitalAction';
-import {submitByKey, getInfoByKey, clearInfo} from '../stellar';
+import {
+  getInfoByKeyWithoutEncrypt,
+  submitByKeyWithoutEncrypt,
+  clearInfo,
+} from '../stellar';
 import * as Keychain from 'react-native-keychain';
 class Hospital extends React.Component {
   constructor(props) {
@@ -39,14 +43,10 @@ class Hospital extends React.Component {
         const StellarSecret = await Keychain.getGenericPassword(
           'StellarSecret',
         );
-        const SecretKeyHospital = await Keychain.getGenericPassword(
-          'SecretKeyHospital',
-        );
         const info = JSON.parse(
           (
-            await getInfoByKey(
+            await getInfoByKeyWithoutEncrypt(
               store.getState().authReducer.stellarPublicKey,
-              SecretKeyHospital.password,
               seq_sig,
             )
           )
@@ -57,11 +57,10 @@ class Hospital extends React.Component {
           Signature: info.Signature,
           Status: !info.Status,
         });
-        const subResult = await submitByKey(
+        const subResult = await submitByKeyWithoutEncrypt(
           store.getState().authReducer.stellarPublicKey,
           StellarSecret.password,
           sig,
-          SecretKeyHospital.password,
           seq_sig,
         );
         if (subResult && info) {
@@ -104,7 +103,6 @@ class Hospital extends React.Component {
           StellarSecret.password,
           seq_end,
         );
-        console.log('TRUE/FALSE: ', sig_clear, end_clear);
         if (sig_clear && end_clear) {
           this.state.hospitalList.splice(seq_sig_index, 1);
           await store.dispatch(updateHospital(this.state.hospitalList));

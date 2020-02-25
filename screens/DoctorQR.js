@@ -5,7 +5,7 @@ import QRCode from 'react-native-qrcode-svg';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {server} from '../stellar';
 import * as Keychain from 'react-native-keychain';
-class HospitalQR extends React.Component {
+class DoctorQR extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,7 +19,8 @@ class HospitalQR extends React.Component {
   getQR = async () => {
     try {
       const spk = store.getState().authReducer.stellarPublicKey;
-      const _id = store.getState().authReducer._id;
+      const secretKey = (await Keychain.getGenericPassword('SecretKeyDoctor'))
+        .password;
       const name =
         store.getState().authReducer.FName +
         ' ' +
@@ -32,8 +33,8 @@ class HospitalQR extends React.Component {
         spk +
         '","seq":"' +
         seq +
-        '","cid":"' +
-        _id +
+        '","secretKey":"' +
+        secretKey +
         '"}';
       return result;
     } catch (err) {
@@ -41,10 +42,10 @@ class HospitalQR extends React.Component {
     }
   };
   onClose = () => {
-    this.props.navigation.navigate('Hospital');
+    this.props.navigation.navigate('Doctor');
   };
   onNext = () => {
-    this.props.navigation.navigate('HospitalScan');
+    this.props.navigation.navigate('DoctorScan');
   };
   render() {
     return (
@@ -57,7 +58,7 @@ class HospitalQR extends React.Component {
                 textAlign: 'center', // <-- the magic
                 fontSize: 24,
               }}>
-              For Hospital Scanning...
+              For Doctor Scanning...
             </Text>
             <View
               style={{
@@ -126,4 +127,4 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
-export default HospitalQR;
+export default DoctorQR;
