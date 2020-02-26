@@ -15,21 +15,55 @@ import HospitalQR from './screens/HospitalQR';
 import HospitalScan from './screens/HospitalScan';
 import DoctorQR from './screens/DoctorQR';
 import DoctorScan from './screens/DoctorScan';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const AppTab = createMaterialBottomTabNavigator(
   {
-    Information: {screen: Info},
-    Doctor: {screen: Doctor},
-    Hospital: {screen: Hospital},
-    Settings: {screen: Settings},
+    Information: {
+      screen: Info,
+      navigationOptions: {
+        tabBarLabel: 'Info',
+        tabBarIcon: ({tintColor}) => (
+          <Icon style={[{color: tintColor}]} size={25} name={'ios-body'} />
+        ),
+      },
+    },
+    Doctor: {
+      screen: Doctor,
+      navigationOptions: {
+        tabBarLabel: 'Doctor',
+        tabBarIcon: ({tintColor}) => (
+          <Icon style={[{color: tintColor}]} size={25} name={'ios-people'} />
+        ),
+      },
+    },
+    Hospital: {
+      screen: Hospital,
+      navigationOptions: {
+        tabBarLabel: 'Hospital',
+        tabBarIcon: ({tintColor}) => (
+          <Icon style={[{color: tintColor}]} size={25} name={'ios-medkit'} />
+        ),
+      },
+    },
+    Settings: {
+      screen: Settings,
+      navigationOptions: {
+        tabBarLabel: 'Settings',
+        tabBarIcon: ({tintColor}) => (
+          <Icon style={[{color: tintColor}]} size={25} name={'ios-settings'} />
+        ),
+      },
+    },
   },
   {
     initialRouteName: 'Information',
-    activeColor: '#f0edf6',
-    inactiveColor: '#1e1411',
-    barStyle: {backgroundColor: '#694fad'},
+    activeColor: '#fffdf9',
+    inactiveColor: '#beebe9',
+    barStyle: {backgroundColor: '#8ac6d1'},
   },
 );
+
 const AppContainer = createAppContainer(
   createSwitchNavigator(
     {
