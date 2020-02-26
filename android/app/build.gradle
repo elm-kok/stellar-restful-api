@@ -195,8 +195,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    compile project(':react-native-keychain')
+    implementation project(':react-native-keychain')
     //compile project(':randombytes')
+    implementation project(':react-native-charts-wrapper')
 }
 
 // Run this once to be able to run the application with BUCK
