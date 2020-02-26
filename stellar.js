@@ -41,11 +41,11 @@ function verifySignature(publicKey, signature, pid, key) {
   }
   // data -> 111...11_01/02/2020
 }
-function verifySignatureWithoutKey(publicKey, signature) {
+function verifySignatureWithoutKey(publicKey, signature, raw) {
   try {
     const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
     return kp.verify(
-      Buffer.from(publicKey + "_" + HOSPCODE),
+      Buffer.from(raw),
       Buffer.from(signature, "base64")
     );
   } catch (err) {

@@ -118,7 +118,7 @@ async function SPK2PID(spk, signature, callback) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.SPK = " +
     connection.escape(spk) +
-    "AND STELLARKEY.HOSPCODE = " +
+    " AND STELLARKEY.HOSPCODE = " +
     connection.escape(HOSPCODE) +
     ";";
   connection.query(querycmd, async function(error, results) {
@@ -130,6 +130,7 @@ async function SPK2PID(spk, signature, callback) {
         await getInfoByKeyWithoutEncrypt(spk, results[0].SEQ)
       );
       if (!hospSigJson.Status) return callback(false);
+
       const hospSig = hospSigJson.Signature;
       const KP = StellarSdk.Keypair.fromSecret(SecretKey);
       const sigFromHos = KP.sign(
@@ -140,7 +141,7 @@ async function SPK2PID(spk, signature, callback) {
         .toString("hex");
 
       if (
-        !verifySignatureWithoutKey(spk, signature) ||
+        !verifySignatureWithoutKey(spk, signature, spk + "_" + HOSPCODE) ||
         hospSig !== sigFromHosHash
       ) {
         console.log("Signature fail for Patient SPK: " + spk);
@@ -164,21 +165,44 @@ async function SPK2PIDDoctor(
 ) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.SPK = " +
-    connection.escape(spk) +
-    "AND STELLARKEY.HOSPCODE = " +
+    connection.escape(PatientSPK) +
+    " AND STELLARKEY.HOSPCODE = " +
     connection.escape(HOSPCODE) +
     ";";
   connection.query(querycmd, async function(error, results) {
     if (error) {
       return callback(new Error("An error occured during query " + error));
     }
-    if (!verifySignatureWithoutKey(spk, signature, HOSPCODE)) {
-      console.log("Signature fail for Patient SPK: " + spk);
-      return callback(false);
-    }
     try {
+      const hospSigJson = JSON.parse(
+        await getInfoByKeyWithoutEncrypt(PatientSPK, results[0].SEQ)
+      );
+      if (!hospSigJson.Status) return callback(false);
+
+      const docSigJson = JSON.parse(
+        await getInfoByKeyWithoutEncrypt(PatientSPK, SEQ)
+      );
+      if (!docSigJson.Status) return callback(false);
+      
+      const docSig = docSigJson.Signature;
+
+      const sigFromDocHash = crypto
+        .pbkdf2Sync(DoctorSignature, "", 1000, 64, "sha512")
+        .toString("hex");
+        
+      if (
+        !verifySignatureWithoutKey(
+          DoctorSPK,
+          HospitalSignature,
+          PatientSPK + "_" + HOSPCODE
+        ) ||
+        sigFromDocHash !== docSig
+      ) {
+        return callback(false);
+      }
       return callback(results[0].PID);
     } catch (e) {
+      console.log(e);
       return callback(false);
     }
   });
@@ -244,7 +268,7 @@ router.post("/fetchByPatient", async function(req, res) {
   const Signature = req.body.Signature;
   SPK2PID(SPK, Signature, async function(PID) {
     try {
-      console.log("PID: ", PID);
+      console.log("Patient -> PID: ", PID);
       const DRUG_OPDs = await DRUG_OPD(PID);
       const LABs = await LAB(PID);
       const DRUGALLERGYs = await DRUGALLERGY(PID);
@@ -266,26 +290,30 @@ router.post("/fetchByDoctor", async function(req, res) {
   const DoctorSignature = req.body.DoctorSignature;
   const SEQ = req.body.SEQ;
   const HospitalSignature = req.body.HospitalSignature;
-  const result = crypto
-    .pbkdf2Sync("passwd", "", 1000, 64, "sha512")
-    .toString("base64");
 
-  SPK2PID(SPK, Signature, async function(PID) {
-    try {
-      console.log("PID: ", PID);
-      const DRUG_OPDs = await DRUG_OPD(PID);
-      const LABs = await LAB(PID);
-      const DRUGALLERGYs = await DRUGALLERGY(PID);
-      result = {
-        DRUG_OPD: DRUG_OPDs,
-        LAB: LABs,
-        DRUGALLERGY: DRUGALLERGYs
-      };
-      res.json(result);
-    } catch (e) {
-      res.json(e);
+  SPK2PIDDoctor(
+    PatientSPK,
+    DoctorSPK,
+    SEQ,
+    DoctorSignature,
+    HospitalSignature,
+    async function(PID) {
+      try {
+        console.log("Doctor -> PID: ", PID);
+        const DRUG_OPDs = await DRUG_OPD(PID);
+        const LABs = await LAB(PID);
+        const DRUGALLERGYs = await DRUGALLERGY(PID);
+        result = {
+          DRUG_OPD: DRUG_OPDs,
+          LAB: LABs,
+          DRUGALLERGY: DRUGALLERGYs
+        };
+        res.json(result);
+      } catch (e) {
+        res.json(e);
+      }
     }
-  });
+  );
 });
 
 router.post("/findPid/", function(req, res) {
