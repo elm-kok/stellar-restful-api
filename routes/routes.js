@@ -183,13 +183,13 @@ async function SPK2PIDDoctor(
         await getInfoByKeyWithoutEncrypt(PatientSPK, SEQ)
       );
       if (!docSigJson.Status) return callback(false);
-      
+
       const docSig = docSigJson.Signature;
 
       const sigFromDocHash = crypto
         .pbkdf2Sync(DoctorSignature, "", 1000, 64, "sha512")
         .toString("hex");
-        
+
       if (
         !verifySignatureWithoutKey(
           DoctorSPK,
@@ -219,7 +219,19 @@ async function DRUG_OPD(PID) {
 
   try {
     const rows = await query(querycmd);
-    return rows;
+    var i;
+    var results = [];
+    for (i = 0; i < rows.length; ++i) {
+      results.push({
+        DATE_SERV: rows[i].DATE_SERV,
+        DRUGNAME: rows[i].DRUGNAME,
+        COMSUME: rows[i].COMSUME,
+        DNAME: rows[i].DNAME,
+        AMOUNT: rows[i].AMOUNT
+      });
+    }
+
+    return results;
   } catch (e) {
     console.log(e);
     return false;
@@ -238,7 +250,19 @@ async function DRUGALLERGY(PID) {
 
   try {
     const rows = await query(querycmd);
-    return rows;
+    var i;
+    var results = [];
+    for (i = 0; i < rows.length; ++i) {
+      results.push({
+        DATERECORD: rows[i].DATERECORD,
+        DNAME: rows[i].DNAME,
+        TYPEDX: rows[i].TYPEDX,
+        INFORMANT: rows[i].INFORMANT,
+        ALEVEL: rows[i].ALEVEL
+      });
+    }
+
+    return results;
   } catch (e) {
     console.log(e);
     return false;
@@ -257,7 +281,18 @@ async function LAB(PID) {
 
   try {
     const rows = await query(querycmd);
-    return rows;
+    var i;
+    var results = [];
+    for (i = 0; i < rows.length; ++i) {
+      results.push({
+        DATE_SERV: rows[i].DATE_SERV,
+        LABID: rows[i].LABID,
+        LABTEST: rows[i].LABTEST,
+        LABRESULT: rows[i].LABRESULT
+      });
+    }
+
+    return results;
   } catch (e) {
     console.log(e);
     return false;
