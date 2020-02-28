@@ -23,22 +23,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#9DD6EB',
+    backgroundColor: '#ffffff',
   },
   slide2: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#97CAE5',
+    backgroundColor: '#ffffff',
   },
   slide3: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#92BBD9',
+    backgroundColor: '#ffffff',
   },
   text: {
-    color: '#fff',
+    color: '#b32',
     fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: height / 1.5,
     width: width,
+    padding: 20,
   },
 });
 
@@ -76,33 +77,90 @@ export default class Info extends Component {
         DRUGALLERGY: result.DRUGALLERGY,
         loaded: true,
       });
+      this.labGroup();
     } catch (e) {
       console.log(e);
     }
   };
 
+  labGroup() {
+    var i;
+    var dataGraph = {};
+    var labId;
+    for (i = 0; i < this.state.LAB.length; ++i) {
+      labId = this.state.LAB[i].LABID;
+      if (labId) {
+        if (dataGraph[labId] !== undefined) {
+          dataGraph[labId].push(this.state.LAB[i]);
+        } else {
+          dataGraph[labId] = [this.state.LAB[i]];
+        }
+      }
+    }
+    for (const [key, value] of Object.entries(dataGraph)) {
+      var val = value;
+      val.sort(function(a, b) {
+        return new Date(b.DATE_SERV) - new Date(a.DATE_SERV);
+      });
+      dataGraph[key] = val;
+    }
+    var xAxisVal = {};
+    var yAxisVal = {};
+    for (const [key, value] of Object.entries(dataGraph)) {
+      xAxisVal[key] = [];
+      yAxisVal[key] = [];
+      for (i = 0; i < value.length; ++i) {
+        xAxisVal[key].push(value[i].DATE_SERV.split('T')[0]);
+        yAxisVal[key].push({y: value[i].LABRESULT});
+      }
+    }
+
+    var rows = [];
+    for (const [key, value] of Object.entries(dataGraph)) {
+      rows.push(
+        <View style={styles.chartContainer} key={key}>
+          <BarChartScreen
+            xAxisVal={xAxisVal[key]}
+            yAxisVal={yAxisVal[key]}
+            Label={dataGraph[key][0]['LABTEST']}
+            LabId={'LAB ID: ' + dataGraph[key][0]['LABID']}
+          />
+        </View>,
+      );
+    }
+
+    this.setState({bars: rows});
+    return null;
+  }
   render() {
     return (
-      <Swiper style={styles.wrapper} showsButtons={true}>
-        <View style={styles.slide1}>
-          <ScrollView style={{flex: 1}}>
-            <Text style={styles.text}>Lab Testing</Text>
-            <View style={styles.chartContainer}>
-              <BarChartScreen />
-            </View>
-          </ScrollView>
-        </View>
-        <View style={styles.slide2}>
-          <ScrollView style={{flex: 1}}>
-            <Text style={styles.text}>Drug Allergy</Text>
-          </ScrollView>
-        </View>
-        <View style={styles.slide3}>
-          <ScrollView style={{flex: 1}}>
-            <Text style={styles.text}>Drug Dispensing</Text>
-          </ScrollView>
-        </View>
-      </Swiper>
+      <>
+        <Swiper style={styles.wrapper} showsButtons={false}>
+          <View style={styles.slide1}>
+            <ScrollView style={{flex: 1}}>
+              <Text style={styles.text}>Lab Testing</Text>
+              {this.state.bars ? this.state.bars : null}
+            </ScrollView>
+          </View>
+          <View style={styles.slide2}>
+            <ScrollView style={{flex: 1}}>
+              <Text style={styles.text}>Drug Allergy</Text>
+              {this.state.DRUGALLERGY ? (
+                <Text>{JSON.stringify(this.state.DRUGALLERGY[0])}</Text>
+              ) : null}
+            </ScrollView>
+          </View>
+          <View style={styles.slide3}>
+            <ScrollView style={{flex: 1}}>
+              <Text style={styles.text}>Drug Dispensing</Text>
+              {this.state.DRUG_OPD ? (
+                <Text>{JSON.stringify(this.state.DRUG_OPD[0])}</Text>
+              ) : null}
+            </ScrollView>
+          </View>
+        </Swiper>
+        <Button onPress={() => this._onLoad()} title="Fetch Record"></Button>
+      </>
     );
   }
 }
