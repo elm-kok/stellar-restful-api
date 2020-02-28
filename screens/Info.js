@@ -10,7 +10,7 @@ import {
 import {fetchByPatient} from '../logic/fetch';
 import BarChartScreen from '../logic/BarChart';
 import Swiper from 'react-native-swiper';
-
+import InfoTable from '../logic/Table';
 /*
 DRUG_OPD
 DRUGALLERGY
@@ -145,6 +145,7 @@ export default class Info extends Component {
           <View style={styles.slide2}>
             <ScrollView style={{flex: 1}}>
               <Text style={styles.text}>Drug Allergy</Text>
+              <InfoTable />
               {this.state.DRUGALLERGY ? (
                 <Text>{JSON.stringify(this.state.DRUGALLERGY[0])}</Text>
               ) : null}
