@@ -6,11 +6,13 @@ import {
   View,
   StyleSheet,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import {fetchByPatient} from '../logic/fetch';
 import BarChartScreen from '../logic/BarChart';
 import Swiper from 'react-native-swiper';
-import InfoTable from '../logic/Table';
+import DrugAllergy from '../logic/DrugAllergy';
+import DrugOpd from '../logic/DrugOpd';
 /*
 DRUG_OPD
 DRUGALLERGY
@@ -27,14 +29,10 @@ const styles = StyleSheet.create({
   },
   slide2: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#ffffff',
   },
   slide3: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#ffffff',
   },
   text: {
@@ -68,7 +66,7 @@ export default class Info extends Component {
       loaded: false,
     };
   }
-  _onLoad = async () => {
+  componentDidMount = async () => {
     try {
       const result = await fetchByPatient();
       this.setState({
@@ -143,24 +141,22 @@ export default class Info extends Component {
             </ScrollView>
           </View>
           <View style={styles.slide2}>
-            <ScrollView style={{flex: 1}}>
+            <SafeAreaView style={{flex: 1}}>
               <Text style={styles.text}>Drug Allergy</Text>
-              <InfoTable />
               {this.state.DRUGALLERGY ? (
-                <Text>{JSON.stringify(this.state.DRUGALLERGY[0])}</Text>
+                <DrugAllergy data={this.state.DRUGALLERGY} />
               ) : null}
-            </ScrollView>
+            </SafeAreaView>
           </View>
           <View style={styles.slide3}>
-            <ScrollView style={{flex: 1}}>
+            <SafeAreaView style={{flex: 1}}>
               <Text style={styles.text}>Drug Dispensing</Text>
               {this.state.DRUG_OPD ? (
-                <Text>{JSON.stringify(this.state.DRUG_OPD[0])}</Text>
+                <DrugOpd data={this.state.DRUG_OPD} />
               ) : null}
-            </ScrollView>
+            </SafeAreaView>
           </View>
         </Swiper>
-        <Button onPress={() => this._onLoad()} title="Fetch Record"></Button>
       </>
     );
   }
