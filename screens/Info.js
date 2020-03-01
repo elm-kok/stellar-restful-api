@@ -189,7 +189,6 @@ export default class Info extends Component {
       var xAxisVal = {};
       var yAxisVal = {};
 
-      console.log(re);
       for (const [key, value] of Object.entries(this.state.dataGraph)) {
         xAxisVal[key] = [];
         yAxisVal[key] = [];
