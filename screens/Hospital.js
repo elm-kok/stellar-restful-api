@@ -172,11 +172,10 @@ class Hospital extends React.Component {
               <TouchableHighlight
                 onPress={() => console.log('You touched me')}
                 style={styles.rowFront}
-                underlayColor={'#AAA'}>
+                underlayColor={'#ffff'}>
                 <View>
                   <Text>
-                    {data.item.name} status: {data.item.status} Sig:{' '}
-                    {data.item.seq_sig} End: {data.item.seq_end}
+                    {data.item.name}
                   </Text>
                 </View>
               </TouchableHighlight>
@@ -195,7 +194,7 @@ class Hospital extends React.Component {
             bottom: 10,
             right: 10,
             height: 70,
-            backgroundColor: '#fff',
+            backgroundColor: '#ffff',
             borderRadius: 100,
           }}
           onPress={this.onPress}>
@@ -216,7 +215,7 @@ const styles = StyleSheet.create({
   },
   standaloneRowFront: {
     alignItems: 'center',
-    backgroundColor: '#CCC',
+    backgroundColor: '#ffff',
     justifyContent: 'center',
     height: 50,
   },
@@ -229,11 +228,11 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   backTextWhite: {
-    color: '#FFF',
+    color: '#ffff',
   },
   rowFront: {
     alignItems: 'center',
-    backgroundColor: '#CCC',
+    backgroundColor: '#ffff',
     borderBottomColor: 'black',
     borderBottomWidth: 1,
     justifyContent: 'center',
@@ -241,7 +240,7 @@ const styles = StyleSheet.create({
   },
   rowBack: {
     alignItems: 'center',
-    backgroundColor: '#DDD',
+    backgroundColor: '#ffff',
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',

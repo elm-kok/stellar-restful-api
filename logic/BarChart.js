@@ -41,8 +41,9 @@ class BarChartScreen extends React.Component {
               highlightAlpha: 90,
               highlightColor: processColor('red'),
               valueTextSize: 18,
-              drawValues: false,
+              drawValues: true,
               drawCircles: true,
+              valueFormatter: "#.##"
             },
           },
         ],
