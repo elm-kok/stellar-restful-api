@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View, processColor} from 'react-native';
-
+import equal from 'fast-deep-equal'
 import {BarChart} from 'react-native-charts-wrapper';
 
 class BarChartScreen extends React.Component {
@@ -22,7 +22,41 @@ class BarChartScreen extends React.Component {
       highlights: [{x: 3}, {x: 6}],
     };
   }
+  componentDidUpdate(prevProps) {
+    if (!equal(this.props.xAxisVal, prevProps.xAxisVal)) {
+       this.setState({
+        xAxis: {
+          valueFormatter: this.props.xAxisVal,
+          granularityEnabled: true,
+          granularity: 1,
+          textSize: 14,
+        },
+        data: {
+          dataSets: [
+            {
+              values: this.props.yAxisVal,
+              label: this.props.LabId,
+              config: {
+                color: processColor('teal'),
+                barShadowColor: processColor('lightgrey'),
+                highlightAlpha: 90,
+                highlightColor: processColor('red'),
+                valueTextSize: 18,
+                drawValues: true,
+                drawCircles: true,
+                valueFormatter: '#.##',
+              },
+            },
+          ],
 
+          config: {
+            barWidth: 0.7,
+          },
+        },
+        maxX: this.props.xAxisVal.length,
+      });
+    }
+  }
   componentDidMount() {
     this.setState({
       xAxis: {
