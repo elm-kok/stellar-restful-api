@@ -2,12 +2,12 @@ import React, {Component} from 'react';
 import {
   Text,
   ScrollView,
-  Button,
   View,
   StyleSheet,
   Dimensions,
   SafeAreaView,
 } from 'react-native';
+import {SearchBar} from 'react-native-elements';
 import {fetchByPatient} from '../logic/fetch';
 import BarChartScreen from '../logic/BarChart';
 import Swiper from 'react-native-swiper';
@@ -23,8 +23,6 @@ const styles = StyleSheet.create({
   wrapper: {},
   slide1: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#ffffff',
   },
   slide2: {
@@ -64,6 +62,9 @@ export default class Info extends Component {
       DRUGALLERGY: null,
       LAB: null,
       loaded: false,
+      searchDA: '',
+      searchDO: '',
+      searchLAB: '',
     };
   }
   componentDidMount = async () => {
@@ -126,33 +127,142 @@ export default class Info extends Component {
         </View>,
       );
     }
-
-    this.setState({bars: rows});
+    this.state.DRUG_OPD.sort(function(a, b) {
+      return new Date(b.DATE_SERV) - new Date(a.DATE_SERV);
+    });
+    this.state.DRUGALLERGY.sort(function(a, b) {
+      return new Date(b.DATERECORD) - new Date(a.DATERECORD);
+    });
+    this.setState({
+      bars: rows,
+      bars_r: rows,
+      dataGraph: dataGraph,
+      DRUG_OPD_r: this.state.DRUG_OPD,
+      DRUGALLERGY_r: this.state.DRUGALLERGY,
+    });
     return null;
   }
+  updateSearchDO = searchDO => {
+    if (searchDO === '') {
+      this.setState({searchDO: searchDO, DRUG_OPD_r: this.state.DRUG_OPD});
+    } else {
+      var i;
+      var result = [];
+      const re = new RegExp(searchDO, 'i');
+      for (i = 0; i < this.state.DRUG_OPD.length; ++i) {
+        if (JSON.stringify(this.state.DRUG_OPD[i]).match(re)) {
+          result.push(this.state.DRUG_OPD[i]);
+        }
+      }
+      this.setState({searchDO: searchDO, DRUG_OPD_r: result});
+    }
+  };
+  updateSearchDA = searchDA => {
+    if (searchDA === '') {
+      this.setState({
+        searchDA: searchDA,
+        DRUGALLERGY_r: this.state.DRUGALLERGY,
+      });
+    } else {
+      var i;
+      var result = [];
+      const re = new RegExp(searchDA, 'i');
+      for (i = 0; i < this.state.DRUGALLERGY.length; ++i) {
+        if (JSON.stringify(this.state.DRUGALLERGY[i]).match(re)) {
+          result.push(this.state.DRUGALLERGY[i]);
+        }
+      }
+      this.setState({searchDA: searchDA, DRUGALLERGY_r: result});
+    }
+  };
+
+  updateSearchLAB = searchLAB => {
+    if (searchLAB === '') {
+      this.setState({
+        searchLAB: searchLAB,
+        bars_r: this.state.bars,
+      });
+    } else {
+      var i;
+      const re = new RegExp(searchLAB, 'i');
+      var rows = [];
+      var xAxisVal = {};
+      var yAxisVal = {};
+      for (const [key, value] of Object.entries(this.state.dataGraph)) {
+        if (
+          value
+            .map(function(el) {
+              return JSON.stringify(el);
+            })
+            .toString()
+            .match(re)
+        ) {
+          xAxisVal[key] = [];
+          yAxisVal[key] = [];
+          for (i = 0; i < value.length; ++i) {
+            xAxisVal[key].push(value[i].DATE_SERV.split('T')[0]);
+            yAxisVal[key].push({y: value[i].LABRESULT});
+          }
+        }
+      }
+
+      var rows = [];
+      for (const [key, value] of Object.entries(xAxisVal)) {
+        rows.push(
+          <View style={styles.chartContainer} key={key}>
+            <BarChartScreen
+              xAxisVal={xAxisVal[key]}
+              yAxisVal={yAxisVal[key]}
+              Label={this.state.dataGraph[key][0]['LABTEST']}
+              LabId={'LAB ID: ' + this.state.dataGraph[key][0]['LABID']}
+            />
+          </View>,
+        );
+      }
+      this.setState({searchLAB: searchLAB, bars_r: rows});
+    }
+  };
   render() {
     return (
       <>
         <Swiper style={styles.wrapper} showsButtons={false}>
           <View style={styles.slide1}>
+            <Text style={styles.text}>Lab Testing</Text>
+            <SearchBar
+              placeholder="Type Here..."
+              onChangeText={this.updateSearchLAB}
+              value={this.state.searchLAB}
+              lightTheme={true}
+            />
             <ScrollView style={{flex: 1}}>
-              <Text style={styles.text}>Lab Testing</Text>
-              {this.state.bars ? this.state.bars : null}
+              {this.state.bars_r ? this.state.bars_r : null}
             </ScrollView>
           </View>
           <View style={styles.slide2}>
             <SafeAreaView style={{flex: 1}}>
               <Text style={styles.text}>Drug Allergy</Text>
-              {this.state.DRUGALLERGY ? (
-                <DrugAllergy data={this.state.DRUGALLERGY} />
+              <SearchBar
+                placeholder="Type Here..."
+                onChangeText={this.updateSearchDA}
+                value={this.state.searchDA}
+                lightTheme={true}
+              />
+              {this.state.DRUGALLERGY_r ? (
+                <DrugAllergy data={this.state.DRUGALLERGY_r} />
               ) : null}
             </SafeAreaView>
           </View>
           <View style={styles.slide3}>
             <SafeAreaView style={{flex: 1}}>
               <Text style={styles.text}>Drug Dispensing</Text>
-              {this.state.DRUG_OPD ? (
-                <DrugOpd data={this.state.DRUG_OPD} />
+              <SearchBar
+                placeholder="Type Here..."
+                onChangeText={this.updateSearchDO}
+                value={this.state.searchDO}
+                lightTheme={true}
+              />
+              {this.state.DRUG_OPD_r ? (
+                <DrugOpd data={this.state.DRUG_OPD_r} />
               ) : null}
             </SafeAreaView>
           </View>
