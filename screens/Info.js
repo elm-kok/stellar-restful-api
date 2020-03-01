@@ -188,21 +188,20 @@ export default class Info extends Component {
       var rows = [];
       var xAxisVal = {};
       var yAxisVal = {};
+
+      console.log(re);
       for (const [key, value] of Object.entries(this.state.dataGraph)) {
-        if (
-          value
-            .map(function(el) {
-              return JSON.stringify(el);
-            })
-            .toString()
-            .match(re)
-        ) {
-          xAxisVal[key] = [];
-          yAxisVal[key] = [];
-          for (i = 0; i < value.length; ++i) {
+        xAxisVal[key] = [];
+        yAxisVal[key] = [];
+        for (i = 0; i < value.length; ++i) {
+          if (JSON.stringify(value[i]).match(re)) {
             xAxisVal[key].push(value[i].DATE_SERV.split('T')[0]);
             yAxisVal[key].push({y: value[i].LABRESULT});
           }
+        }
+        if (!xAxisVal[key].length) {
+          delete xAxisVal[key];
+          delete yAxisVal[key];
         }
       }
 

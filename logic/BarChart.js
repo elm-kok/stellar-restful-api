@@ -22,6 +22,7 @@ class BarChartScreen extends React.Component {
       highlights: [{x: 3}, {x: 6}],
     };
   }
+
   componentDidMount() {
     this.setState({
       xAxis: {
@@ -43,7 +44,7 @@ class BarChartScreen extends React.Component {
               valueTextSize: 18,
               drawValues: true,
               drawCircles: true,
-              valueFormatter: "#.##"
+              valueFormatter: '#.##',
             },
           },
         ],
