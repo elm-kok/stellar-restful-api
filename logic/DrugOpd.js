@@ -8,26 +8,24 @@ export default class DrugOpd extends React.Component {
     this.state = {};
   }
   actionOnRow = item => {
+    var prov = item.PROV_PRENAME + item.PROV_NAME;
+    if (prov) prov += ' ' + item.PROV_LNAME;
     Alert.alert(
       item.DATE_SERV.split('T')[0],
-      'Drug Name: ' +
+      'NAME: ' +
         item.DNAME +
         '\nCOMSUME: ' +
         item.COMSUME +
-        '\nDrug Company: ' +
+        '\nDRUG COMPANY: ' +
         item.DCOMP +
         '\nAMOUNT: ' +
         item.AMOUNT +
-        '\nDUNIT: ' +
-        item.DUNIT +
-        '\nUNIT_PACKING: ' +
-        item.UNIT_PACKING +
-        '\nPROV_PRENAME: ' +
-        item.PROV_PRENAME +
-        '\nPROV_NAME: ' +
-        item.PROV_NAME +
         ' ' +
-        item.PROV_LNAME,
+        (item.DUNIT ? item.DUNIT : '') +
+        '\nPACKING UNIT: ' +
+        item.UNIT_PACKING +
+        '\nPROVIDER: ' +
+        (prov ? prov : null),
       [{text: 'Close'}],
       {cancelable: true},
     );
@@ -35,8 +33,12 @@ export default class DrugOpd extends React.Component {
   renderItem = ({item}) => (
     <TouchableOpacity onPress={() => this.actionOnRow(item)}>
       <ListItem
-        title={item.DNAME + (item.AMOUNT ? ', Amount: ' + item.AMOUNT : '')}
-        subtitle={item.DATE_SERV.split('T')[0]}
+        title={item.DNAME}
+        subtitle={
+          item.DATE_SERV.split('T')[0] +
+          (item.AMOUNT ? ' Amount: ' + item.AMOUNT : '') +
+          (item.DUNIT ? ' '+item.DUNIT : '')
+        }
         leftAvatar={{
           source: item.avatar_url && {uri: item.avatar_url},
           title: item.DNAME[0],

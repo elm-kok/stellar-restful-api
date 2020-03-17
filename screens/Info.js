@@ -148,7 +148,12 @@ export default class Info extends Component {
     } else {
       var i;
       var result = [];
-      const re = new RegExp(searchDO, 'i');
+      var s_str = searchDO.split(' ');
+      var searchDOs = '^';
+      for (const s in s_str) {
+        searchDOs += '(?=.*' + s_str[s] + ')';
+      }
+      const re = new RegExp(searchDOs, 'i');
       for (i = 0; i < this.state.DRUG_OPD.length; ++i) {
         if (JSON.stringify(this.state.DRUG_OPD[i]).match(re)) {
           result.push(this.state.DRUG_OPD[i]);
@@ -166,7 +171,12 @@ export default class Info extends Component {
     } else {
       var i;
       var result = [];
-      const re = new RegExp(searchDA, 'i');
+      var s_str = searchDA.split(' ');
+      var searchDAs = '^';
+      for (const s in s_str) {
+        searchDAs += '(?=.*' + s_str[s] + ')';
+      }
+      const re = new RegExp(searchDAs, 'i');
       for (i = 0; i < this.state.DRUGALLERGY.length; ++i) {
         if (JSON.stringify(this.state.DRUGALLERGY[i]).match(re)) {
           result.push(this.state.DRUGALLERGY[i]);
@@ -184,7 +194,12 @@ export default class Info extends Component {
       });
     } else {
       var i;
-      const re = new RegExp(searchLAB, 'i');
+      var s_str = searchLAB.split(' ');
+      var searchLABs = '^';
+      for (const s in s_str) {
+        searchLABs += '(?=.*' + s_str[s] + ')';
+      }
+      const re = new RegExp(searchLABs, 'i');
       var rows = [];
       var xAxisVal = {};
       var yAxisVal = {};

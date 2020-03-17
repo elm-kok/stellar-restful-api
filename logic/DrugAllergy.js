@@ -19,7 +19,7 @@ export default class DrugAllergy extends React.Component {
       item.DATERECORD.split('T')[0],
       'Drug Name: ' +
         item.DNAME +
-        '\nType: ' +
+        '\nAllergic Type: ' +
         item.TYPEDX +
         '\nInformation: ' +
         item.INFORMANT +
@@ -32,7 +32,7 @@ export default class DrugAllergy extends React.Component {
   renderItem = ({item}) => (
     <TouchableOpacity onPress={() => this.actionOnRow(item)}>
       <ListItem
-        title={item.DNAME + ' ' + (item.TYPEDX ? item.TYPEDX : '')}
+        title={item.DNAME}
         subtitle={item.DATERECORD.split('T')[0]}
         leftAvatar={{
           source: item.avatar_url && {uri: item.avatar_url},
