@@ -24,6 +24,7 @@ class SignInScreen extends React.Component {
       con_passwd: '',
       fName: '',
       lName: '',
+      mode: 'Doctor',
     };
   }
 
@@ -114,6 +115,7 @@ class SignInScreen extends React.Component {
       this.state.fName,
       this.state.lName,
       stellarKeyPair.publicKey(),
+      this.state.mode,
     );
     if (store.getState().authReducer.loggedIn) {
       this.props.navigation.navigate('App');
@@ -125,13 +127,14 @@ const mapStateToProps = state => {
     _id: state.authReducer._id,
     FName: state.authReducer.fName,
     LName: state.authReducer.lName,
+    mode: state.authReducer.mode,
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    reduxLogin: (_id, fName, lName, stellarPublicKey) =>
-      dispatch(login(_id, fName, lName, stellarPublicKey)),
+    reduxLogin: (_id, fName, lName, stellarPublicKey, mode) =>
+      dispatch(login(_id, fName, lName, stellarPublicKey, mode)),
   };
 };
 

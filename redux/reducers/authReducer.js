@@ -5,7 +5,7 @@ const initialState = {
   FName: '',
   LName: '',
   stellarPublicKey: '',
-  mode: 'Patient',
+  mode: '',
 };
 
 // Reducers (Modifies The State And Returns A New State)
@@ -30,6 +30,7 @@ const authReducer = (state = initialState, action) => {
         FName: action.FName,
         LName: action.LName,
         stellarPublicKey: action.stellarPublicKey,
+        mode: action.mode,
       };
     }
     // Default

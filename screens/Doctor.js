@@ -14,25 +14,24 @@ import Swiper from 'react-native-swiper';
 import Patient from '../logic/Patient';
 import Doctor_logic from '../logic/Doctor_logic';
 import {store} from '../redux/store/store';
+import {connect} from 'react-redux';
 
 class Doctor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {modalVisible: false, mode: ''};
+    this.state = {modalVisible: false};
   }
-  componentDidMount = () => {
-    this.setState({mode: store.getState().authReducer.mode});
-  };
+
   onPressDoctor = () => {
     this.props.navigation.navigate('DoctorQR');
   };
   onPressPatient = () => {
     this.props.navigation.navigate('PatientScan');
   };
+  componentDidMount = async () => {
+    this.setState({mode: await store.getState().authReducer.mode});
+  };
   render() {
-    store.subscribe(async () => {
-      this.setState({mode: await store.getState().authReducer.mode});
-    });
     return (
       <>
         <Modal
@@ -53,7 +52,10 @@ class Doctor extends React.Component {
           </Text>
           <ActivityIndicator size="large" color="#0000ff" />
         </Modal>
-        <Swiper style={styles.wrapper} showsButtons={false}>
+        <Swiper
+          style={styles.wrapper}
+          showsButtons={false}
+          key={store.getState().authReducer.mode.length}>
           <View style={styles.slide1}>
             <Text
               style={{
@@ -83,7 +85,7 @@ class Doctor extends React.Component {
               <Icon name="plus" size={30} color="#01a699" />
             </TouchableOpacity>
           </View>
-          {store.getState().authReducer.mode === 'Doctor' ? (
+          {store.getState().authReducer.mode === 'Patient' ? (
             <View style={styles.slide2}>
               <Text
                 style={{
@@ -206,5 +208,9 @@ const styles = StyleSheet.create({
     width: 25,
   },
 });
-
-export default Doctor;
+const mapStateToProps = state => {
+  return {
+    mode: state.authReducer.mode,
+  };
+};
+export default connect(mapStateToProps)(Doctor);

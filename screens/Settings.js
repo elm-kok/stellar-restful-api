@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import * as Keychain from 'react-native-keychain';
 import {testAccountInit} from '../stellar';
 import {changeMode} from '../redux/actions/authActions';
-class Settings extends React.Component {
+
+export default class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.state = {mode: 'Patient'};
@@ -55,5 +56,3 @@ class Settings extends React.Component {
     this.props.navigation.navigate('Auth');
   };
 }
-
-export default Settings;
