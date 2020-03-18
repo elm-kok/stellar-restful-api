@@ -1,13 +1,13 @@
 // Initial State
 const initialState = {
-  DoctorList: [],
+  PatientList: [],
 };
 
 // Reducers (Modifies The State And Returns A New State)
-const doctorReducer = (state = initialState, action) => {
+const patientReducer = (state = initialState, action) => {
   switch (action.type) {
     // Login
-    case 'AddDoctor': {
+    case 'AddPatient': {
       return {
         // State
         ...state,
@@ -15,17 +15,18 @@ const doctorReducer = (state = initialState, action) => {
         //1 -> Approve
         //0 -> Disable
         //remove -> Reject
-        DoctorList: state.DoctorList.concat([
+        PatientList: state.PatientList.concat([
           {
-            seq_sig: action.seq_sig,
+            seq: action.seq,
             name: action.name,
+            spk: action.spk,
+            secretKey: action.secretKey,
             date: action.date,
-            status: 1,
           },
         ]),
       };
     }
-    case 'UpdateDoctor': {
+    case 'UpdatePatient': {
       return {
         // State
         ...state,
@@ -33,7 +34,7 @@ const doctorReducer = (state = initialState, action) => {
         //1 -> Approve
         //0 -> Disable
         //remove -> Reject
-        DoctorList: action.doctorList,
+        PatientList: action.patientList,
       };
     }
     // Default
@@ -44,4 +45,4 @@ const doctorReducer = (state = initialState, action) => {
 };
 
 // Exports
-export default doctorReducer;
+export default patientReducer;

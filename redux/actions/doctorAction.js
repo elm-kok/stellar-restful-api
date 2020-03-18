@@ -1,7 +1,8 @@
-export const addDoctor = (seq_sig, name) => ({
+export const addDoctor = (seq_sig, name, date) => ({
   type: 'AddDoctor',
   seq_sig: seq_sig,
-  DoctorName: name,
+  name: name,
+  date: date,
 });
 
 export const updateDoctor = doctorList => ({

@@ -19,10 +19,11 @@ const hospitalReducer = (state = initialState, action) => {
           {
             seq_sig: action.seq_sig,
             seq_end: action.seq_end,
-            name: action.HospitalName,
-            hospCode: action.hospCode,
-            endPoint: action.HospitalEndPoint,
+            name: action.name,
+            hospcode: action.hospcode,
+            endpoint: action.endpoint,
             status: 1,
+            date: action.date,
           },
         ]),
       };

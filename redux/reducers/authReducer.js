@@ -5,12 +5,21 @@ const initialState = {
   FName: '',
   LName: '',
   stellarPublicKey: '',
+  mode: 'Patient',
 };
 
 // Reducers (Modifies The State And Returns A New State)
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
     // Login
+    case 'changeMode': {
+      return {
+        // State
+        ...state,
+        // Redux Store
+        mode: action.mode,
+      };
+    }
     case 'LOGIN': {
       return {
         // State

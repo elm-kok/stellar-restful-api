@@ -3,9 +3,9 @@ import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {store} from '../redux/store/store';
 import QRCode from 'react-native-qrcode-svg';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {server} from '../stellar';
+import {StellarSdk} from '../stellar';
 import * as Keychain from 'react-native-keychain';
-class DoctorQR extends React.Component {
+class PatientQR extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,29 +14,21 @@ class DoctorQR extends React.Component {
   }
   async componentDidMount() {
     const result = await this.getQR();
-    console.log(result);
     this.setState({result: result});
   }
   getQR = async () => {
     try {
       const spk = store.getState().authReducer.stellarPublicKey;
-      const secretKey = (await Keychain.getGenericPassword('SecretKeyDoctor'))
+      const secretKey = (await Keychain.getGenericPassword('StellarSecret'))
         .password;
+      const KP = StellarSdk.Keypair.fromSecret(secretKey);
+      const sig = KP.sign(Buffer.from(spk));
       const name =
         store.getState().authReducer.FName +
         ' ' +
         store.getState().authReducer.LName;
-      const seq = (await server.loadAccount(spk)).sequenceNumber();
       const result =
-        '{"type":"Patient","name":"' +
-        name +
-        '","spk":"' +
-        spk +
-        '","seq":"' +
-        seq +
-        '","secretKey":"' +
-        secretKey +
-        '"}';
+        '{"type":"Doctor","name":"' + name + '","sig":"' + sig + '"}';
       return result;
     } catch (err) {
       console.log(err);
@@ -46,7 +38,7 @@ class DoctorQR extends React.Component {
     this.props.navigation.navigate('Doctor');
   };
   onNext = () => {
-    this.props.navigation.navigate('DoctorScan');
+    this.props.navigation.navigate('PatientScan');
   };
   render() {
     return (
@@ -59,7 +51,7 @@ class DoctorQR extends React.Component {
                 textAlign: 'center', // <-- the magic
                 fontSize: 24,
               }}>
-              For Doctor Scanning...
+              For Patient Scanning...
             </Text>
             <View
               style={{
@@ -98,7 +90,7 @@ class DoctorQR extends React.Component {
             </TouchableOpacity>
           </>
         ) : (
-          <Text>Loading ...</Text>
+          <Text>Loading...</Text>
         )}
       </>
     );
@@ -130,4 +122,4 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
-export default DoctorQR;
+export default PatientQR;

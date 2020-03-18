@@ -1,46 +1,42 @@
 import React from 'react';
-import {Text, View, StatusBar, Button} from 'react-native';
+import {Text, Button} from 'react-native';
 import {persistor, store} from '../redux/store/store';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Keychain from 'react-native-keychain';
-import {clearAll, testAccountInit} from '../stellar';
+import {testAccountInit} from '../stellar';
+import {changeMode} from '../redux/actions/authActions';
 class Settings extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {mode: 'Patient'};
   }
-
-  async load() {
-    try {
-      const credentials = await Keychain.getGenericPassword('StellarSecret');
-      if (credentials) {
-        console.log({...credentials, status: 'Credentials loaded!'});
-      } else {
-        console.log({status: 'No credentials stored.'});
-      }
-    } catch (err) {
-      console.log({status: 'Could not load credentials. ' + err});
-    }
-  }
+  componentDidMount = () => {
+    this.setState({mode: store.getState().authReducer.mode});
+  };
+  changeName = () => {};
+  changeMode = async () => {
+    if (this.state.mode == 'Patient')
+      await store.dispatch(changeMode('Doctor'));
+    else await store.dispatch(changeMode('Patient'));
+    this.setState({mode: store.getState().authReducer.mode});
+    this.props.navigation.navigate('Doctor');
+  };
   render() {
     return (
       <>
-        <Text style={{fontSize: 30, color: '#FF4C76', textAlign: 'center'}}>
+        <Text
+          style={{
+            fontSize: 30,
+            color: '#0000ff',
+            textAlign: 'right',
+            padding: 15,
+          }}>
           Hi, {store.getState().authReducer.FName}{' '}
           {store.getState().authReducer.LName}
         </Text>
         <Button title="I'm done, sign me out" onPress={this._signOutAsync} />
-        <Button title="Remove Account" onPress={() => clearAll()} />
-        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          ID: {store.getState().authReducer._id}
-        </Text>
-        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          FName: {store.getState().authReducer.FName}
-        </Text>
-        <Text style={{fontSize: 30, color: '#4CD5FF', textAlign: 'center'}}>
-          LName: {store.getState().authReducer.LName}
-        </Text>
-        <Button title="Load Credential." onPress={this.load} />
+        <Button title="change name" onPress={() => this.changeName()} />
+        <Button title={this.state.mode} onPress={() => this.changeMode()} />
         <Button
           title="Init Testnet"
           onPress={() =>

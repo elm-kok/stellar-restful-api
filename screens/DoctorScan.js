@@ -69,10 +69,15 @@ class DoctorQR extends React.Component {
       this.setState({statusText: 'Dispatch Doctor...'});
       if (check > -1) {
         doctor[check].seq_sig = seq_sig;
+        doctor[check].date = new Date().toString();
         await store.dispatch(updateDoctor(doctor));
       } else {
         await store.dispatch(
-          addDoctor(seq_sig, this.state.QRString.DoctorName),
+          addDoctor(
+            seq_sig,
+            this.state.QRString.DoctorName,
+            new Date().toString(),
+          ),
         );
       }
       this.setState({modalVisible2: false});
