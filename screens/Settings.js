@@ -37,9 +37,12 @@ export default class Settings extends React.Component {
         </Text>
         <Button title="I'm done, sign me out" onPress={this._signOutAsync} />
         <Button title="change name" onPress={() => this.changeName()} />
-        <Button title={this.state.mode} onPress={() => this.changeMode()} />
         <Button
-          title="Init Testnet"
+          title={this.state.mode + ' Mode'}
+          onPress={() => this.changeMode()}
+        />
+        <Button
+          title="Init Testnet (debug)"
           onPress={() =>
             testAccountInit(store.getState().authReducer.stellarPublicKey)
           }
