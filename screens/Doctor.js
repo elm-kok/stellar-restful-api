@@ -96,7 +96,7 @@ class Doctor extends React.Component {
                 }}>
                 Patient Management
               </Text>
-              <Patient />
+              <Patient navigation={this.props.navigation} />
               <TouchableOpacity
                 style={{
                   borderWidth: 1,

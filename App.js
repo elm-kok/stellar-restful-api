@@ -17,6 +17,9 @@ import DoctorQR from './screens/DoctorQR';
 import DoctorScan from './screens/DoctorScan';
 import PatientQR from './screens/PatientQR';
 import PatientScan from './screens/PatientScan';
+import PatientInfo from './screens/PatientInfo';
+import Patient from './logic/Patient';
+
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const AppTab = createMaterialBottomTabNavigator(
@@ -78,6 +81,8 @@ const AppContainer = createAppContainer(
       DoctorQR: DoctorQR,
       PatientScan: PatientScan,
       PatientQR: PatientQR,
+      PatientInfo: PatientInfo,
+      Patient: Patient,
     },
     {
       initialRouteName: 'AuthLoading',
