@@ -1,7 +1,7 @@
 const StellarSdk = require('stellar-sdk');
 import {createCipher, createDecipher} from 'crypto';
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-const apiServer = 'http://10.212.2.196:3001/api/';
+const apiServer = 'http://192.168.2.36:3001/api/';
 import {store} from './redux/store/store';
 import * as Keychain from 'react-native-keychain';
 

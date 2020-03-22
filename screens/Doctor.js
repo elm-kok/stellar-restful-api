@@ -54,6 +54,7 @@ class Doctor extends React.Component {
         </Modal>
         <Swiper
           style={styles.wrapper}
+          index={store.getState().authReducer.mode === 'Patinet' ? 0 : 1}
           showsButtons={false}
           key={store.getState().authReducer.mode.length}>
           <View style={styles.slide1}>

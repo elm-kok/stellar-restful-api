@@ -13,7 +13,7 @@ import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {clearInfo} from '../stellar';
 import {addDoctor, updateDoctor} from '../redux/actions/doctorAction';
-
+import {pbkdf2Sync} from 'crypto';
 class DoctorQR extends React.Component {
   constructor(props) {
     super(props);
@@ -48,15 +48,22 @@ class DoctorQR extends React.Component {
         await Keychain.getGenericPassword('SecretKeyDoctor')
       ).password;
       for (i = 0; i < doctor.length; ++i) {
-        if (this.state.QRString.DoctorName === doctor[i].name) {
+        if (this.state.QRString.name === doctor[i].name) {
           check = i;
           await clearInfo(spk, StellarSecret, doctor[i].seq_sig);
           break;
         }
       }
+
       this.setState({statusText: 'Upload Signature...'});
       const sig = JSON.stringify({
-        Signature: this.state.QRString.Signature,
+        Signature: pbkdf2Sync(
+          this.state.QRString.sig,
+          '',
+          1000,
+          64,
+          'sha512',
+        ).toString('hex'),
         Status: 1,
       });
       const seq_sig = await submitWithoutEncrypt(spk, StellarSecret, sig);
@@ -73,11 +80,7 @@ class DoctorQR extends React.Component {
         await store.dispatch(updateDoctor(doctor));
       } else {
         await store.dispatch(
-          addDoctor(
-            seq_sig,
-            this.state.QRString.DoctorName,
-            new Date().toString(),
-          ),
+          addDoctor(seq_sig, this.state.QRString.name, new Date().toString()),
         );
       }
       this.setState({modalVisible2: false});
@@ -124,9 +127,7 @@ class DoctorQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>
-              Add {this.state.QRString.DoctorName}
-            </Text>
+            <Text style={{fontSize: 24}}>Add {this.state.QRString.name}</Text>
 
             <TouchableOpacity
               onPress={this.onSubmit}

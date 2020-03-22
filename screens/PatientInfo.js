@@ -6,14 +6,19 @@ import {
   StyleSheet,
   Dimensions,
   SafeAreaView,
-  Button,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
+import {store} from '../redux/store/store';
 import {SearchBar} from 'react-native-elements';
-import {fetchByPatient} from '../logic/fetch';
+import {fetchByDoctor} from '../logic/fetch';
 import BarChartScreen from '../logic/BarChart';
 import Swiper from 'react-native-swiper';
 import DrugAllergy from '../logic/DrugAllergy';
 import DrugOpd from '../logic/DrugOpd';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {updatePatient} from '../redux/actions/patientAction';
 /*
 DRUG_OPD
 DRUGALLERGY
@@ -66,12 +71,16 @@ export default class Info extends Component {
       searchDA: '',
       searchDO: '',
       searchLAB: '',
+      modalVisible: false,
     };
   }
   componentDidMount = async () => {
-    console.log(this.props.navigation.state.params);
+    const spk = this.props.navigation.state.params.item.spk;
+    const secret = this.props.navigation.state.params.item.secretKey;
+    const seq = this.props.navigation.state.params.item.seq;
+
     try {
-      const result = await fetchByPatient();
+      const result = await fetchByDoctor(spk, secret, seq);
       this.setState({
         LAB: result.LAB,
         DRUG_OPD: result.DRUG_OPD,
@@ -83,7 +92,24 @@ export default class Info extends Component {
       console.log(e);
     }
   };
-
+  async rejectRow(spk) {
+    try {
+      this.setState({modalVisible: true});
+      let patientList = store.getState().patientReducer.PatientList;
+      const spk_index = patientList.findIndex(i => i.spk === spk);
+      if (spk_index > -1) {
+        patientList.splice(spk_index, 1);
+        await store.dispatch(updatePatient(patientList));
+      }
+      this.setState({modalVisible: false});
+    } catch (err) {
+      this.setState({
+        modalVisible: false,
+      });
+      console.log(err);
+    }
+    this.props.navigation.navigate('Doctor');
+  }
   labGroup() {
     var i;
     var dataGraph = {};
@@ -240,9 +266,24 @@ export default class Info extends Component {
   render() {
     return (
       <>
-        <Button
-          title="Click me"
-          onPress={() => this.props.navigation.navigate('Doctor')}></Button>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <Text
+            style={{
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}>
+            Removing...
+          </Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
         <Swiper style={styles.wrapper} showsButtons={false}>
           <View style={styles.slide1}>
             <Text style={styles.text}>Lab Testing</Text>
@@ -285,6 +326,34 @@ export default class Info extends Component {
             </SafeAreaView>
           </View>
         </Swiper>
+        <TouchableOpacity
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 30,
+            position: 'absolute',
+            top: 1,
+            right: 1,
+            height: 30,
+          }}
+          onPress={() => this.props.navigation.navigate('Doctor')}>
+          <Icon name="times" size={30} color="#01a699" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 30,
+            position: 'absolute',
+            top: 1,
+            left: 1,
+            height: 30,
+          }}
+          onPress={() =>
+            this.rejectRow(this.props.navigation.state.params.item.spk)
+          }>
+          <Icon name="trash" size={30} color="#01a699" />
+        </TouchableOpacity>
       </>
     );
   }

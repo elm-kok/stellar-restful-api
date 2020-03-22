@@ -18,11 +18,12 @@ class PatientQR extends React.Component {
   }
   getQR = async () => {
     try {
-      const spk = store.getState().authReducer.stellarPublicKey;
       const secretKey = (await Keychain.getGenericPassword('StellarSecret'))
         .password;
       const KP = StellarSdk.Keypair.fromSecret(secretKey);
-      const sig = KP.sign(Buffer.from(spk));
+      const sig = KP.sign(
+        Buffer.from(this.props.navigation.state.params.spk),
+      ).toString('base64');
       const name =
         store.getState().authReducer.FName +
         ' ' +
@@ -37,9 +38,6 @@ class PatientQR extends React.Component {
   onClose = () => {
     this.props.navigation.navigate('Doctor');
   };
-  onNext = () => {
-    this.props.navigation.navigate('PatientScan');
-  };
   render() {
     return (
       <>
@@ -48,7 +46,7 @@ class PatientQR extends React.Component {
             <Text
               style={{
                 top: 80,
-                textAlign: 'center', // <-- the magic
+                textAlign: 'center',
                 fontSize: 24,
               }}>
               For Patient Scanning...
@@ -74,19 +72,6 @@ class PatientQR extends React.Component {
               }}
               onPress={this.onClose}>
               <Icon name="ios-close" size={50} color="#e3a699" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 30,
-                height: 30,
-                position: 'absolute',
-                bottom: 10,
-                right: 10,
-              }}
-              onPress={this.onNext}>
-              <Icon name="ios-arrow-round-forward" size={50} color="#01a699" />
             </TouchableOpacity>
           </>
         ) : (

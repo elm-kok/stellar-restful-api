@@ -57,11 +57,11 @@ export default class Patient extends React.Component {
       },
     );
   };
-  natigateInfo = item => {
+  navigateInfo = item => {
     this.props.navigation.navigate('PatientInfo', {item: item});
   };
   renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => this.natigateInfo(item)}>
+    <TouchableOpacity onPress={() => this.navigateInfo(item)}>
       <ListItem
         title={item.name}
         subtitle={item.date.split('G')[0]}

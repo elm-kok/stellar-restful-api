@@ -41,6 +41,9 @@ export default class Settings extends React.Component {
           title={this.state.mode + ' Mode'}
           onPress={() => this.changeMode()}
         />
+        <Button title="secret" onPress={async () => console.log((await Keychain.getGenericPassword('StellarSecret'))
+        .password)} />
+        <Button title="public" onPress={() => console.log(store.getState().authReducer.stellarPublicKey)} />
         <Button
           title="Init Testnet (debug)"
           onPress={() =>

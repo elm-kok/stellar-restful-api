@@ -38,9 +38,7 @@ class PatientQR extends React.Component {
         statusText: 'Preparing...',
       });
       for (i = 0; i < patient.length; ++i) {
-        if (
-          this.state.QRString.spk === patient[i].spk
-        ) {
+        if (this.state.QRString.spk === patient[i].spk) {
           check = i;
           break;
         }
@@ -67,7 +65,9 @@ class PatientQR extends React.Component {
       }
       this.setState({modalVisible2: false});
       console.log(store.getState().patientReducer.PatientList);
-      this.props.navigation.navigate('Doctor');
+      this.props.navigation.navigate('PatientQR', {
+        spk: this.state.QRString.spk,
+      });
     } catch (err) {
       this.setState({modalVisible2: false});
       this.props.navigation.navigate('Doctor');
