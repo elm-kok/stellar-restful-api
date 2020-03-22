@@ -23,18 +23,18 @@ const styles = StyleSheet.create({
   wrapper: {},
   slide1: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   slide2: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   slide3: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   text: {
-    color: '#b32',
+    color: '#ffa45e',
     fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -246,6 +246,7 @@ export default class Info extends Component {
               onChangeText={this.updateSearchLAB}
               value={this.state.searchLAB}
               lightTheme={true}
+              style={{backgroundColor: '#ffff'}}
             />
             <ScrollView style={{flex: 1}}>
               {this.state.bars_r ? this.state.bars_r : null}

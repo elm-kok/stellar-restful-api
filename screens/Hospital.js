@@ -29,34 +29,34 @@ class Hospital extends React.Component {
   render() {
     return (
       <>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+            }}>
+            <Text
+              style={{
+                fontSize: 24,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 100,
+              }}>
+              submitting...
+            </Text>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </Modal>
           <Text
             style={{
-              fontSize: 24,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 100,
+              fontSize: 30,
+              color: '#FF9A4C',
+              textAlign: 'right',
+              padding: 15,
             }}>
-            submitting...
+            Hospital Management
           </Text>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </Modal>
-        <Text
-          style={{
-            fontSize: 30,
-            color: '#FF9A4C',
-            textAlign: 'right',
-            padding: 15,
-          }}>
-          Hospital Management
-        </Text>
-        <Hospital_logic />
+          <Hospital_logic />
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -68,7 +68,7 @@ class Hospital extends React.Component {
             bottom: 10,
             right: 10,
             height: 70,
-            backgroundColor: '#ffff',
+            backgroundColor: '#FFFF',
             borderRadius: 100,
           }}
           onPress={this.onPress}>
@@ -80,7 +80,7 @@ class Hospital extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffff',
     flex: 1,
   },
   standalone: {

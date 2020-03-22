@@ -208,33 +208,30 @@ export async function submitByKeyWithoutEncrypt(
     .accountId(publicKey)
     .call()
     .then(async function(accountResult) {
-      var i;
-      for (i = content.length; i < 16; ++i) {
+      var i = 0;
+      while (accountResult.data_attr[key + '_' + i.toString()]) {
         console.log('remove: ', seq + '_' + i.toString());
-        if (accountResult.data_attr[key + '_' + i.toString()]) {
-          const transaction = new StellarSdk.TransactionBuilder(account, {
-            fee,
-            networkPassphrase: StellarSdk.Networks.TESTNET,
-          })
-            .addOperation(
-              StellarSdk.Operation.manageData({
-                name: seq + '_' + i.toString(),
-                value: null,
-              }),
-            )
-            .setTimeout(100)
-            .build();
-          transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-          try {
-            const transactionResult = await server.submitTransaction(
-              transaction,
-            );
-            //console.log(transactionResult);
-          } catch (err) {
-            console.error(err);
-            return false;
-          }
+        const transaction = new StellarSdk.TransactionBuilder(account, {
+          fee,
+          networkPassphrase: StellarSdk.Networks.TESTNET,
+        })
+          .addOperation(
+            StellarSdk.Operation.manageData({
+              name: seq + '_' + i.toString(),
+              value: null,
+            }),
+          )
+          .setTimeout(100)
+          .build();
+        transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+        try {
+          const transactionResult = await server.submitTransaction(transaction);
+          //console.log(transactionResult);
+        } catch (err) {
+          console.error(err);
+          return false;
         }
+        ++i;
       }
       console.log('Finish.');
       return true;
@@ -288,33 +285,29 @@ export async function submitByKey(
     .accountId(publicKey)
     .call()
     .then(async function(accountResult) {
-      var i;
-      for (i = content.length; i < 16; ++i) {
-        console.log('remove: ', seq + '_' + i.toString());
-        if (accountResult.data_attr[key + '_' + i.toString()]) {
-          const transaction = new StellarSdk.TransactionBuilder(account, {
-            fee,
-            networkPassphrase: StellarSdk.Networks.TESTNET,
-          })
-            .addOperation(
-              StellarSdk.Operation.manageData({
-                name: seq + '_' + i.toString(),
-                value: null,
-              }),
-            )
-            .setTimeout(100)
-            .build();
-          transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-          try {
-            const transactionResult = await server.submitTransaction(
-              transaction,
-            );
-            //console.log(transactionResult);
-          } catch (err) {
-            console.error(err);
-            return false;
-          }
+      var i = 0;
+      while (accountResult.data_attr[key + '_' + i.toString()]) {
+        const transaction = new StellarSdk.TransactionBuilder(account, {
+          fee,
+          networkPassphrase: StellarSdk.Networks.TESTNET,
+        })
+          .addOperation(
+            StellarSdk.Operation.manageData({
+              name: seq + '_' + i.toString(),
+              value: null,
+            }),
+          )
+          .setTimeout(100)
+          .build();
+        transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+        try {
+          const transactionResult = await server.submitTransaction(transaction);
+          //console.log(transactionResult);
+        } catch (err) {
+          console.error(err);
+          return false;
         }
+        ++i;
       }
       console.log('Finish.');
       return true;
@@ -330,23 +323,20 @@ export async function getInfoByKey(publicKey, secretKey, key) {
     .accountId(publicKey)
     .call()
     .then(function(accountResult) {
-      var i;
-      for (i = 0; i < 16; ++i) {
-        if (accountResult.data_attr[key + '_' + i.toString()]) {
-          if (resultOb[key] == undefined) {
-            resultOb[key] = '';
-          }
-          resultOb[key] += Buffer.from(
-            accountResult.data_attr[key + '_' + i.toString()],
-            'base64',
-          ).toString('binary');
-        } else {
-          const deRes = decrypt(resultOb[key], secretKey);
-          if (deRes) {
-            result.add(deRes);
-          }
-          break;
+      var i = 0;
+      while (accountResult.data_attr[key + '_' + i.toString()]) {
+        if (resultOb[key] == undefined) {
+          resultOb[key] = '';
         }
+        resultOb[key] += Buffer.from(
+          accountResult.data_attr[key + '_' + i.toString()],
+          'base64',
+        ).toString('binary');
+        ++i;
+      }
+      const deRes = decrypt(resultOb[key], secretKey);
+      if (deRes) {
+        result.add(deRes);
       }
     })
     .catch(function(err) {
@@ -363,21 +353,18 @@ export async function getInfoByKeyWithoutEncrypt(publicKey, key) {
     .accountId(publicKey)
     .call()
     .then(function(accountResult) {
-      var i;
-      for (i = 0; i < 16; ++i) {
-        if (accountResult.data_attr[key + '_' + i.toString()]) {
-          if (resultOb[key] == undefined) {
-            resultOb[key] = '';
-          }
-          resultOb[key] += Buffer.from(
-            accountResult.data_attr[key + '_' + i.toString()],
-            'base64',
-          ).toString('binary');
-        } else {
-          result.add(resultOb[key]);
-          break;
+      var i = 0;
+      while (accountResult.data_attr[key + '_' + i.toString()]) {
+        if (resultOb[key] == undefined) {
+          resultOb[key] = '';
         }
+        resultOb[key] += Buffer.from(
+          accountResult.data_attr[key + '_' + i.toString()],
+          'base64',
+        ).toString('binary');
+        ++i;
       }
+      result.add(resultOb[key]);
     })
     .catch(function(err) {
       console.error(err);
@@ -397,32 +384,29 @@ export async function clearInfo(publicKey, secretString, seq) {
     .accountId(publicKey)
     .call()
     .then(async function(accountResult) {
-      var i;
-      for (i = 0; i < 16; i++) {
-        if (accountResult.data_attr[seq + '_' + i.toString()]) {
-          const transaction = new StellarSdk.TransactionBuilder(account, {
-            fee,
-            networkPassphrase: StellarSdk.Networks.TESTNET,
-          })
-            .addOperation(
-              StellarSdk.Operation.manageData({
-                name: seq + '_' + i.toString(),
-                value: null,
-              }),
-            )
-            .setTimeout(600)
-            .build();
-          transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-          try {
-            const transactionResult = await server.submitTransaction(
-              transaction,
-            );
-            //console.log(transactionResult);
-          } catch (err) {
-            console.error(err);
-            return false;
-          }
+      var i = 0;
+      while (accountResult.data_attr[seq + '_' + i.toString()]) {
+        const transaction = new StellarSdk.TransactionBuilder(account, {
+          fee,
+          networkPassphrase: StellarSdk.Networks.TESTNET,
+        })
+          .addOperation(
+            StellarSdk.Operation.manageData({
+              name: seq + '_' + i.toString(),
+              value: null,
+            }),
+          )
+          .setTimeout(600)
+          .build();
+        transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+        try {
+          const transactionResult = await server.submitTransaction(transaction);
+          //console.log(transactionResult);
+        } catch (err) {
+          console.error(err);
+          return false;
         }
+        ++i;
       }
       return true;
     });
@@ -479,5 +463,59 @@ export async function clearAll() {
   } catch (err) {
     console.log(err);
   }
+}
+
+export async function cleanAccount(publicKey, secretKey) {
+  testAccountInit(publicKey);
+  await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(async function(accountResult) {
+      for (const key of Object.keys(accountResult.data_attr)) {
+        var isFail = false;
+        while (!isFail)
+          isFail = await cleanAccountByKey(publicKey, secretKey, key);
+      }
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}
+
+export async function cleanAccountByKey(publicKey, secretKey, Key) {
+  console.log('Pub: ', publicKey);
+  console.log('Key: ', Key);
+
+  const account = await server.loadAccount(publicKey);
+  const fee = await server.fetchBaseFee();
+  const isFail = await server
+    .accounts()
+    .accountId(publicKey)
+    .call()
+    .then(async function(accountResult) {
+      const transaction = new StellarSdk.TransactionBuilder(account, {
+        fee,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: Key,
+            value: null,
+          }),
+        )
+        .setTimeout(600)
+        .build();
+      transaction.sign(StellarSdk.Keypair.fromSecret(secretKey));
+      try {
+        await server.submitTransaction(transaction);
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+      return true;
+    });
+  if (isFail) console.log(Key + ' has been removed.');
+  return isFail;
 }
 export {StellarSdk, server, apiServer};

@@ -29,18 +29,18 @@ const styles = StyleSheet.create({
   wrapper: {},
   slide1: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   slide2: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   slide3: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e1e8ee',
   },
   text: {
-    color: '#b32',
+    color: '#ffa45e',
     fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',

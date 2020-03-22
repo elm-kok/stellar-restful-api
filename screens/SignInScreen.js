@@ -1,11 +1,18 @@
 import React from 'react';
-import {View, Button, TextInput} from 'react-native';
+import {
+  View,
+  Button,
+  TextInput,
+  Modal,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
 import {connect} from 'react-redux';
 import {login} from '../redux/actions/authActions';
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {createHash, randomBytes, pbkdf2Sync} from 'crypto';
-import {StellarSdk} from '../stellar';
+import {StellarSdk, cleanAccount} from '../stellar';
 
 const ACCESS_CONTROL_OPTIONS = ['None', 'Passcode', 'Password'];
 const ACCESS_CONTROL_MAP = [
@@ -25,6 +32,7 @@ class SignInScreen extends React.Component {
       fName: '',
       lName: '',
       mode: 'Doctor',
+      modalVisible: false,
     };
   }
 
@@ -38,39 +46,59 @@ class SignInScreen extends React.Component {
 
   render() {
     return (
-      <View>
-        <TextInput
-          style={{height: 40}}
-          placeholder="ID"
-          onChangeText={_id => this.setState({_id: _id})}
-          value={this.state._id}
-        />
-        <TextInput
-          style={{height: 40}}
-          placeholder="Password"
-          onChangeText={passwd => this.setState({passwd: passwd})}
-          value={this.state.passwd}
-        />
-        <TextInput
-          style={{height: 40}}
-          placeholder="Confirm Password"
-          onChangeText={con_passwd => this.setState({con_passwd: con_passwd})}
-          value={this.state.con_passwd}
-        />
-        <TextInput
-          style={{height: 40}}
-          placeholder="First Name"
-          onChangeText={fName => this.setState({fName: fName})}
-          value={this.state.fName}
-        />
-        <TextInput
-          style={{height: 40}}
-          placeholder="Last Name"
-          onChangeText={lName => this.setState({lName: lName})}
-          value={this.state.lName}
-        />
-        <Button title="Sign in" onPress={this._signInAsync} />
-      </View>
+      <>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <Text
+            style={{
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}>
+            {this.state.statusText}
+          </Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
+        <View>
+          <TextInput
+            style={{height: 40}}
+            placeholder="ID"
+            onChangeText={_id => this.setState({_id: _id})}
+            value={this.state._id}
+          />
+          <TextInput
+            style={{height: 40}}
+            placeholder="Password"
+            onChangeText={passwd => this.setState({passwd: passwd})}
+            value={this.state.passwd}
+          />
+          <TextInput
+            style={{height: 40}}
+            placeholder="Confirm Password"
+            onChangeText={con_passwd => this.setState({con_passwd: con_passwd})}
+            value={this.state.con_passwd}
+          />
+          <TextInput
+            style={{height: 40}}
+            placeholder="First Name"
+            onChangeText={fName => this.setState({fName: fName})}
+            value={this.state.fName}
+          />
+          <TextInput
+            style={{height: 40}}
+            placeholder="Last Name"
+            onChangeText={lName => this.setState({lName: lName})}
+            value={this.state.lName}
+          />
+          <Button title="Sign in" onPress={this._signInAsync} />
+        </View>
+      </>
     );
   }
 
@@ -80,6 +108,7 @@ class SignInScreen extends React.Component {
       .update(this.state._id + this.state.passwd, 'utf-8')
       .digest();
       */
+    this.setState({modalVisible: true, statusText: 'Hashing Seed...'});
     const hashId_raw = pbkdf2Sync(
       this.state._id + this.state.passwd,
       '',
@@ -93,13 +122,8 @@ class SignInScreen extends React.Component {
       .digest();
     const arrByte = Uint8Array.from(hashId);
     const stellarKeyPair = await StellarSdk.Keypair.fromRawEd25519Seed(arrByte);
-    const keyHospital = randomBytes(32).toString('base64');
     const keyDoctor = randomBytes(32).toString('base64');
-    await Keychain.setGenericPassword(this.state._id, keyHospital, {
-      accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
-      securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
-      service: 'SecretKeyHospital',
-    });
+    this.setState({statusText: 'Collecting Secret...'});
     await Keychain.setGenericPassword(this.state._id, keyDoctor, {
       accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
@@ -110,6 +134,9 @@ class SignInScreen extends React.Component {
       securityLevel: Keychain.SECURITY_LEVEL.SECURE_SOFTWARE,
       service: 'StellarSecret',
     });
+    this.setState({statusText: 'Cleaning Account...'});
+    await cleanAccount(stellarKeyPair.publicKey(), stellarKeyPair.secret());
+    this.setState({modalVisible: false});
     await this.props.reduxLogin(
       this.state._id,
       this.state.fName,
