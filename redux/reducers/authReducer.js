@@ -33,6 +33,18 @@ const authReducer = (state = initialState, action) => {
         mode: action.mode,
       };
     }
+    case 'UPDATE': {
+      return {
+        // State
+        ...state,
+        // Redux Store
+        //1 -> Approve
+        //0 -> Disable
+        //remove -> Reject
+        FName: action.FName,
+        LName: action.LName,
+      };
+    }
     // Default
     default: {
       return state;

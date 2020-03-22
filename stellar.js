@@ -55,7 +55,6 @@ export async function submitWithoutEncrypt(publicKey, secretString, data) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
-  testAccountInit(publicKey);
 
   const content = chunkString(data, 63);
   console.log('Contents: ', content);
@@ -95,7 +94,6 @@ export async function submit(publicKey, secretString, data, secretKey) {
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
   console.log('Secret Key: ', secretKey);
-  testAccountInit(publicKey);
 
   const strEncrypt = encrypt(data, secretKey);
   const content = chunkString(strEncrypt, 63);
@@ -132,7 +130,6 @@ export async function submit(publicKey, secretString, data, secretKey) {
 }
 
 export async function getInfo(publicKey, secretKey) {
-  testAccountInit(publicKey);
   var resultOb = {};
   var result = new Set();
   await server
@@ -174,7 +171,6 @@ export async function submitByKeyWithoutEncrypt(
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
   console.log('Seq: ', key);
-  testAccountInit(publicKey);
 
   var content = await chunkString(data, 63);
   console.log('Contents: ', content);
@@ -250,7 +246,6 @@ export async function submitByKey(
   console.log('Pri: ', secretString);
   console.log('Secret Key: ', secretKey);
   console.log('Seq: ', key);
-  testAccountInit(publicKey);
 
   const strEncrypt = encrypt(data, secretKey);
   var content = await chunkString(strEncrypt, 63);
@@ -315,7 +310,6 @@ export async function submitByKey(
   return isFail;
 }
 export async function getInfoByKey(publicKey, secretKey, key) {
-  testAccountInit(publicKey);
   var resultOb = {};
   var result = new Set();
   await server
@@ -345,7 +339,6 @@ export async function getInfoByKey(publicKey, secretKey, key) {
   return result;
 }
 export async function getInfoByKeyWithoutEncrypt(publicKey, key) {
-  testAccountInit(publicKey);
   var resultOb = {};
   var result = new Set();
   await server
@@ -374,7 +367,6 @@ export async function getInfoByKeyWithoutEncrypt(publicKey, key) {
 export async function clearInfo(publicKey, secretString, seq) {
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
-  testAccountInit(publicKey);
 
   const account = await server.loadAccount(publicKey);
   console.log('SEQ: ', seq);

@@ -12,3 +12,9 @@ export const changeMode = mode => ({
   type: 'changeMode',
   mode: mode,
 });
+
+export const update = (fName, lName) => ({
+  type: 'UPDATE',
+  FName: fName,
+  LName: lName,
+});
