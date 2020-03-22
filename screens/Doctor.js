@@ -19,7 +19,6 @@ import {connect} from 'react-redux';
 class Doctor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {modalVisible: false};
   }
 
   onPressDoctor = () => {
@@ -34,24 +33,6 @@ class Doctor extends React.Component {
   render() {
     return (
       <>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-          <Text
-            style={{
-              fontSize: 24,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 100,
-            }}>
-            submitting...
-          </Text>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </Modal>
         <Swiper
           style={styles.wrapper}
           index={store.getState().authReducer.mode === 'Patinet' ? 0 : 1}

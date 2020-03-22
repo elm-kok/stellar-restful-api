@@ -5,6 +5,8 @@ import {
   Text,
   FlatList,
   StyleSheet,
+  ActivityIndicator,
+  Modal,
   TouchableOpacity,
 } from 'react-native';
 import {ListItem} from 'react-native-elements';
@@ -20,7 +22,7 @@ import * as Keychain from 'react-native-keychain';
 export default class Doctor_logic extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {doctorList: []};
+    this.state = {doctorList: [], modalVisible: false};
   }
   componentDidMount() {
     this.setState({
@@ -159,11 +161,31 @@ export default class Doctor_logic extends React.Component {
     );
   render() {
     return (
-      <FlatList
-        keyExtractor={(item, index) => index.toString()}
-        data={this.state.doctorList}
-        renderItem={this.renderItem}
-      />
+      <>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <Text
+            style={{
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}>
+            submitting...
+          </Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
+        <FlatList
+          keyExtractor={(item, index) => index.toString()}
+          data={this.state.doctorList}
+          renderItem={this.renderItem}
+        />
+      </>
     );
   }
 }
