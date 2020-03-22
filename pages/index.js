@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Typography, Button, Grid } from "@material-ui/core";
 import QRCode from "qrcode.react";
 import dynamic from "next/dynamic";
-import { PublicKey, SecretKey, HOSPCODE } from "../stellar";
+import { PublicKey, SecretKey, HOSPCODE, HOSPNAME } from "../stellar";
 import { algo } from "crypto-js";
 import pbkdf2 from "crypto-js/pbkdf2";
 
@@ -52,7 +52,7 @@ export default class QR extends Component {
               result: dataJson,
               QR: JSON.stringify({
                 Type: "Hospital",
-                HospitalName: "Chulalongkorn Hospital",
+                HospitalName: HOSPNAME,
                 EndPoint: "http://localhost:3001/api/",
                 HOSCODE: HOSPCODE,
                 Signature: key512Bits1000Iterations

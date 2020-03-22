@@ -2,9 +2,20 @@ const StellarSdk = require("stellar-sdk");
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 const crypto = require("crypto");
 
-const PublicKey = "GASRGGYGQKU37DI537C4LZZRDA5RVL4DLVG4WKJUO4DTOAALGGU3X4NL";
-const SecretKey = "SAKBRQ345WYCSPLSD72ULTCUAAXAEVOLC63SHQ7WB3RRSPM72TZSAFND";
-const HOSPCODE = "09082";
+const PublicKey1 = "GASRGGYGQKU37DI537C4LZZRDA5RVL4DLVG4WKJUO4DTOAALGGU3X4NL";
+const SecretKey1 = "SAKBRQ345WYCSPLSD72ULTCUAAXAEVOLC63SHQ7WB3RRSPM72TZSAFND";
+const HOSPCODE1 = "09082";
+const HOSPNAME1 = "Siriraj Hospital";
+
+const PublicKey0 = "GC53Z7CHWUFWVJ7V4JQRNYR26PDQDHTKIG423Z6T47XJYLOCVKT7YTV5";
+const SecretKey0 = "SCCXCBTECBWXYAJV2NVETV5G5ZEPUV2MPEDAJHPNS3G5ZZ3LAFSLMKZG";
+const HOSPCODE0 = "10739";
+const HOSPNAME0 = "Chulalongkorn Hospital";
+
+const PublicKey = { "09082": PublicKey1, "10739": PublicKey0 };
+const SecretKey = { "09082": SecretKey1, "10739": SecretKey0 };
+const HOSPCODE = HOSPCODE0;
+const HOSPNAME = HOSPNAME0;
 
 function decrypt(text, ENCRYPTION_KEY) {
   try {
@@ -44,10 +55,7 @@ function verifySignature(publicKey, signature, pid, key) {
 function verifySignatureWithoutKey(publicKey, signature, raw) {
   try {
     const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
-    return kp.verify(
-      Buffer.from(raw),
-      Buffer.from(signature, "base64")
-    );
+    return kp.verify(Buffer.from(raw), Buffer.from(signature, "base64"));
   } catch (err) {
     console.log(err);
     return false;
@@ -157,6 +165,7 @@ module.exports = {
   PublicKey,
   SecretKey,
   HOSPCODE,
+  HOSPNAME,
   verifySignature,
   getInfo,
   getInfoByKey,

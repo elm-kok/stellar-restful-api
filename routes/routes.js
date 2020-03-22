@@ -114,12 +114,12 @@ router.post("/test", async function(req, res) {
   */
 });
 
-async function SPK2PID(spk, signature, callback) {
+async function SPK2PID(spk, signature, hopscode, callback) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.SPK = " +
     connection.escape(spk) +
     " AND STELLARKEY.HOSPCODE = " +
-    connection.escape(HOSPCODE) +
+    connection.escape(hopscode) +
     ";";
   connection.query(querycmd, async function(error, results) {
     if (error) {
@@ -132,16 +132,15 @@ async function SPK2PID(spk, signature, callback) {
       if (!hospSigJson.Status) return callback(false);
 
       const hospSig = hospSigJson.Signature;
-      const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+      const KP = StellarSdk.Keypair.fromSecret(SecretKey[hopscode]);
       const sigFromHos = KP.sign(
         Buffer.from(results[0].PID + "_" + spk)
       ).toString("base64");
       const sigFromHosHash = crypto
         .pbkdf2Sync(sigFromHos, "", 1000, 64, "sha512")
         .toString("hex");
-
       if (
-        !verifySignatureWithoutKey(spk, signature, spk + "_" + HOSPCODE) ||
+        !verifySignatureWithoutKey(spk, signature, spk + "_" + hopscode) ||
         hospSig !== sigFromHosHash
       ) {
         console.log("Signature fail for Patient SPK: " + spk);
@@ -161,13 +160,14 @@ async function SPK2PIDDoctor(
   SEQ,
   DoctorSignature,
   HospitalSignature,
+  HospCode,
   callback
 ) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.SPK = " +
     connection.escape(PatientSPK) +
     " AND STELLARKEY.HOSPCODE = " +
-    connection.escape(HOSPCODE) +
+    connection.escape(HospCode) +
     ";";
   connection.query(querycmd, async function(error, results) {
     if (error) {
@@ -178,7 +178,6 @@ async function SPK2PIDDoctor(
         await getInfoByKeyWithoutEncrypt(PatientSPK, results[0].SEQ)
       );
       if (!hospSigJson.Status) return callback(false);
-
       const docSigJson = JSON.parse(
         await getInfoByKeyWithoutEncrypt(PatientSPK, SEQ)
       );
@@ -189,12 +188,11 @@ async function SPK2PIDDoctor(
       const sigFromDocHash = crypto
         .pbkdf2Sync(DoctorSignature, "", 1000, 64, "sha512")
         .toString("hex");
-
       if (
         !verifySignatureWithoutKey(
           DoctorSPK,
           HospitalSignature,
-          PatientSPK + "_" + HOSPCODE
+          PatientSPK + "_" + HospCode
         ) ||
         sigFromDocHash !== docSig
       ) {
@@ -207,7 +205,7 @@ async function SPK2PIDDoctor(
     }
   });
 }
-async function DRUG_OPD(PID) {
+async function DRUG_OPD(PID, HospCode) {
   var querycmd =
     "SELECT DRUG_OPD.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUG_OPD.HOSPCODE, DRUG_OPD.PID, DRUG_OPD.SEQ, DRUG_OPD.DATE_SERV, CODE_CLINIC.DESCRIPTION AS CLINIC, CODE_DIDSTD.DRUGNAME AS DRUGNAME, CODE_DIDSTD.DGDSFNM AS COMSUME, CODE_DIDSTD.COMP AS DCOMP, DRUG_OPD.DNAME, DRUG_OPD.AMOUNT, CODE_DRUGUNIT.DESCRIPTION AS DUNIT, DRUG_OPD.UNIT_PACKING, DRUG_OPD.DRUGPRICE, DRUG_OPD.DRUGCOST, PROVIDER.PRENAME AS PROV_PRENAME, PROVIDER.NAME AS PROV_NAME, PROVIDER.LNAME AS PROV_LNAME, DRUG_OPD.PROVIDER AS PROV_NO FROM DRUG_OPD LEFT JOIN CODE_DIDSTD ON DRUG_OPD.DIDSTD=CODE_DIDSTD.STD_CODE LEFT JOIN CODE_DRUGUNIT ON DRUG_OPD.UNIT=CODE_DRUGUNIT.CODE LEFT JOIN CODE_CLINIC ON DRUG_OPD.CLINIC=CODE_CLINIC.CODE LEFT JOIN PROVIDER ON DRUG_OPD.PROVIDER=PROVIDER.PROVIDER LEFT JOIN CODE_HOSPITAL ON DRUG_OPD.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
   querycmd =
@@ -215,7 +213,7 @@ async function DRUG_OPD(PID) {
     " WHERE PID=" +
     connection.escape(PID) +
     " && DRUG_OPD.HOSPCODE=" +
-    connection.escape(HOSPCODE);
+    connection.escape(HospCode);
 
   try {
     const rows = await query(querycmd);
@@ -226,8 +224,14 @@ async function DRUG_OPD(PID) {
         DATE_SERV: rows[i].DATE_SERV,
         DRUGNAME: rows[i].DRUGNAME,
         COMSUME: rows[i].COMSUME,
+        DCOMP: rows[i].DCOMP,
         DNAME: rows[i].DNAME,
-        AMOUNT: rows[i].AMOUNT
+        AMOUNT: rows[i].AMOUNT,
+        DUNIT: rows[i].DUNIT,
+        UNIT_PACKING: rows[i].UNIT_PACKING,
+        PROV_PRENAME: rows[i].PROV_PRENAME,
+        PROV_NAME: rows[i].PROV_NAME,
+        PROV_LNAME: rows[i].PROV_LNAME
       });
     }
 
@@ -237,8 +241,7 @@ async function DRUG_OPD(PID) {
     return false;
   }
 }
-
-async function DRUGALLERGY(PID) {
+async function DRUGALLERGY(PID, HospCode) {
   var querycmd =
     "SELECT DRUGALLERGY.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUGALLERGY.HOSPCODE, DRUGALLERGY.PID, DRUGALLERGY.DATERECORD, DRUGALLERGY.DNAME, CODE_DRUGALLERGY_TYPEDX.DESCRIPTION AS TYPEDX, CODE_DRUGALLERGY_INFORMANT.DESCRIPTION AS INFORMANT, CODE_DRUGALLERGY_ALEVEL.DESCRIPTION AS ALEVEL FROM DRUGALLERGY LEFT JOIN CODE_DRUGALLERGY_TYPEDX ON DRUGALLERGY.TYPEDX=CODE_DRUGALLERGY_TYPEDX.CODE LEFT JOIN CODE_DRUGALLERGY_INFORMANT ON DRUGALLERGY.INFORMANT=CODE_DRUGALLERGY_INFORMANT.CODE LEFT JOIN CODE_DRUGALLERGY_ALEVEL ON DRUGALLERGY.ALEVEL=CODE_DRUGALLERGY_ALEVEL.CODE LEFT JOIN CODE_HOSPITAL ON DRUGALLERGY.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
   querycmd =
@@ -246,7 +249,7 @@ async function DRUGALLERGY(PID) {
     " WHERE PID=" +
     connection.escape(PID) +
     " && DRUGALLERGY.HOSPCODE=" +
-    connection.escape(HOSPCODE);
+    connection.escape(HospCode);
 
   try {
     const rows = await query(querycmd);
@@ -268,7 +271,7 @@ async function DRUGALLERGY(PID) {
     return false;
   }
 }
-async function LAB(PID) {
+async function LAB(PID, HospCode) {
   var querycmd =
     "SELECT LABFU.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, LABFU.HOSPCODE, LABFU.PID, LABFU.SEQ, LABFU.DATE_SERV, LABFU.LABTEST AS LABID, CODE_LABFU_LABTEST.DESCRIPTION AS LABTEST, LABFU.LABRESULT FROM LABFU LEFT JOIN CODE_LABFU_LABTEST ON LABFU.LABTEST=CODE_LABFU_LABTEST.CODE LEFT JOIN CODE_HOSPITAL ON LABFU.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
 
@@ -277,7 +280,7 @@ async function LAB(PID) {
     " WHERE PID=" +
     connection.escape(PID) +
     " && LABFU.HOSPCODE=" +
-    connection.escape(HOSPCODE);
+    connection.escape(HospCode);
 
   try {
     const rows = await query(querycmd);
@@ -300,13 +303,14 @@ async function LAB(PID) {
 }
 router.post("/fetchByPatient", async function(req, res) {
   const SPK = req.body.SPK;
+  const HospCode = req.body.HospCode;
   const Signature = req.body.Signature;
-  SPK2PID(SPK, Signature, async function(PID) {
+  SPK2PID(SPK, Signature, HospCode, async function(PID) {
     try {
       console.log("Patient -> PID: ", PID);
-      const DRUG_OPDs = await DRUG_OPD(PID);
-      const LABs = await LAB(PID);
-      const DRUGALLERGYs = await DRUGALLERGY(PID);
+      const DRUG_OPDs = await DRUG_OPD(PID, HospCode);
+      const LABs = await LAB(PID, HospCode);
+      const DRUGALLERGYs = await DRUGALLERGY(PID, HospCode);
       result = {
         DRUG_OPD: DRUG_OPDs,
         LAB: LABs,
@@ -323,6 +327,7 @@ router.post("/fetchByDoctor", async function(req, res) {
   const PatientSPK = req.body.PatientSPK;
   const DoctorSPK = req.body.DoctorSPK;
   const DoctorSignature = req.body.DoctorSignature;
+  const HospCode = req.body.HospCode;
   const SEQ = req.body.SEQ;
   const HospitalSignature = req.body.HospitalSignature;
 
@@ -332,12 +337,13 @@ router.post("/fetchByDoctor", async function(req, res) {
     SEQ,
     DoctorSignature,
     HospitalSignature,
+    HospCode,
     async function(PID) {
       try {
         console.log("Doctor -> PID: ", PID);
-        const DRUG_OPDs = await DRUG_OPD(PID);
-        const LABs = await LAB(PID);
-        const DRUGALLERGYs = await DRUGALLERGY(PID);
+        const DRUG_OPDs = await DRUG_OPD(PID, HospCode);
+        const LABs = await LAB(PID, HospCode);
+        const DRUGALLERGYs = await DRUGALLERGY(PID, HospCode);
         result = {
           DRUG_OPD: DRUG_OPDs,
           LAB: LABs,
@@ -477,9 +483,14 @@ router.post("/secret/", function(req, res, next) {
     ",SEQ=" +
     connection.escape(req.body.seq);
   connection.query(sql, [values], function(err, result) {
-    if (err) console.log(err);
+    if (err) {
+      console.log(err);
+      res.json(err);
+    }
+    res.json("Added");
   });
 });
+
 module.exports = router;
 
 // ACCIDENT D
