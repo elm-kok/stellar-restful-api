@@ -4,6 +4,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const apiServer = 'http://192.168.2.36:3001/api/';
 import {store} from './redux/store/store';
 import * as Keychain from 'react-native-keychain';
+import {cos} from 'react-native-reanimated';
 
 const GodAccountSPK =
   'GDREKM4EFLY6RHZ3ORC6OLLEVLPY6HNA2IX5RANV22NXJUMBDSVN7RXZ';
@@ -206,7 +207,6 @@ export async function submitByKeyWithoutEncrypt(
     .then(async function(accountResult) {
       var i = 0;
       while (accountResult.data_attr[key + '_' + i.toString()]) {
-        console.log('remove: ', seq + '_' + i.toString());
         const transaction = new StellarSdk.TransactionBuilder(account, {
           fee,
           networkPassphrase: StellarSdk.Networks.TESTNET,
@@ -214,7 +214,7 @@ export async function submitByKeyWithoutEncrypt(
           .addOperation(
             StellarSdk.Operation.manageData({
               name: seq + '_' + i.toString(),
-              value: null,
+              value: content[i].toString('binary'),
             }),
           )
           .setTimeout(100)
@@ -348,7 +348,7 @@ export async function getInfoByKeyWithoutEncrypt(publicKey, key) {
     .then(function(accountResult) {
       var i = 0;
       while (accountResult.data_attr[key + '_' + i.toString()]) {
-        if (resultOb[key] == undefined) {
+        if (resultOb[key] === undefined) {
           resultOb[key] = '';
         }
         resultOb[key] += Buffer.from(
