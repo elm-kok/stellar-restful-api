@@ -62,16 +62,33 @@ class HospitalQR extends React.Component {
         Signature: this.state.QRString.Signature,
         Status: 1,
       });
-      const seq_sig = await submitWithoutEncrypt(spk, StellarSecret, sig);
+      let seq_sig = false;
+      const account = await server.loadAccount(spk);
+      let seq = account.sequenceNumber();
+      while (!seq_sig) {
+        seq_sig = await submitWithoutEncrypt(
+          spk,
+          StellarSecret,
+          sig,
+          seq,
+          account,
+        );
+      }
       this.setState({statusText: 'Upload EndPoint...'});
       var endpoint = this.state.QRString;
       delete endpoint['Signature'];
-      const seq_end = await submit(
-        spk,
-        StellarSecret,
-        JSON.stringify(endpoint),
-        SecretKeyDoctor,
-      );
+      let seq_end = false;
+      seq = account.sequenceNumber();
+      while (!seq_end) {
+        seq_end = await submit(
+          spk,
+          StellarSecret,
+          JSON.stringify(endpoint),
+          SecretKeyDoctor,
+          seq,
+          account,
+        );
+      }
       if (!seq_end || !seq_sig) {
         this.setState({modalVisible2: false});
         return;

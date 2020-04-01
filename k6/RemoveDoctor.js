@@ -1,6 +1,5 @@
 const StellarSdk = require('stellar-sdk');
 const request = require('request-promise');
-const crypto = require('crypto');
 const fs = require('fs');
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const {PerformanceObserver, performance} = require('perf_hooks');
@@ -25,7 +24,7 @@ async function submitWithoutEncrypt(
       .addOperation(
         StellarSdk.Operation.manageData({
           name: seq + '_' + i.toString(),
-          value: content[i].toString('binary'),
+          value: null,
         }),
       )
       .setTimeout(100)
@@ -63,7 +62,7 @@ function makeid(length) {
 (async () => {
   try {
     var accountL = JSON.parse(
-      fs.readFileSync('accountListHospital.json', 'utf8'),
+      fs.readFileSync('accountListDoctor.json', 'utf8'),
     )['users'];
     console.log('number of users : ', accountL.length);
     const num_account = accountL.length;
@@ -79,7 +78,7 @@ function makeid(length) {
         console.log(items.getEntries()[0].duration);
         performance.clearMarks();
         const path =
-          'Update_' +
+          'Remove_' +
           new Date().getDate() +
           '-' +
           new Date().getMonth() +
@@ -129,7 +128,7 @@ function makeid(length) {
       ++i;
     }
     const path =
-      'FUpdate_' +
+      'FRemove_' +
       new Date().getDate() +
       '-' +
       new Date().getMonth() +

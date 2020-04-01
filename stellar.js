@@ -52,15 +52,19 @@ function chunkString(str, length) {
     return null;
   }
 }
-export async function submitWithoutEncrypt(publicKey, secretString, data) {
+export async function submitWithoutEncrypt(
+  publicKey,
+  secretString,
+  data,
+  seq,
+  account,
+) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
 
   const content = chunkString(data, 63);
   console.log('Contents: ', content);
-  const account = await server.loadAccount(publicKey);
-  const seq = account.sequenceNumber();
   console.log('SEQ: ', seq);
   const fee = await server.fetchBaseFee();
   var i;
@@ -90,7 +94,14 @@ export async function submitWithoutEncrypt(publicKey, secretString, data) {
   return seq;
 }
 
-export async function submit(publicKey, secretString, data, secretKey) {
+export async function submit(
+  publicKey,
+  secretString,
+  data,
+  secretKey,
+  seq,
+  account,
+) {
   console.log('Data: ', data);
   console.log('Pub: ', publicKey);
   console.log('Pri: ', secretString);
@@ -99,8 +110,6 @@ export async function submit(publicKey, secretString, data, secretKey) {
   const strEncrypt = encrypt(data, secretKey);
   const content = chunkString(strEncrypt, 63);
   console.log('Contents: ', content);
-  const account = await server.loadAccount(publicKey);
-  const seq = account.sequenceNumber();
   console.log('SEQ: ', seq);
   const fee = await server.fetchBaseFee();
   var i;
@@ -178,28 +187,7 @@ export async function submitByKeyWithoutEncrypt(
   const account = await server.loadAccount(publicKey);
   const seq = key;
   const fee = await server.fetchBaseFee();
-  var i;
-  for (i = 0; i < content.length; i++) {
-    const transaction = new StellarSdk.TransactionBuilder(account, {
-      fee,
-      networkPassphrase: StellarSdk.Networks.TESTNET,
-    })
-      .addOperation(
-        StellarSdk.Operation.manageData({
-          name: seq + '_' + i.toString(),
-          value: content[i].toString('binary'),
-        }),
-      )
-      .setTimeout(100)
-      .build();
-    transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-    try {
-      const transactionResult = await server.submitTransaction(transaction);
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
-  }
+
   const isFail = await server
     .accounts()
     .accountId(publicKey)
@@ -361,6 +349,7 @@ export async function getInfoByKeyWithoutEncrypt(publicKey, key) {
     })
     .catch(function(err) {
       console.error(err);
+      return false;
     });
   return result;
 }

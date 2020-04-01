@@ -1,12 +1,11 @@
 const StellarSdk = require('stellar-sdk');
 const request = require('request-promise');
-const crypto = require('crypto');
 const fs = require('fs');
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const {PerformanceObserver, performance} = require('perf_hooks');
 
 const record_len = 63 * 3;
-const num_payload = 1;
+const num_payload = 2;
 async function submitWithoutEncrypt(
   publicKey,
   secretString,
@@ -25,7 +24,7 @@ async function submitWithoutEncrypt(
       .addOperation(
         StellarSdk.Operation.manageData({
           name: seq + '_' + i.toString(),
-          value: content[i].toString('binary'),
+          value: null,
         }),
       )
       .setTimeout(100)
@@ -34,7 +33,8 @@ async function submitWithoutEncrypt(
     try {
       const transactionResult = await server.submitTransaction(transaction);
     } catch (err) {
-      console.error(err);
+      //console.error(err);
+      console.log(publicKey, seq);
       return false;
     }
   }
@@ -79,7 +79,7 @@ function makeid(length) {
         console.log(items.getEntries()[0].duration);
         performance.clearMarks();
         const path =
-          'Update_' +
+          'Remove_' +
           new Date().getDate() +
           '-' +
           new Date().getMonth() +
@@ -108,7 +108,7 @@ function makeid(length) {
       obs.observe({entryTypes: ['measure']});
       performance.mark('A');
       const account = await server.loadAccount(stellarKeyPair.publicKey());
-      let seq = account.sequenceNumber() - 3;
+      let seq = account.sequenceNumber() - 6;
       while (j < num_payload) {
         let result = await submitWithoutEncrypt(
           stellarKeyPair.publicKey(),
@@ -129,7 +129,7 @@ function makeid(length) {
       ++i;
     }
     const path =
-      'FUpdate_' +
+      'FRemove_' +
       new Date().getDate() +
       '-' +
       new Date().getMonth() +

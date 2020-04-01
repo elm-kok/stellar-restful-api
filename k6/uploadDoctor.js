@@ -8,11 +8,15 @@ const {PerformanceObserver, performance} = require('perf_hooks');
 num_account = 100;
 num_payload = 1;
 record_len = 63 * 3;
-all_key = (num_account * num_payload * record_len) / 63;
-async function submitWithoutEncrypt(publicKey, secretString, data) {
+all_key = num_account * num_payload;
+async function submitWithoutEncrypt(
+  publicKey,
+  secretString,
+  data,
+  seq,
+  account,
+) {
   const content = chunkString(data, 63);
-  const account = await server.loadAccount(publicKey);
-  const seq = account.sequenceNumber();
   const fee = await server.fetchBaseFee();
   var i;
   for (i = 0; i < content.length; i++) {
@@ -119,14 +123,20 @@ function makeid(length) {
           });
           obs.observe({entryTypes: ['measure']});
           performance.mark('A');
-
+          const account = await server.loadAccount(stellarKeyPair.publicKey());
+          let seq = account.sequenceNumber();
           while (j < num_payload) {
             let result = await submitWithoutEncrypt(
               stellarKeyPair.publicKey(),
               stellarKeyPair.secret(),
               makeid(record_len),
+              seq,
+              account,
             );
-            if (result) ++j;
+            if (result) {
+              ++j;
+              seq = account.sequenceNumber();
+            }
             total++;
           }
           //console.timeEnd('accountTest');

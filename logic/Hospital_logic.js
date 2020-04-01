@@ -55,12 +55,15 @@ export default class Hospital_logic extends React.Component {
           Signature: info.Signature,
           Status: !info.Status,
         });
-        const subResult = await submitByKeyWithoutEncrypt(
-          store.getState().authReducer.stellarPublicKey,
-          StellarSecret.password,
-          sig,
-          seq_sig,
-        );
+        let subResult = false;
+        while (!subResult) {
+          subResult = await submitByKeyWithoutEncrypt(
+            store.getState().authReducer.stellarPublicKey,
+            StellarSecret.password,
+            sig,
+            seq_sig,
+          );
+        }
         if (subResult && info) {
           this.state.hospitalList[_index].status = !info.Status ? 1 : 0;
           await store.dispatch(updateHospital(this.state.hospitalList));

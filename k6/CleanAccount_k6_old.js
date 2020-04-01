@@ -1,14 +1,25 @@
 import http from 'k6/http';
-import {check, sleep} from 'k6';
+import {sleep, check} from 'k6';
+const data = JSON.parse(open('./accountListDoctor.json'));
 export let options = {
   stages: [{duration: '10s', target: 100}],
 };
 
-export default async function() {
-  let res = http.get('https://httpbin.org/');
-  check(res, {
-    'status was 200': r => r.status == 200,
-    'transaction time OK': r => r.timings.duration < 200,
+export default function() {
+  let user = data.users[__VU - 1].publicKey;
+  var payload = JSON.stringify({
+    spk: user,
   });
-  sleep(1);
+
+  var params = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  var url = 'http://192.168.2.36:3001/api/test';
+  let res = http.post(url, payload, params);
+  check(res, {
+    'is status 200': r => r.status === 200,
+  });
+  //sleep(1);
 }

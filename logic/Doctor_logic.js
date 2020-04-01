@@ -41,26 +41,27 @@ export default class Doctor_logic extends React.Component {
         const StellarSecret = await Keychain.getGenericPassword(
           'StellarSecret',
         );
-        const info = JSON.parse(
-          (
-            await getInfoByKeyWithoutEncrypt(
-              store.getState().authReducer.stellarPublicKey,
-              seq_sig,
-            )
-          )
-            .values()
-            .next().value,
-        );
+        let info_result = false;
+        while (!info_result) {
+          info_result = await getInfoByKeyWithoutEncrypt(
+            store.getState().authReducer.stellarPublicKey,
+            seq_sig,
+          );
+        }
+        const info = JSON.parse(info_result.values().next().value);
         const sig = JSON.stringify({
           Signature: info.Signature,
           Status: !info.Status,
         });
-        const subResult = await submitByKeyWithoutEncrypt(
-          store.getState().authReducer.stellarPublicKey,
-          StellarSecret.password,
-          sig,
-          seq_sig,
-        );
+        let subResult = false;
+        while (!subResult) {
+          subResult = await submitByKeyWithoutEncrypt(
+            store.getState().authReducer.stellarPublicKey,
+            StellarSecret.password,
+            sig,
+            seq_sig,
+          );
+        }
         if (subResult && info) {
           this.state.doctorList[_index].status = !info.Status ? 1 : 0;
           await store.dispatch(updateDoctor(this.state.doctorList));

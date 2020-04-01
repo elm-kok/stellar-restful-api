@@ -66,7 +66,18 @@ class DoctorQR extends React.Component {
         ).toString('hex'),
         Status: 1,
       });
-      const seq_sig = await submitWithoutEncrypt(spk, StellarSecret, sig);
+      let seq_sig = false;
+      const account = await server.loadAccount(spk);
+      let seq = account.sequenceNumber();
+      while (!seq_sig) {
+        seq_sig = await submitWithoutEncrypt(
+          spk,
+          StellarSecret,
+          sig,
+          seq,
+          account,
+        );
+      }
 
       if (!seq_sig) {
         this.setState({modalVisible2: false});
