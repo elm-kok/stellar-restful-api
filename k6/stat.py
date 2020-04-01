@@ -4,7 +4,7 @@ import numpy as np
 
 arr = os.listdir()
 dt = {}
-for i in [j for j in arr if j[:7] == 'Update_']:
+for i in [j for j in arr if j[:7] == 'Remove_']:
     for k in open(i, "r").readlines():
         if i.split('_')[2] in dt:
             dt[i.split('_')[2]].append(float(k)/1e3)

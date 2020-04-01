@@ -30,8 +30,8 @@ node RemoveHospital.js
 
 **5. Run Stat:**
 ```
-edit Line 7: ...j[:7] == 'Upload_' for the Add Doctor(Key=1) and Add Hospital(Key=2)
-edit Line 7: ...j[:7] == 'Update_' for the Disable Doctor  and Disable Hospital (same Key=1) 
-edit Line 7: ...j[:7] == 'Remove_' for the Remove Doctor(Key=1) and Remove Hospital(Key=2) 
+edit Line 7: ...j[:7] == 'Upload_' for Add Doctor(Key=1) and Add Hospital(Key=2)
+edit Line 7: ...j[:7] == 'Update_' for Disable Doctor  and Disable Hospital (same Key=1) 
+edit Line 7: ...j[:7] == 'Remove_' for Remove Doctor(Key=1) and Remove Hospital(Key=2) 
 python stat.py
 ```
