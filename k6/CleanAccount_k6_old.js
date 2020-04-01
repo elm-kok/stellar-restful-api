@@ -16,10 +16,13 @@ export default function() {
       'Content-Type': 'application/json',
     },
   };
+  /*
   var url = 'http://192.168.2.36:3001/api/test';
   let res = http.post(url, payload, params);
   check(res, {
     'is status 200': r => r.status === 200,
   });
+  */
+  console.log(__VU - 1);
   //sleep(1);
 }

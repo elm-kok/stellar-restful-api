@@ -3,10 +3,13 @@ import statistics
 import numpy as np
 
 arr = os.listdir()
-dt = {'1': [], '2': []}
-for i in [j for j in arr if j[:7] == 'Remove_']:
+dt = {}
+for i in [j for j in arr if j[:7] == 'Update_']:
     for k in open(i, "r").readlines():
-        dt[i.split('_')[2]].append(float(k)/1e3)
+        if i.split('_')[2] in dt:
+            dt[i.split('_')[2]].append(float(k)/1e3)
+        else:
+            dt[i.split('_')[2]] = [float(k)/1e3]
 
 print(dt.keys())
 for i in dt:
