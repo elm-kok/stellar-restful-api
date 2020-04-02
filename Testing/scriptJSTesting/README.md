@@ -1,8 +1,7 @@
-# K6 and JS test script for Lanbda and Stellar Testnet
+# JS test script for Stellar Testnet
 
 ## Built With
 * [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) - Script test for Stellar
-* [K6](https://k6.io/) - Load Testing and Performance monitoring for Lambda
 * [Python](https://www.python.org/) - Stat Result
 
 ## Getting Started
