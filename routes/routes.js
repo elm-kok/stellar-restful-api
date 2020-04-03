@@ -61,7 +61,7 @@ async function SPK2PID(spk, signature, hopscode, callback) {
       ).toString("base64");
       const sigFromHosHash = crypto
         .pbkdf2Sync(sigFromHos, "", 1000, 64, "sha512")
-        .toString("hex");
+        .toString("base64");
       if (
         !verifySignatureWithoutKey(spk, signature, spk + "_" + hopscode) ||
         hospSig !== sigFromHosHash
@@ -326,7 +326,7 @@ router.post("/findPid/", function(req, res) {
     ).toString("base64");
     const key512Bits1000Iterations = crypto
       .pbkdf2Sync(sig, "", 1000, 64, "sha512")
-      .toString();
+      .toString("base64");
     var values = [
       [req.body.SPK, results[0].PID, req.body.Seq, req.body.HOSPCODE]
     ];

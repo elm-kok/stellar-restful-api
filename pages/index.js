@@ -37,18 +37,24 @@ export default class QR extends Component {
         })
           .then(response => response.json())
           .then(async responseJson => {
-            this.setState({
-              result: dataJson,
-              QR: JSON.stringify({
-                Type: "Hospital",
-                Name: HOSPNAME,
-                Endpoint: "http://localhost:3001/api/",
-                HOSPCODE: HOSPCODE,
-                Signature: responseJson.Secret
-              }),
-              camera: false,
-              msg: ""
-            });
+            if (responseJson.Secret) {
+              this.setState({
+                result: dataJson,
+                QR: JSON.stringify({
+                  Type: "Hospital",
+                  Name: HOSPNAME,
+                  Endpoint: "http://localhost:3001/api/",
+                  HOSPCODE: HOSPCODE,
+                  Signature: responseJson.Secret
+                }),
+                camera: false,
+                msg: ""
+              });
+            } else {
+              this.setState({
+                msg: responseJson
+              });
+            }
           });
       } else {
         this.setState({
@@ -84,11 +90,11 @@ export default class QR extends Component {
             </Grid>
             <Grid item xs={6}>
               <Grid item xs={12}>
-                <Typography variant="h3">{this.state.result.name}</Typography>
+                <Typography variant="h3">{this.state.result.Name}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h3">
-                  ID: {this.state.result.cid}
+                  CID: {this.state.result.CID}
                 </Typography>
               </Grid>
               <Grid item xs={12} style={{ paddingTop: 30 }}>
