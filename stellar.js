@@ -12,10 +12,12 @@ const SecretKey0 = "SCCXCBTECBWXYAJV2NVETV5G5ZEPUV2MPEDAJHPNS3G5ZZ3LAFSLMKZG";
 const HOSPCODE0 = "10739";
 const HOSPNAME0 = "Chulalongkorn Hospital";
 
-const PublicKey = { "09082": PublicKey1, "10739": PublicKey0 };
-const SecretKey = { "09082": SecretKey1, "10739": SecretKey0 };
-const HOSPCODE = HOSPCODE0;
-const HOSPNAME = HOSPNAME0;
+//const PublicKey = { "09082": PublicKey1, "10739": PublicKey0 };
+//const SecretKey = { "09082": SecretKey1, "10739": SecretKey0 };
+const PublicKey = PublicKey1;
+const SecretKey = SecretKey1;
+const HOSPCODE = HOSPCODE1;
+const HOSPNAME = HOSPNAME1;
 
 function decrypt(text, ENCRYPTION_KEY) {
   try {

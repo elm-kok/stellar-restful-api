@@ -2,11 +2,8 @@ import React, { Component } from "react";
 import { Typography, Button, Grid } from "@material-ui/core";
 import QRCode from "qrcode.react";
 import dynamic from "next/dynamic";
-import { PublicKey, SecretKey, HOSPCODE, HOSPNAME } from "../stellar";
-import { algo } from "crypto-js";
-import pbkdf2 from "crypto-js/pbkdf2";
+import { HOSPCODE, HOSPNAME } from "../stellar";
 
-const StellarSdk = require("stellar-sdk");
 const QrReader = dynamic(() => import("react-qr-reader"), {
   ssr: false
 });
@@ -24,7 +21,7 @@ export default class QR extends Component {
   handleScan = async data => {
     if (data) {
       const dataJson = await JSON.parse(data);
-      if (dataJson.type == "Patient") {
+      if (dataJson.Type == "Patient") {
         await fetch("http://localhost:3001/api/findPID", {
           method: "post",
           headers: {
@@ -33,45 +30,24 @@ export default class QR extends Component {
           },
           body: JSON.stringify({
             HOSPCODE: HOSPCODE,
-            ID: dataJson.cid
+            CID: dataJson.CID,
+            SPK: dataJson.SPK,
+            Seq: dataJson.Seq
           })
         })
           .then(response => response.json())
           .then(async responseJson => {
-            console.log("response object:", responseJson.PID);
-            const KP = StellarSdk.Keypair.fromSecret(SecretKey);
-            const sig = KP.sign(
-              Buffer.from(responseJson.PID + "_" + dataJson.spk)
-            ).toString("base64");
-            const key512Bits1000Iterations = pbkdf2(sig, "", {
-              keySize: 512 / 32,
-              hasher: algo.SHA512,
-              iterations: 1000
-            }).toString();
             this.setState({
               result: dataJson,
               QR: JSON.stringify({
                 Type: "Hospital",
-                HospitalName: HOSPNAME,
-                EndPoint: "http://localhost:3001/api/",
-                HOSCODE: HOSPCODE,
-                Signature: key512Bits1000Iterations
+                Name: HOSPNAME,
+                Endpoint: "http://localhost:3001/api/",
+                HOSPCODE: HOSPCODE,
+                Signature: responseJson.Secret
               }),
               camera: false,
               msg: ""
-            });
-            await fetch("http://localhost:3001/api/secret", {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                pid: responseJson.PID,
-                HOSPCODE: HOSPCODE,
-                spk: dataJson.spk,
-                seq: dataJson.seq
-              })
             });
           });
       } else {

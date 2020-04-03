@@ -37,83 +37,6 @@ connection.connect(function(err) {
 });
 console.log(connection.config);
 
-async function verify(signature, pid, type, key, callback) {
-  if (type == "Patient") {
-    const querycmd =
-      "SELECT * FROM STELLARKEY WHERE STELLARKEY.PID = " +
-      connection.escape(pid) +
-      ";";
-    connection.query(querycmd, async function(error, results) {
-      if (error) {
-        return callback(new Error("An error occured during query " + error));
-      }
-      if (!verifySignature(results[0].SPK, signature, pid, results[0].Key)) {
-        console.log("Signature fail for Patient PID: " + pid);
-        return callback(false);
-      }
-      const Info = JSON.parse(
-        (
-          await getInfoByKey(
-            results[0].SPK,
-            results[0].SecretKey,
-            results[0].Key
-          )
-        )
-          .values()
-          .next().value
-      );
-      const KP = StellarSdk.Keypair.fromPublicKey(PublicKey);
-      if (
-        KP.verify(
-          Buffer.from(pid + "_" + results[0].SPK + "_" + results[0].Key),
-          Buffer.from(Info.Signature, "base64")
-        ) &&
-        Info.Status
-      ) {
-        return callback(true);
-      }
-      return callback(false);
-    });
-  }
-  if (type == "Doctor") {
-    const querycmd =
-      "SELECT * FROM STELLARKEY WHERE STELLARKEY.PID = " +
-      connection.escape(pid) +
-      ";";
-    connection.query(querycmd, async function(error, results) {
-      if (error) {
-        return callback(new Error("An error occured during query " + error));
-      }
-      const Info = JSON.parse(
-        (await getInfoByKey(results[0].SPK, results[0].SecretKey, key))
-          .values()
-          .next().value
-      );
-      if (!verifySignature(Info.SPK, signature, pid, key)) {
-        console.log("Signature fail for Patient PID: " + pid);
-        return callback(false);
-      }
-    });
-    return callback(false);
-  }
-  return callback(false);
-}
-
-router.post("/test", async function(req, res) {
-  const result = crypto
-    .pbkdf2Sync("passwd", "", 1000, 64, "sha512")
-    .toString("base64");
-  console.log(result);
-  res.json(result);
-  /*
-  verify(req.body.SPK, req.body.Signature, req.body.PID, function(result) {
-    console.log(result);
-    if (result) res.json("OK");
-    else res.json("Fail");
-  });
-  */
-});
-
 async function SPK2PID(spk, signature, hopscode, callback) {
   const querycmd =
     "SELECT * FROM STELLARKEY WHERE STELLARKEY.SPK = " +
@@ -132,7 +55,7 @@ async function SPK2PID(spk, signature, hopscode, callback) {
       if (!hospSigJson.Status) return callback(false);
 
       const hospSig = hospSigJson.Signature;
-      const KP = StellarSdk.Keypair.fromSecret(SecretKey[hopscode]);
+      const KP = StellarSdk.Keypair.fromSecret(SecretKey);
       const sigFromHos = KP.sign(
         Buffer.from(results[0].PID + "_" + spk)
       ).toString("base64");
@@ -316,6 +239,32 @@ router.post("/fetchByPatient", async function(req, res) {
         LAB: LABs,
         DRUGALLERGY: DRUGALLERGYs
       };
+      console.log(DRUG_OPDs.length, LABs.length, DRUGALLERGYs.length);
+      console.log(
+        Math.max.apply(
+          Math,
+          DRUG_OPDs.map(function(o) {
+            return Buffer.from(JSON.stringify(o)).length;
+          })
+        )
+      );
+      console.log(
+        Math.max.apply(
+          Math,
+          LABs.map(function(o) {
+            return Buffer.from(JSON.stringify(o)).length;
+          })
+        )
+      );
+      console.log(
+        Math.max.apply(
+          Math,
+          DRUGALLERGYs.map(function(o) {
+            return Buffer.from(JSON.stringify(o)).length;
+          })
+        )
+      );
+      console.log("BYTES: ", Buffer.from(JSON.stringify(result)).length);
       res.json(result);
     } catch (e) {
       res.json(e);
@@ -359,17 +308,40 @@ router.post("/fetchByDoctor", async function(req, res) {
 
 router.post("/findPid/", function(req, res) {
   var HOSPCODE = req.body.HOSPCODE;
-  var ID = req.body.ID;
+  var CID = req.body.CID;
   const querycmd =
     "SELECT PID FROM PERSON WHERE CID=" +
-    connection.escape(ID) +
+    connection.escape(CID) +
     " AND HOSPCODE=" +
     connection.escape(HOSPCODE);
   connection.query(querycmd, (err, results) => {
-    if (err) {
-      return new Error("An error occured during query " + err);
+    if (err || results.length < 1) {
+      res.json("PID not found");
+      return;
     }
-    res.json(results[0]);
+    console.log("PID: ", results[0].PID);
+    const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+    const sig = KP.sign(
+      Buffer.from(results[0].PID + "_" + req.body.SPK)
+    ).toString("base64");
+    const key512Bits1000Iterations = crypto
+      .pbkdf2Sync(sig, "", 1000, 64, "sha512")
+      .toString();
+    var values = [
+      [req.body.SPK, results[0].PID, req.body.Seq, req.body.HOSPCODE]
+    ];
+    var sql =
+      "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE SPK=" +
+      connection.escape(req.body.SPK) +
+      ",SEQ=" +
+      connection.escape(req.body.Seq);
+    connection.query(sql, [values], function(err, result) {
+      if (err) {
+        console.log(err);
+        res.json(err);
+      }
+      res.json({ Secret: key512Bits1000Iterations });
+    });
   });
 });
 
@@ -476,6 +448,42 @@ router.post("/LAB/", function(req, res, next) {
 });
 
 router.post("/secret/", function(req, res, next) {
+  var values = [[req.body.spk, req.body.pid, req.body.seq, req.body.HOSPCODE]];
+  var sql =
+    "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE spk=" +
+    connection.escape(req.body.spk) +
+    ",SEQ=" +
+    connection.escape(req.body.seq);
+  connection.query(sql, [values], function(err, result) {
+    if (err) {
+      console.log(err);
+      res.json(err);
+    }
+    res.json("Added");
+  });
+});
+
+router.post("/test/", function(req, res, next) {
+  const spk = req.body.spk;
+  console.log(spk);
+  res.json("spk");
+});
+
+router.post("/secret_test/", function(req, res, next) {
+  var HOSPCODE = req.body.HOSPCODE;
+  var ID = req.body.ID;
+  const querycmd =
+    "SELECT PID FROM PERSON WHERE CID=" +
+    connection.escape(ID) +
+    " AND HOSPCODE=" +
+    connection.escape(HOSPCODE);
+  connection.query(querycmd, (err, results) => {
+    if (err) {
+      return new Error("An error occured during query " + err);
+    }
+    res.json(results[0].PID);
+  });
+
   var values = [[req.body.spk, req.body.pid, req.body.seq, req.body.HOSPCODE]];
   var sql =
     "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE spk=" +
