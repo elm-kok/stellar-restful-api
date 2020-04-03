@@ -360,39 +360,30 @@ export async function clearInfo(publicKey, secretString, seq) {
   const account = await server.loadAccount(publicKey);
   console.log('SEQ: ', seq);
   const fee = await server.fetchBaseFee();
-  const isFail = await server
-    .accounts()
-    .accountId(publicKey)
-    .call()
-    .then(async function(accountResult) {
-      var i = 0;
-      while (accountResult.data_attr[seq + '_' + i.toString()]) {
-        const transaction = new StellarSdk.TransactionBuilder(account, {
-          fee,
-          networkPassphrase: StellarSdk.Networks.TESTNET,
-        })
-          .addOperation(
-            StellarSdk.Operation.manageData({
-              name: seq + '_' + i.toString(),
-              value: null,
-            }),
-          )
-          .setTimeout(600)
-          .build();
-        transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-        try {
-          const transactionResult = await server.submitTransaction(transaction);
-          //console.log(transactionResult);
-        } catch (err) {
-          console.error(err);
-          return false;
-        }
-        ++i;
-      }
-      return true;
-    });
+  var i = 0;
+  for (i = 0; i < 8; ++i) {
+    const transaction = new StellarSdk.TransactionBuilder(account, {
+      fee,
+      networkPassphrase: StellarSdk.Networks.TESTNET,
+    })
+      .addOperation(
+        StellarSdk.Operation.manageData({
+          name: seq + '_' + i.toString(),
+          value: null,
+        }),
+      )
+      .setTimeout(600)
+      .build();
+    transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
+    try {
+      await server.submitTransaction(transaction);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
   console.log('Finish.');
-  return isFail;
+  return true;
 }
 
 export async function clearAll() {

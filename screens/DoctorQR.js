@@ -28,13 +28,13 @@ class DoctorQR extends React.Component {
         store.getState().authReducer.LName;
       const seq = (await server.loadAccount(spk)).sequenceNumber();
       const result =
-        '{"type":"Patient","name":"' +
+        '{"Type":"Patient","Name":"' +
         name +
-        '","spk":"' +
+        '","SPK":"' +
         spk +
-        '","seq":"' +
+        '","Seq":"' +
         seq +
-        '","secretKey":"' +
+        '","Secret":"' +
         secretKey +
         '"}';
       return result;

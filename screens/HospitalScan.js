@@ -28,7 +28,9 @@ class HospitalQR extends React.Component {
     this.props.navigation.navigate('Hospital');
   };
   onSuccess = e => {
-    this.setState({QRString: JSON.parse(e.data), modalVisible: true});
+    const qrcode_json = JSON.parse(e.data);
+    if (qrcode_json.Type === 'Hospital')
+    this.setState({QRString: qrcode_json, modalVisible: true});
     //this.props.navigation.navigate('Hospital');
   };
   onSubmit = async () => {
@@ -48,12 +50,12 @@ class HospitalQR extends React.Component {
         await Keychain.getGenericPassword('SecretKeyDoctor')
       ).password;
       for (i = 0; i < hospital.length; ++i) {
-        if (this.state.QRString.HospitalName === hospital[i].name) {
+        if (this.state.QRString.Name === hospital[i].name) {
           check = i;
           await clearInfo(spk, StellarSecret, hospital[i].seq_sig);
           await clearInfo(spk, StellarSecret, hospital[i].seq_end);
-          hospital[i].endPoint = this.state.QRString.EndPoint;
-          hospital[i].hospCode = this.state.QRString.HOSCODE;
+          hospital[i].endPoint = this.state.QRString.Endpoint;
+          hospital[i].hospCode = this.state.QRString.HOSPCODE;
           break;
         }
       }
@@ -157,10 +159,10 @@ class HospitalQR extends React.Component {
           }}>
           <>
             <Text style={{fontSize: 24}}>
-              Add {this.state.QRString.HospitalName}
+              Add {this.state.QRString.Name}
             </Text>
             <Text style={{fontSize: 24}}>
-              End point {this.state.QRString.EndPoint}
+              End point {this.state.QRString.Endpoint}
             </Text>
 
             <TouchableOpacity

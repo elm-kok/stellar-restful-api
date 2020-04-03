@@ -25,7 +25,9 @@ class PatientQR extends React.Component {
     this.props.navigation.navigate('Doctor');
   };
   onSuccess = e => {
-    this.setState({QRString: JSON.parse(e.data), modalVisible: true});
+    const qrcode_json = JSON.parse(e.data);
+    if (qrcode_json.Type === 'Patient')
+      this.setState({QRString: qrcode_json, modalVisible: true});
   };
   onSubmit = async () => {
     try {
@@ -38,7 +40,7 @@ class PatientQR extends React.Component {
         statusText: 'Preparing...',
       });
       for (i = 0; i < patient.length; ++i) {
-        if (this.state.QRString.spk === patient[i].spk) {
+        if (this.state.QRString.SPK === patient[i].spk) {
           check = i;
           break;
         }
@@ -46,19 +48,19 @@ class PatientQR extends React.Component {
       console.log('FOUND duplicate: ', check);
       this.setState({statusText: 'Dispatch Patient...'});
       if (check > -1) {
-        patient[check].seq = this.state.QRString.seq;
-        patient[check].name = this.state.QRString.name;
-        patient[check].secretKey = this.state.QRString.secretKey;
-        patient[check].spk = this.state.QRString.spk;
+        patient[check].seq = this.state.QRString.Seq;
+        patient[check].name = this.state.QRString.Name;
+        patient[check].secretKey = this.state.QRString.Secret;
+        patient[check].spk = this.state.QRString.SPK;
         patient[check].date = new Date().toString();
         await store.dispatch(updatePatient(patient));
       } else {
         await store.dispatch(
           addPatient(
-            this.state.QRString.seq,
-            this.state.QRString.name,
-            this.state.QRString.spk,
-            this.state.QRString.secretKey,
+            this.state.QRString.Seq,
+            this.state.QRString.Name,
+            this.state.QRString.SPK,
+            this.state.QRString.Secret,
             new Date().toString(),
           ),
         );
@@ -66,7 +68,7 @@ class PatientQR extends React.Component {
       this.setState({modalVisible2: false});
       console.log(store.getState().patientReducer.PatientList);
       this.props.navigation.navigate('PatientQR', {
-        spk: this.state.QRString.spk,
+        spk: this.state.QRString.SPK,
       });
     } catch (err) {
       this.setState({modalVisible2: false});
@@ -109,7 +111,7 @@ class PatientQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>Add {this.state.QRString.name}</Text>
+            <Text style={{fontSize: 24}}>Add {this.state.QRString.Name}</Text>
 
             <TouchableOpacity
               onPress={this.onSubmit}

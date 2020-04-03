@@ -29,7 +29,7 @@ class PatientQR extends React.Component {
         ' ' +
         store.getState().authReducer.LName;
       const result =
-        '{"type":"Doctor","name":"' + name + '","sig":"' + sig + '"}';
+        '{"Type":"Doctor","Name":"' + name + '","Signature":"' + sig + '"}';
       return result;
     } catch (err) {
       console.log(err);

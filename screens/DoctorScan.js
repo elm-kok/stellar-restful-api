@@ -28,7 +28,9 @@ class DoctorQR extends React.Component {
     this.props.navigation.navigate('Doctor');
   };
   onSuccess = e => {
-    this.setState({QRString: JSON.parse(e.data), modalVisible: true});
+    const qrcode_json = JSON.parse(e.data);
+    if (qrcode_json.Type === 'Doctor')
+      this.setState({QRString: qrcode_json, modalVisible: true});
     //this.props.navigation.navigate('Doctor');
   };
   onSubmit = async () => {
@@ -48,7 +50,7 @@ class DoctorQR extends React.Component {
         await Keychain.getGenericPassword('SecretKeyDoctor')
       ).password;
       for (i = 0; i < doctor.length; ++i) {
-        if (this.state.QRString.name === doctor[i].name) {
+        if (this.state.QRString.Name === doctor[i].name) {
           check = i;
           await clearInfo(spk, StellarSecret, doctor[i].seq_sig);
           break;
@@ -58,7 +60,7 @@ class DoctorQR extends React.Component {
       this.setState({statusText: 'Upload Signature...'});
       const sig = JSON.stringify({
         Signature: pbkdf2Sync(
-          this.state.QRString.sig,
+          this.state.QRString.Signature,
           '',
           1000,
           64,
@@ -91,7 +93,7 @@ class DoctorQR extends React.Component {
         await store.dispatch(updateDoctor(doctor));
       } else {
         await store.dispatch(
-          addDoctor(seq_sig, this.state.QRString.name, new Date().toString()),
+          addDoctor(seq_sig, this.state.QRString.Name, new Date().toString()),
         );
       }
       this.setState({modalVisible2: false});
@@ -138,7 +140,7 @@ class DoctorQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>Add {this.state.QRString.name}</Text>
+            <Text style={{fontSize: 24}}>Add {this.state.QRString.Name}</Text>
 
             <TouchableOpacity
               onPress={this.onSubmit}

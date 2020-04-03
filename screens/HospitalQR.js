@@ -26,13 +26,13 @@ class HospitalQR extends React.Component {
         store.getState().authReducer.LName;
       const seq = (await server.loadAccount(spk)).sequenceNumber();
       const result =
-        '{"type":"Patient","name":"' +
+        '{"Type":"Patient","Name":"' +
         name +
-        '","spk":"' +
+        '","SPK":"' +
         spk +
-        '","seq":"' +
+        '","Seq":"' +
         seq +
-        '","cid":"' +
+        '","CID":"' +
         _id +
         '"}';
       return result;

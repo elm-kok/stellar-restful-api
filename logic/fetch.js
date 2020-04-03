@@ -1,7 +1,6 @@
 import {store} from '../redux/store/store';
 import * as Keychain from 'react-native-keychain';
 import {StellarSdk, apiServer, getInfo} from '../stellar';
-import {cos} from 'react-native-reanimated';
 
 export async function fetchByPatient() {
   try {
