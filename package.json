@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "perf_hooks": "^0.0.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "stellar-sdk": "^4.1.0"
+  }
+}
