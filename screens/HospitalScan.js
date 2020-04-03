@@ -13,7 +13,7 @@ import * as Keychain from 'react-native-keychain';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {clearInfo} from '../stellar';
 import {addHospital, updateHospital} from '../redux/actions/hospitalAction';
-
+import {server} from '../stellar';
 class HospitalQR extends React.Component {
   constructor(props) {
     super(props);
@@ -30,7 +30,7 @@ class HospitalQR extends React.Component {
   onSuccess = e => {
     const qrcode_json = JSON.parse(e.data);
     if (qrcode_json.Type === 'Hospital')
-    this.setState({QRString: qrcode_json, modalVisible: true});
+      this.setState({QRString: qrcode_json, modalVisible: true});
     //this.props.navigation.navigate('Hospital');
   };
   onSubmit = async () => {
@@ -107,9 +107,9 @@ class HospitalQR extends React.Component {
           addHospital(
             seq_sig,
             seq_end,
-            endpoint.HospitalName,
-            endpoint.HOSCODE,
-            endpoint.EndPoint,
+            endpoint.Name,
+            endpoint.HOSPCODE,
+            endpoint.Endpoint,
             new Date().toString(),
           ),
         );
@@ -158,9 +158,7 @@ class HospitalQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>
-              Add {this.state.QRString.Name}
-            </Text>
+            <Text style={{fontSize: 24}}>Add {this.state.QRString.Name}</Text>
             <Text style={{fontSize: 24}}>
               End point {this.state.QRString.Endpoint}
             </Text>

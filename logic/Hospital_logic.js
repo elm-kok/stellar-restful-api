@@ -82,8 +82,6 @@ export default class Hospital_logic extends React.Component {
   async rejectRow(seq_sig, seq_end) {
     try {
       this.setState({modalVisible: true});
-      console.log(seq_sig);
-      console.log(seq_end);
       const seq_sig_index = this.state.hospitalList.findIndex(
         i => i.seq_sig === seq_sig,
       );

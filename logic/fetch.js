@@ -28,8 +28,8 @@ export async function fetchByPatient() {
           ).toString('base64'),
         }),
       })
-        .then(async response => response.json())
-        .then(async responseJson => {
+        .then(async (response) => response.json())
+        .then(async (responseJson) => {
           results.DRUG_OPD.push(...responseJson.DRUG_OPD);
           results.LAB.push(...responseJson.LAB);
           results.DRUGALLERGY.push(...responseJson.DRUGALLERGY);
@@ -63,16 +63,16 @@ export async function fetchByDoctor(patientSPK, secret, seq) {
         body: JSON.stringify({
           DoctorSPK: spk,
           PatientSPK: patientSPK,
-          HospCode: json_item.HOSCODE,
+          HospCode: json_item.HOSPCODE,
           SEQ: seq,
           DoctorSignature: KP.sign(Buffer.from(patientSPK)).toString('base64'),
           HospitalSignature: KP.sign(
-            Buffer.from(patientSPK + '_' + json_item.HOSCODE),
+            Buffer.from(patientSPK + '_' + json_item.HOSPCODE),
           ).toString('base64'),
         }),
       })
-        .then(async response => response.json())
-        .then(async responseJson => {
+        .then(async (response) => response.json())
+        .then(async (responseJson) => {
           results.DRUG_OPD.push(...responseJson.DRUG_OPD);
           results.LAB.push(...responseJson.LAB);
           results.DRUGALLERGY.push(...responseJson.DRUGALLERGY);

@@ -180,7 +180,7 @@ android {
 }
 
 dependencies {
-    implementation project(':@react-native-community_async-storage')
+    //implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-permissions')
     implementation project(':react-native-camera')
     implementation project(':react-native-vector-icons')
@@ -196,7 +196,7 @@ dependencies {
         implementation jscFlavor
     }
     implementation project(':react-native-keychain')
-    //compile project(':randombytes')
+    //implementation project(':randombytes')
     implementation project(':react-native-charts-wrapper')
 }
 

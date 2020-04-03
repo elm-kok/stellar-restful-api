@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {clearInfo} from '../stellar';
 import {addDoctor, updateDoctor} from '../redux/actions/doctorAction';
 import {pbkdf2Sync} from 'crypto';
+import {server} from '../stellar';
 class DoctorQR extends React.Component {
   constructor(props) {
     super(props);
@@ -27,7 +28,7 @@ class DoctorQR extends React.Component {
   onClose = () => {
     this.props.navigation.navigate('Doctor');
   };
-  onSuccess = e => {
+  onSuccess = (e) => {
     const qrcode_json = JSON.parse(e.data);
     if (qrcode_json.Type === 'Doctor')
       this.setState({QRString: qrcode_json, modalVisible: true});
@@ -123,7 +124,7 @@ class DoctorQR extends React.Component {
         </TouchableOpacity>
         {!this.state.modalVisible && !this.state.modalVisible2 ? (
           <QRCodeScanner
-            ref={node => {
+            ref={(node) => {
               this.scanner = node;
             }}
             onRead={this.onSuccess}
