@@ -2,10 +2,12 @@ import React, { Component } from "react";
 import { Typography, Button, Grid } from "@material-ui/core";
 import QRCode from "qrcode.react";
 import dynamic from "next/dynamic";
-import { HOSPCODE, HOSPNAME } from "../stellar";
+
+const HOSPCODE = "09082";
+const HOSPNAME = "Siriraj Hospital";
 
 const QrReader = dynamic(() => import("react-qr-reader"), {
-  ssr: false
+  ssr: false,
 });
 
 export default class QR extends Component {
@@ -13,30 +15,30 @@ export default class QR extends Component {
     result: "",
     camera: true,
     msg: "",
-    QR: {}
+    QR: {},
   };
   _clear = () => {
     this.setState({ result: "", camera: true, msg: "", QR: {} });
   };
-  handleScan = async data => {
+  handleScan = async (data) => {
     if (data) {
       const dataJson = await JSON.parse(data);
-      if (dataJson.Type == "Patient") {
+      if (dataJson.Type === "Patient") {
         await fetch("http://localhost:3001/api/findPID", {
           method: "post",
           headers: {
             Accept: "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             HOSPCODE: HOSPCODE,
             CID: dataJson.CID,
             SPK: dataJson.SPK,
-            Seq: dataJson.Seq
-          })
+            Seq: dataJson.Seq,
+          }),
         })
-          .then(response => response.json())
-          .then(async responseJson => {
+          .then((response) => response.json())
+          .then(async (responseJson) => {
             if (responseJson.Secret) {
               this.setState({
                 result: dataJson,
@@ -45,25 +47,25 @@ export default class QR extends Component {
                   Name: HOSPNAME,
                   Endpoint: "http://localhost:3001/api/",
                   HOSPCODE: HOSPCODE,
-                  Signature: responseJson.Secret
+                  Signature: responseJson.Secret,
                 }),
                 camera: false,
-                msg: ""
+                msg: "",
               });
             } else {
               this.setState({
-                msg: responseJson
+                msg: "PID not found",
               });
             }
           });
       } else {
         this.setState({
-          msg: "Wrong QRCode."
+          msg: "Wrong QRCode.",
         });
       }
     }
   };
-  handleError = err => {
+  handleError = (err) => {
     console.error(err);
   };
   render() {

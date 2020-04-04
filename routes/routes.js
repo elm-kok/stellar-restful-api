@@ -3,20 +3,13 @@ const mysql = require("mysql");
 const router = express.Router();
 const dotenv = require("dotenv").config();
 const util = require("util");
+const { verifySignatureWithoutKey } = require("../stellar");
 const {
-  getInfoByKey,
-  verifySignature,
-  verifySignatureWithoutKey
-} = require("../stellar");
-const {
-  PublicKey,
   SecretKey,
   StellarSdk,
-  HOSPCODE,
-  getInfoByKeyWithoutEncrypt
+  getInfoByKeyWithoutEncrypt,
 } = require("../stellar");
 const crypto = require("crypto");
-
 /*
 DRUG_OPD
 DRUGALLERGY
@@ -27,11 +20,11 @@ const connection = mysql.createConnection({
   database: process.env.DATABASE_NAME,
   user: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
-  port: 3306
+  port: 3306,
 });
 const query = util.promisify(connection.query).bind(connection);
 console.log("Connecting...");
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) return new Error("An error occured during SQL connection " + err);
   console.log("Connected!");
 });
@@ -44,10 +37,8 @@ async function SPK2PID(spk, signature, hopscode, callback) {
     " AND STELLARKEY.HOSPCODE = " +
     connection.escape(hopscode) +
     ";";
-  connection.query(querycmd, async function(error, results) {
-    if (error) {
-      return callback(new Error("An error occured during query " + error));
-    }
+  connection.query(querycmd, async function (error, results) {
+    if (results.length < 1 || error) return callback(false);
     try {
       const hospSigJson = JSON.parse(
         await getInfoByKeyWithoutEncrypt(spk, results[0].SEQ)
@@ -66,12 +57,10 @@ async function SPK2PID(spk, signature, hopscode, callback) {
         !verifySignatureWithoutKey(spk, signature, spk + "_" + hopscode) ||
         hospSig !== sigFromHosHash
       ) {
-        console.log("Signature fail for Patient SPK: " + spk);
         return callback(false);
       }
       return callback(results[0].PID);
     } catch (e) {
-      console.log(e);
       return callback(false);
     }
   });
@@ -92,10 +81,8 @@ async function SPK2PIDDoctor(
     " AND STELLARKEY.HOSPCODE = " +
     connection.escape(HospCode) +
     ";";
-  connection.query(querycmd, async function(error, results) {
-    if (error) {
-      return callback(new Error("An error occured during query " + error));
-    }
+  connection.query(querycmd, async function (error, results) {
+    if (results.length < 1 || error) return callback(false);
     try {
       const hospSigJson = JSON.parse(
         await getInfoByKeyWithoutEncrypt(PatientSPK, results[0].SEQ)
@@ -123,7 +110,6 @@ async function SPK2PIDDoctor(
       }
       return callback(results[0].PID);
     } catch (e) {
-      console.log(e);
       return callback(false);
     }
   });
@@ -154,7 +140,7 @@ async function DRUG_OPD(PID, HospCode) {
         UNIT_PACKING: rows[i].UNIT_PACKING,
         PROV_PRENAME: rows[i].PROV_PRENAME,
         PROV_NAME: rows[i].PROV_NAME,
-        PROV_LNAME: rows[i].PROV_LNAME
+        PROV_LNAME: rows[i].PROV_LNAME,
       });
     }
 
@@ -184,7 +170,7 @@ async function DRUGALLERGY(PID, HospCode) {
         DNAME: rows[i].DNAME,
         TYPEDX: rows[i].TYPEDX,
         INFORMANT: rows[i].INFORMANT,
-        ALEVEL: rows[i].ALEVEL
+        ALEVEL: rows[i].ALEVEL,
       });
     }
 
@@ -214,7 +200,7 @@ async function LAB(PID, HospCode) {
         DATE_SERV: rows[i].DATE_SERV,
         LABID: rows[i].LABID,
         LABTEST: rows[i].LABTEST,
-        LABRESULT: rows[i].LABRESULT
+        LABRESULT: rows[i].LABRESULT,
       });
     }
 
@@ -224,61 +210,77 @@ async function LAB(PID, HospCode) {
     return false;
   }
 }
-router.post("/fetchByPatient", async function(req, res) {
+router.post("/fetchByPatient", async function (req, res) {
   const SPK = req.body.SPK;
   const HospCode = req.body.HospCode;
   const Signature = req.body.Signature;
-  SPK2PID(SPK, Signature, HospCode, async function(PID) {
+  if (HospCode.length !== 5 || !/^\d+$/.test(HospCode)) {
+    res.status(400).send({
+      message: "HOSPCODE must be 4 digits",
+    });
+    return;
+  }
+  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+    res.status(400).send({
+      message: "SPK must be 56 uppercase characters",
+    });
+    return;
+  }
+  SPK2PID(SPK, Signature, HospCode, async function (PID) {
     try {
-      console.log("Patient -> PID: ", PID);
+      if (!PID) {
+        res.status(401).send({
+          message: "Signature verification fail",
+        });
+        return;
+      }
       const DRUG_OPDs = await DRUG_OPD(PID, HospCode);
       const LABs = await LAB(PID, HospCode);
       const DRUGALLERGYs = await DRUGALLERGY(PID, HospCode);
       result = {
         DRUG_OPD: DRUG_OPDs,
         LAB: LABs,
-        DRUGALLERGY: DRUGALLERGYs
+        DRUGALLERGY: DRUGALLERGYs,
       };
-      console.log(DRUG_OPDs.length, LABs.length, DRUGALLERGYs.length);
-      console.log(
-        Math.max.apply(
-          Math,
-          DRUG_OPDs.map(function(o) {
-            return Buffer.from(JSON.stringify(o)).length;
-          })
-        )
-      );
-      console.log(
-        Math.max.apply(
-          Math,
-          LABs.map(function(o) {
-            return Buffer.from(JSON.stringify(o)).length;
-          })
-        )
-      );
-      console.log(
-        Math.max.apply(
-          Math,
-          DRUGALLERGYs.map(function(o) {
-            return Buffer.from(JSON.stringify(o)).length;
-          })
-        )
-      );
-      console.log("BYTES: ", Buffer.from(JSON.stringify(result)).length);
       res.json(result);
-    } catch (e) {
-      res.json(e);
-    }
+      return;
+    } catch (e) {}
   });
 });
 
-router.post("/fetchByDoctor", async function(req, res) {
+router.post("/fetchByDoctor", async function (req, res) {
   const PatientSPK = req.body.PatientSPK;
   const DoctorSPK = req.body.DoctorSPK;
   const DoctorSignature = req.body.DoctorSignature;
   const HospCode = req.body.HospCode;
   const SEQ = req.body.SEQ;
   const HospitalSignature = req.body.HospitalSignature;
+
+  if (HospCode.length !== 5 || !/^\d+$/.test(HospCode)) {
+    res.status(400).send({
+      message: "HOSPCODE must be 4 digits",
+    });
+    return;
+  }
+  if (PatientSPK.length !== 56 || PatientSPK !== PatientSPK.toUpperCase()) {
+    res.status(400).send({
+      message: "PatientSPK must be 56 uppercase characters",
+    });
+    return;
+  }
+
+  if (DoctorSPK.length !== 56 || DoctorSPK !== DoctorSPK.toUpperCase()) {
+    res.status(400).send({
+      message: "DoctorSPK must be 56 uppercase characters",
+    });
+    return;
+  }
+  if (!/^\d+$/.test(SEQ)) {
+    res.status(400).send({
+      message: "SEQ must be digits",
+    });
+    return;
+  }
 
   SPK2PIDDoctor(
     PatientSPK,
@@ -287,28 +289,58 @@ router.post("/fetchByDoctor", async function(req, res) {
     DoctorSignature,
     HospitalSignature,
     HospCode,
-    async function(PID) {
+    async function (PID) {
       try {
-        console.log("Doctor -> PID: ", PID);
+        if (!PID) {
+          res.status(401).send({
+            message: "Signature verification fail",
+          });
+          return;
+        }
         const DRUG_OPDs = await DRUG_OPD(PID, HospCode);
         const LABs = await LAB(PID, HospCode);
         const DRUGALLERGYs = await DRUGALLERGY(PID, HospCode);
         result = {
           DRUG_OPD: DRUG_OPDs,
           LAB: LABs,
-          DRUGALLERGY: DRUGALLERGYs
+          DRUGALLERGY: DRUGALLERGYs,
         };
         res.json(result);
-      } catch (e) {
-        res.json(e);
-      }
+        return;
+      } catch (e) {}
     }
   );
 });
 
-router.post("/findPid/", function(req, res) {
-  var HOSPCODE = req.body.HOSPCODE;
-  var CID = req.body.CID;
+router.post("/findPid/", function (req, res) {
+  const HOSPCODE = req.body.HOSPCODE;
+  if (HOSPCODE.length !== 5 || !/^\d+$/.test(HOSPCODE)) {
+    res.status(400).send({
+      message: "HOSPCODE must be 4 digits",
+    });
+    return;
+  }
+  const CID = req.body.CID;
+  if (CID.length !== 13 || !/^\d+$/.test(CID)) {
+    res.status(400).send({
+      message: "CID must be 13 digits",
+    });
+    return;
+  }
+  const SPK = req.body.SPK;
+  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+    res.status(400).send({
+      message: "SPK must be 56 uppercase characters",
+    });
+    return;
+  }
+  const Seq = req.body.Seq;
+  if (!/^\d+$/.test(Seq)) {
+    res.status(400).send({
+      message: "Seq must be digits",
+    });
+    return;
+  }
   const querycmd =
     "SELECT PID FROM PERSON WHERE CID=" +
     connection.escape(CID) +
@@ -316,186 +348,99 @@ router.post("/findPid/", function(req, res) {
     connection.escape(HOSPCODE);
   connection.query(querycmd, (err, results) => {
     if (err || results.length < 1) {
-      res.json("PID not found");
+      res.status(404).send({
+        message: "PID not found",
+      });
       return;
     }
-    console.log("PID: ", results[0].PID);
+
     const KP = StellarSdk.Keypair.fromSecret(SecretKey);
-    const sig = KP.sign(
-      Buffer.from(results[0].PID + "_" + req.body.SPK)
-    ).toString("base64");
+    const sig = KP.sign(Buffer.from(results[0].PID + "_" + SPK)).toString(
+      "base64"
+    );
     const key512Bits1000Iterations = crypto
       .pbkdf2Sync(sig, "", 1000, 64, "sha512")
       .toString("base64");
-    var values = [
-      [req.body.SPK, results[0].PID, req.body.Seq, req.body.HOSPCODE]
-    ];
-    var sql =
+    const values = [[SPK, results[0].PID, Seq, HOSPCODE]];
+    const sql =
       "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE SPK=" +
-      connection.escape(req.body.SPK) +
+      connection.escape(SPK) +
       ",SEQ=" +
-      connection.escape(req.body.Seq);
-    connection.query(sql, [values], function(err, result) {
+      connection.escape(Seq);
+    connection.query(sql, [values], function (err, result) {
       if (err) {
-        console.log(err);
-        res.json(err);
+        res.status(503).send({
+          message: "Service Unavailable",
+        });
       }
       res.json({ Secret: key512Bits1000Iterations });
     });
   });
 });
 
-router.post("/DRUG_OPD/", function(req, res, next) {
-  var HOSPCODE = req.body.HOSPCODE;
-  var ID = req.body.ID;
-  var PID = req.body.PID;
-  if (!HOSPCODE) {
-    res.send("HOSPCODE IS REQUIRED");
+router.post("/findPidPrivate/", function (req, res) {
+  const HOSPCODE = req.body.HOSPCODE;
+  if (HOSPCODE.length !== 5 || !/^\d+$/.test(HOSPCODE)) {
+    res.status(400).send({
+      message: "HOSPCODE must be 4 digits",
+    });
     return;
   }
-  var querycmd =
-    "SELECT DRUG_OPD.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUG_OPD.HOSPCODE, DRUG_OPD.PID, DRUG_OPD.SEQ, DRUG_OPD.DATE_SERV, CODE_CLINIC.DESCRIPTION AS CLINIC, CODE_DIDSTD.DRUGNAME AS DRUGNAME, CODE_DIDSTD.DGDSFNM AS COMSUME, CODE_DIDSTD.COMP AS DCOMP, DRUG_OPD.DNAME, DRUG_OPD.AMOUNT, CODE_DRUGUNIT.DESCRIPTION AS DUNIT, DRUG_OPD.UNIT_PACKING, DRUG_OPD.DRUGPRICE, DRUG_OPD.DRUGCOST, PROVIDER.PRENAME AS PROV_PRENAME, PROVIDER.NAME AS PROV_NAME, PROVIDER.LNAME AS PROV_LNAME, DRUG_OPD.PROVIDER AS PROV_NO FROM DRUG_OPD LEFT JOIN CODE_DIDSTD ON DRUG_OPD.DIDSTD=CODE_DIDSTD.STD_CODE LEFT JOIN CODE_DRUGUNIT ON DRUG_OPD.UNIT=CODE_DRUGUNIT.CODE LEFT JOIN CODE_CLINIC ON DRUG_OPD.CLINIC=CODE_CLINIC.CODE LEFT JOIN PROVIDER ON DRUG_OPD.PROVIDER=PROVIDER.PROVIDER LEFT JOIN CODE_HOSPITAL ON DRUG_OPD.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
-  if (ID)
-    querycmd =
-      querycmd +
-      " WHERE ID=" +
-      connection.escape(ID) +
-      " && DRUG_OPD.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  if (PID)
-    querycmd =
-      querycmd +
-      " WHERE PID=" +
-      connection.escape(PID) +
-      " && DRUG_OPD.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  console.log(querycmd);
-  connection.query(querycmd, (err, results) => {
-    if (err) {
-      return new Error("An error occured during query " + err);
-    }
-    console.log(results);
-    res.json(results);
-  });
-});
-
-router.post("/DRUGALLERGY/", function(req, res, next) {
-  var HOSPCODE = req.body.HOSPCODE;
-  var ID = req.body.ID;
-  var PID = req.body.PID;
-  if (!HOSPCODE) {
-    res.send("HOSPCODE IS REQUIRED");
+  const CID = req.body.CID;
+  if (CID.length !== 13 || !/^\d+$/.test(CID)) {
+    res.status(400).send({
+      message: "CID must be 13 digits",
+    });
     return;
   }
-  var querycmd =
-    "SELECT DRUGALLERGY.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, DRUGALLERGY.HOSPCODE, DRUGALLERGY.PID, DRUGALLERGY.DATERECORD, DRUGALLERGY.DNAME, CODE_DRUGALLERGY_TYPEDX.DESCRIPTION AS TYPEDX, CODE_DRUGALLERGY_INFORMANT.DESCRIPTION AS INFORMANT, CODE_DRUGALLERGY_ALEVEL.DESCRIPTION AS ALEVEL FROM DRUGALLERGY LEFT JOIN CODE_DRUGALLERGY_TYPEDX ON DRUGALLERGY.TYPEDX=CODE_DRUGALLERGY_TYPEDX.CODE LEFT JOIN CODE_DRUGALLERGY_INFORMANT ON DRUGALLERGY.INFORMANT=CODE_DRUGALLERGY_INFORMANT.CODE LEFT JOIN CODE_DRUGALLERGY_ALEVEL ON DRUGALLERGY.ALEVEL=CODE_DRUGALLERGY_ALEVEL.CODE LEFT JOIN CODE_HOSPITAL ON DRUGALLERGY.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
-  if (ID)
-    querycmd =
-      querycmd +
-      " WHERE ID=" +
-      connection.escape(ID) +
-      " && DRUGALLERGY.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  if (PID)
-    querycmd =
-      querycmd +
-      " WHERE PID=" +
-      connection.escape(PID) +
-      " && DRUGALLERGY.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  console.log(querycmd);
-  connection.query(querycmd, (err, results) => {
-    if (err) {
-      return new Error("An error occured during query " + err);
-    }
-    console.log(results);
-    res.json(results);
-  });
-});
-
-router.post("/LAB/", function(req, res, next) {
-  var HOSPCODE = req.body.HOSPCODE;
-  var ID = req.body.ID;
-  var PID = req.body.PID;
-  if (!HOSPCODE) {
-    res.send("HOSPCODE IS REQUIRED");
+  const SPK = req.body.SPK;
+  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+    res.status(400).send({
+      message: "SPK must be 56 uppercase characters",
+    });
     return;
   }
-  var querycmd =
-    "SELECT LABFU.ID, CODE_HOSPITAL.FULLNAME AS HOSNAME, LABFU.HOSPCODE, LABFU.PID, LABFU.SEQ, LABFU.DATE_SERV, LABFU.LABTEST AS LABID, CODE_LABFU_LABTEST.DESCRIPTION AS LABTEST, LABFU.LABRESULT FROM LABFU LEFT JOIN CODE_LABFU_LABTEST ON LABFU.LABTEST=CODE_LABFU_LABTEST.CODE LEFT JOIN CODE_HOSPITAL ON LABFU.HOSPCODE=CODE_HOSPITAL.HOSPITALCODE ";
-  if (ID)
-    querycmd =
-      querycmd +
-      " WHERE ID=" +
-      connection.escape(ID) +
-      " && LABFU.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  if (PID)
-    querycmd =
-      querycmd +
-      " WHERE PID=" +
-      connection.escape(PID) +
-      " && LABFU.HOSPCODE=" +
-      connection.escape(HOSPCODE);
-  console.log(querycmd);
-  connection.query(querycmd, (err, results) => {
-    if (err) {
-      return new Error("An error occured during query " + err);
-    }
-    console.log(results);
-    res.json(results);
-  });
-});
-
-router.post("/secret/", function(req, res, next) {
-  var values = [[req.body.spk, req.body.pid, req.body.seq, req.body.HOSPCODE]];
-  var sql =
-    "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE spk=" +
-    connection.escape(req.body.spk) +
-    ",SEQ=" +
-    connection.escape(req.body.seq);
-  connection.query(sql, [values], function(err, result) {
-    if (err) {
-      console.log(err);
-      res.json(err);
-    }
-    res.json("Added");
-  });
-});
-
-router.post("/test/", function(req, res, next) {
-  const spk = req.body.spk;
-  console.log(spk);
-  res.json("spk");
-});
-
-router.post("/secret_test/", function(req, res, next) {
-  var HOSPCODE = req.body.HOSPCODE;
-  var ID = req.body.ID;
+  const Seq = req.body.Seq;
+  if (!/^\d+$/.test(Seq)) {
+    res.status(400).send({
+      message: "Seq must be digits",
+    });
+    return;
+  }
   const querycmd =
     "SELECT PID FROM PERSON WHERE CID=" +
-    connection.escape(ID) +
+    connection.escape(CID) +
     " AND HOSPCODE=" +
     connection.escape(HOSPCODE);
   connection.query(querycmd, (err, results) => {
-    if (err) {
-      return new Error("An error occured during query " + err);
+    if (err || results.length < 1) {
+      res.status(404).send({
+        message: "PID not found",
+      });
+      return;
     }
-    res.json(results[0].PID);
-  });
 
-  var values = [[req.body.spk, req.body.pid, req.body.seq, req.body.HOSPCODE]];
-  var sql =
-    "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE spk=" +
-    connection.escape(req.body.spk) +
-    ",SEQ=" +
-    connection.escape(req.body.seq);
-  connection.query(sql, [values], function(err, result) {
-    if (err) {
-      console.log(err);
-      res.json(err);
-    }
-    res.json("Added");
+    const KP = StellarSdk.Keypair.fromSecret(SecretKey);
+    const sig = KP.sign(Buffer.from(results[0].PID + "_" + SPK)).toString(
+      "base64"
+    );
+    const key512Bits1000Iterations = crypto
+      .pbkdf2Sync(sig, "", 1000, 64, "sha512")
+      .toString("base64");
+    const values = [[SPK, results[0].PID, Seq, HOSPCODE]];
+    const sql =
+      "INSERT INTO STELLARKEY (SPK, PID, SEQ, HOSPCODE) VALUES ? ON DUPLICATE KEY UPDATE SPK=" +
+      connection.escape(SPK) +
+      ",SEQ=" +
+      connection.escape(Seq);
+    connection.query(sql, [values], function (err, result) {
+      if (err) {
+        res.status(503).send({
+          message: "Service Unavailable",
+        });
+      }
+      res.json({ Secret: key512Bits1000Iterations });
+    });
   });
 });
 

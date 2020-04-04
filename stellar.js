@@ -12,8 +12,6 @@ const SecretKey0 = "SCCXCBTECBWXYAJV2NVETV5G5ZEPUV2MPEDAJHPNS3G5ZZ3LAFSLMKZG";
 const HOSPCODE0 = "10739";
 const HOSPNAME0 = "Chulalongkorn Hospital";
 
-//const PublicKey = { "09082": PublicKey1, "10739": PublicKey0 };
-//const SecretKey = { "09082": SecretKey1, "10739": SecretKey0 };
 const PublicKey = PublicKey1;
 const SecretKey = SecretKey1;
 const HOSPCODE = HOSPCODE1;
@@ -36,12 +34,6 @@ function decrypt(text, ENCRYPTION_KEY) {
   }
 }
 function verifySignature(publicKey, signature, pid, key) {
-  /*
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, "0");
-  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-  const yyyy = today.getFullYear();
-  */
   try {
     const kp = StellarSdk.Keypair.fromPublicKey(publicKey);
     return kp.verify(
@@ -52,7 +44,6 @@ function verifySignature(publicKey, signature, pid, key) {
     console.log(err);
     return false;
   }
-  // data -> 111...11_01/02/2020
 }
 function verifySignatureWithoutKey(publicKey, signature, raw) {
   try {
@@ -73,7 +64,7 @@ async function getInfoByKey(publicKey, secretKey, key) {
     .call()
     .then(function(accountResult) {
       var i;
-      for (i = 0; i < 16; ++i) {
+      for (i = 0; i < 8; ++i) {
         if (accountResult.data_attr[key + "_" + i.toString()]) {
           if (resultOb[key] == undefined) {
             resultOb[key] = "";
