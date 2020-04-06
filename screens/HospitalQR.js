@@ -19,7 +19,7 @@ class HospitalQR extends React.Component {
   getQR = async () => {
     try {
       const spk = store.getState().authReducer.stellarPublicKey;
-      const _id = store.getState().authReducer._id;
+      const cid = store.getState().authReducer.cid;
       const name =
         store.getState().authReducer.FName +
         ' ' +
@@ -33,7 +33,7 @@ class HospitalQR extends React.Component {
         '","Seq":"' +
         seq +
         '","CID":"' +
-        _id +
+        cid +
         '"}';
       return result;
     } catch (err) {

@@ -1,7 +1,7 @@
 // Login
-export const login = (_id, fName, lName, stellarPublicKey, mode) => ({
+export const login = (cid, fName, lName, stellarPublicKey, mode) => ({
   type: 'LOGIN',
-  _id: _id,
+  cid: cid,
   FName: fName,
   LName: lName,
   stellarPublicKey: stellarPublicKey,

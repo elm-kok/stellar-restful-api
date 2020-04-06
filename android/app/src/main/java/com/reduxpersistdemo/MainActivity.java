@@ -1,4 +1,4 @@
-package com.StellarUI;
+package com.kok.stellarui;
 
 import com.facebook.react.ReactActivity;
 

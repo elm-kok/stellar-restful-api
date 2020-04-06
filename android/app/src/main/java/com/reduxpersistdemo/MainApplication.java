@@ -1,5 +1,5 @@
-package com.StellarUI;
-import com.oblador.keychain.KeychainPackage;
+package com.kok.stellarui;
+//import com.oblador.keychain.KeychainPackage;
 
 import android.app.Application;
 import android.content.Context;

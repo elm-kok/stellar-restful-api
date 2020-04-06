@@ -6,7 +6,9 @@
     "android": "react-native run-android",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "detox build": "detox build -c android.emu.debug",
+    "detox test": "detox test -c android.emu.debug"
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.7.1",
@@ -14,6 +16,8 @@
     "@react-navigation/bottom-tabs": "^5.0.0-alpha.34",
     "@react-navigation/native": "^5.0.0-alpha.24",
     "@tradle/react-native-http": "^2.0.0",
+    "appium": "^1.17.0",
+    "appium-doctor": "^1.15.0",
     "buffer": "^4.9.1",
     "crypto": "^1.0.1",
     "events": "^1.0.0",
@@ -21,8 +25,6 @@
     "http": "^0.0.0",
     "https": "^1.0.0",
     "https-browserify": "~0.0.0",
-    "perf_hooks": "0.0.1",
-    "performance": "^1.2.0",
     "react": "16.11.0",
     "react-native": "0.62.1",
     "react-native-camera": "^3.15.1",
@@ -44,7 +46,6 @@
     "react-native-vector-icons": "^6.6.0",
     "react-navigation": "^4.0.10",
     "react-navigation-material-bottom-tabs": "^2.1.5",
-    "react-navigation-stack": "^2.0.13",
     "react-redux": "^7.1.1",
     "readable-stream": "1.0.33",
     "redux": "^4.0.4",
@@ -57,7 +58,8 @@
     "url": "~0.10.1",
     "util": "~0.10.3",
     "vm": "^0.1.0",
-    "vm-browserify": "0.0.4"
+    "vm-browserify": "0.0.4",
+    "wd": "^1.12.1"
   },
   "devDependencies": {
     "@babel/core": "7.6.4",
@@ -71,10 +73,24 @@
     "redux-logger": "^3.0.6"
   },
   "jest": {
-    "preset": "react-native",
-    "setupFiles": [
-      "./jestSetupFile.js"
-    ]
+    "preset": "react-native"
+  },
+  "detox": {
+    "configurations": {
+      "android.emu.debug": {
+        "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+        "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..",
+        "type": "android.emulator",
+        "name": "Pixel_3_API_29"
+      },
+      "android.emu.release": {
+        "binaryPath": "android/app/build/outputs/apk/release/app-release.apk",
+        "build": "cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..",
+        "type": "android.emulator",
+        "name": "Pixel_3_API_29"
+      }
+    },
+    "test-runner": "jest"
   },
   "react-native": {
     "crypto": "react-native-crypto",

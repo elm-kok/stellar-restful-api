@@ -127,14 +127,17 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.StellarUI"
+        applicationId "com.kok.stellarui"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
-    }
+
+        testBuildType System.getProperty('testBuildType', 'debug')
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        }
     splits {
         abi {
             reset()
@@ -161,6 +164,8 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+             // Detox-specific additions to pro-guard
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
     // applicationVariants are e.g. debug, release
@@ -180,6 +185,9 @@ android {
 }
 
 dependencies {
+    androidTestImplementation('com.wix:detox:+') { transitive = true }
+    androidTestImplementation 'junit:junit:4.12'
+    implementation "androidx.annotation:annotation:1.1.0"
     //implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-permissions')
     implementation project(':react-native-camera')
@@ -195,7 +203,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    implementation project(':react-native-keychain')
+    //implementation project(':react-native-keychain')
     //implementation project(':randombytes')
     implementation project(':react-native-charts-wrapper')
 }
