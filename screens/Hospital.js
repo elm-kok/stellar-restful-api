@@ -29,34 +29,37 @@ class Hospital extends React.Component {
   render() {
     return (
       <>
-          <Modal
-            animationType="slide"
-            transparent={false}
-            visible={this.state.modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-            }}>
-            <Text
-              style={{
-                fontSize: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 100,
-              }}>
-              submitting...
-            </Text>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </Modal>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+          accessibilityLabel="modal_hospital">
           <Text
             style={{
-              fontSize: 30,
-              color: '#FF9A4C',
-              textAlign: 'right',
-              padding: 15,
-            }}>
-            Hospital Management
+              fontSize: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 100,
+            }}
+            accessibilityLabel="statusText_hospital">
+            submitting...
           </Text>
-          <Hospital_logic />
+          <ActivityIndicator size="large" color="#0000ff" />
+        </Modal>
+        <Text
+          style={{
+            fontSize: 30,
+            color: '#FF9A4C',
+            textAlign: 'right',
+            padding: 15,
+          }}
+          accessibilityLabel="header_hospital">
+          Hospital Management
+        </Text>
+        <Hospital_logic />
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -71,7 +74,8 @@ class Hospital extends React.Component {
             backgroundColor: '#FFFF',
             borderRadius: 100,
           }}
-          onPress={this.onPress}>
+          onPress={this.onPress}
+          accessibilityLabel="add_hospital">
           <Icon name="plus" size={30} color="#01a699" />
         </TouchableOpacity>
       </>

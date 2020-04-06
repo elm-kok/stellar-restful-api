@@ -56,7 +56,8 @@ class HospitalQR extends React.Component {
                 top: 80,
                 textAlign: 'center', // <-- the magic
                 fontSize: 24,
-              }}>
+              }}
+              accessibilityLabel="header_hospitalQR">
               For Hospital Scanning...
             </Text>
             <View
@@ -78,7 +79,8 @@ class HospitalQR extends React.Component {
                 top: 10,
                 right: 10,
               }}
-              onPress={this.onClose}>
+              onPress={this.onClose}
+              accessibilityLabel="close_hospitalQR">
               <Icon name="ios-close" size={50} color="#e3a699" />
             </TouchableOpacity>
             <TouchableOpacity
@@ -91,7 +93,8 @@ class HospitalQR extends React.Component {
                 bottom: 10,
                 right: 10,
               }}
-              onPress={this.onNext}>
+              onPress={this.onNext}
+              accessibilityLabel="next_hospitalQR">
               <Icon name="ios-arrow-round-forward" size={50} color="#01a699" />
             </TouchableOpacity>
           </>

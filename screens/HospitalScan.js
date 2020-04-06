@@ -27,7 +27,7 @@ class HospitalQR extends React.Component {
   onClose = () => {
     this.props.navigation.navigate('Hospital');
   };
-  onSuccess = e => {
+  onSuccess = (e) => {
     const qrcode_json = JSON.parse(e.data);
     if (qrcode_json.Type === 'Hospital')
       this.setState({QRString: qrcode_json, modalVisible: true});
@@ -141,7 +141,7 @@ class HospitalQR extends React.Component {
         </TouchableOpacity>
         {!this.state.modalVisible && !this.state.modalVisible2 ? (
           <QRCodeScanner
-            ref={node => {
+            ref={(node) => {
               this.scanner = node;
             }}
             onRead={this.onSuccess}
@@ -173,7 +173,8 @@ class HospitalQR extends React.Component {
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-              }}>
+              }}
+              accessibilityLabel="add_hospitalScan">
               <Icon name="ios-checkmark" size={50} color="#01a699" />
             </TouchableOpacity>
             <TouchableOpacity
