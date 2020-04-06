@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   View,
+  Image,
   Button,
   TextInput,
   Modal,
@@ -67,7 +68,15 @@ export class SignInScreen extends React.Component {
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
             style={styles.scrollView}>
-            <Text style={styles.heading}>Record Controller</Text>
+            <Image
+              source={require('../assets/images/login.png')}
+              style={{
+                width: 150,
+                height: 150,
+                marginTop: 5,
+                alignSelf: 'center',
+              }}
+            />
             <Text style={styles.mt12}>CID</Text>
             <TextInput
               style={styles.textInput}
@@ -75,25 +84,42 @@ export class SignInScreen extends React.Component {
               onChangeText={(cid) => this.setState({cid: cid})}
               value={this.state.cid}
               accessibilityLabel="ID"
+              keyboardType="numeric"
+              maxLength={13}
             />
+            {this.state.cid.length < 13 ? (
+              <Text style={{color: 'red'}}>**CID must be 13 digits**</Text>
+            ) : null}
             <Text style={styles.mt12}>Password</Text>
             <TextInput
               style={styles.textInput}
               placeholder="Password"
               onChangeText={(passwd) => this.setState({passwd: passwd})}
               value={this.state.passwd}
+              secureTextEntry={true}
               accessibilityLabel="password"
             />
+            {this.state.passwd.length < 8 ? (
+              <Text style={{color: 'red'}}>
+                **Password must be at least 8 characters**
+              </Text>
+            ) : null}
             <Text style={styles.mt12}>Confirm Password</Text>
             <TextInput
               style={styles.textInput}
               placeholder="Confirm Password"
+              secureTextEntry={true}
               onChangeText={(con_passwd) =>
                 this.setState({con_passwd: con_passwd})
               }
               value={this.state.con_passwd}
               accessibilityLabel="conPassword"
             />
+            {this.state.passwd !== this.state.con_passwd ? (
+              <Text style={{color: 'red'}}>
+                **Password and Confirm Password don't match**
+              </Text>
+            ) : null}
             <Text style={styles.mt12}>First Name</Text>
             <TextInput
               style={styles.textInput}
@@ -102,18 +128,36 @@ export class SignInScreen extends React.Component {
               value={this.state.fName}
               accessibilityLabel="fName"
             />
+            {this.state.fName.length === 0 ? (
+              <Text style={{color: 'red'}}>**Don't blank First Name**</Text>
+            ) : null}
             <Text style={styles.mt12}>Last Name</Text>
             <TextInput
-              style={[styles.textInput, styles.mb12]}
+              style={styles.textInput}
               placeholder="Last Name"
               onChangeText={(lName) => this.setState({lName: lName})}
               value={this.state.lName}
               accessibilityLabel="lName"
             />
+            {this.state.lName.length === 0 ? (
+              <Text style={{color: 'red', marginBottom: 13}}>
+                **Don't blank Last Name**
+              </Text>
+            ) : (
+              <Text style={{color: 'red', marginBottom: 13}}></Text>
+            )}
+
             <Button
               title="Sign in"
               onPress={this._signInAsync}
               id="login"
+              disabled={
+                this.state.cid.length !== 13 ||
+                this.state.passwd.length < 8 ||
+                this.state.con_passwd !== this.state.passwd ||
+                this.state.fName.length === 0 ||
+                this.state.lName.length === 0
+              }
               accessibilityLabel="login"
             />
           </ScrollView>
