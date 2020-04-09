@@ -35,19 +35,17 @@ export default class Hospital_logic extends React.Component {
       this.setState({modalVisible: true});
       console.log(seq_sig);
       const _index = this.state.hospitalList.findIndex(
-        (i) => i.seq_sig === seq_sig,
+        i => i.seq_sig === seq_sig,
       );
       if (_index > -1) {
         const StellarSecret = await Keychain.getGenericPassword(
           'StellarSecret',
         );
         const info = JSON.parse(
-          (
-            await getInfoByKeyWithoutEncrypt(
-              store.getState().authReducer.stellarPublicKey,
-              seq_sig,
-            )
-          )
+          (await getInfoByKeyWithoutEncrypt(
+            store.getState().authReducer.stellarPublicKey,
+            seq_sig,
+          ))
             .values()
             .next().value,
         );
@@ -83,10 +81,10 @@ export default class Hospital_logic extends React.Component {
     try {
       this.setState({modalVisible: true});
       const seq_sig_index = this.state.hospitalList.findIndex(
-        (i) => i.seq_sig === seq_sig,
+        i => i.seq_sig === seq_sig,
       );
       const seq_end_index = this.state.hospitalList.findIndex(
-        (i) => i.seq_end === seq_end,
+        i => i.seq_end === seq_end,
       );
       if (seq_sig_index > -1 && seq_end_index > -1) {
         const StellarSecret = await Keychain.getGenericPassword(
@@ -119,7 +117,7 @@ export default class Hospital_logic extends React.Component {
     }
   }
 
-  actionOnRow = (item) => {
+  actionOnRow = item => {
     Alert.alert(
       item.name,
       'Added : ' +
@@ -159,7 +157,9 @@ export default class Hospital_logic extends React.Component {
         />
       </TouchableOpacity>
     ) : (
-      <TouchableOpacity onPress={() => this.actionOnRow(item)}>
+      <TouchableOpacity
+        onPress={() => this.actionOnRow(item)}
+        accessibilityLabel={item.name}>
         <ListItem
           title={item.name}
           subtitle="Disable"

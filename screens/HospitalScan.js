@@ -27,7 +27,7 @@ class HospitalQR extends React.Component {
   onClose = () => {
     this.props.navigation.navigate('Hospital');
   };
-  onSuccess = (e) => {
+  onSuccess = e => {
     const qrcode_json = JSON.parse(e.data);
     if (qrcode_json.Type === 'Hospital')
       this.setState({QRString: qrcode_json, modalVisible: true});
@@ -46,9 +46,9 @@ class HospitalQR extends React.Component {
       const spk = store.getState().authReducer.stellarPublicKey;
       const StellarSecret = (await Keychain.getGenericPassword('StellarSecret'))
         .password;
-      const SecretKeyDoctor = (
-        await Keychain.getGenericPassword('SecretKeyDoctor')
-      ).password;
+      const SecretKeyDoctor = (await Keychain.getGenericPassword(
+        'SecretKeyDoctor',
+      )).password;
       for (i = 0; i < hospital.length; ++i) {
         if (this.state.QRString.Name === hospital[i].name) {
           check = i;
@@ -141,7 +141,7 @@ class HospitalQR extends React.Component {
         </TouchableOpacity>
         {!this.state.modalVisible && !this.state.modalVisible2 ? (
           <QRCodeScanner
-            ref={(node) => {
+            ref={node => {
               this.scanner = node;
             }}
             onRead={this.onSuccess}
@@ -158,8 +158,12 @@ class HospitalQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>Add {this.state.QRString.Name}</Text>
-            <Text style={{fontSize: 24}}>
+            <Text style={{fontSize: 24}} accessibilityLabel="name_hospitalScan">
+              Add {this.state.QRString.Name}
+            </Text>
+            <Text
+              style={{fontSize: 24}}
+              accessibilityLabel="endpoint_hospitalScan">
               End point {this.state.QRString.Endpoint}
             </Text>
 

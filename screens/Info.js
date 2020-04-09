@@ -240,7 +240,9 @@ export default class Info extends Component {
       <>
         <Swiper style={styles.wrapper} showsButtons={false}>
           <View style={styles.slide1}>
-            <Text style={styles.text}>Lab Testing</Text>
+            <Text style={styles.text} accessibilityLabel="LabTesting_header">
+              Lab Testing
+            </Text>
             <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearchLAB}
@@ -254,7 +256,9 @@ export default class Info extends Component {
           </View>
           <View style={styles.slide2}>
             <SafeAreaView style={{flex: 1}}>
-              <Text style={styles.text}>Drug Allergy</Text>
+              <Text style={styles.text} accessibilityLabel="DrugAllergy_header">
+                Drug Allergy
+              </Text>
               <SearchBar
                 placeholder="Type Here..."
                 onChangeText={this.updateSearchDA}
@@ -268,7 +272,11 @@ export default class Info extends Component {
           </View>
           <View style={styles.slide3}>
             <SafeAreaView style={{flex: 1}}>
-              <Text style={styles.text}>Drug Dispensing</Text>
+              <Text
+                style={styles.text}
+                accessibilityLabel="DrugDispensing_header">
+                Drug Dispensing
+              </Text>
               <SearchBar
                 placeholder="Type Here..."
                 onChangeText={this.updateSearchDO}

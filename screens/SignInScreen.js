@@ -129,7 +129,9 @@ export class SignInScreen extends React.Component {
               accessibilityLabel="fName"
             />
             {this.state.fName.length === 0 ? (
-              <Text style={{color: 'red'}}>**Don't blank First Name**</Text>
+              <Text style={{color: 'red'}}>
+                **Don't left blank First Name**
+              </Text>
             ) : null}
             <Text style={styles.mt12}>Last Name</Text>
             <TextInput
@@ -141,7 +143,7 @@ export class SignInScreen extends React.Component {
             />
             {this.state.lName.length === 0 ? (
               <Text style={{color: 'red', marginBottom: 13}}>
-                **Don't blank Last Name**
+                **Don't left blank Last Name**
               </Text>
             ) : (
               <Text style={{color: 'red', marginBottom: 13}}></Text>
