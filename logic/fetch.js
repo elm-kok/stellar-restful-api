@@ -28,8 +28,8 @@ export async function fetchByPatient() {
           ).toString('base64'),
         }),
       })
-        .then(async (response) => response.json())
-        .then(async (responseJson) => {
+        .then(async response => response.json())
+        .then(async responseJson => {
           results.DRUG_OPD.push(...responseJson.DRUG_OPD);
           results.LAB.push(...responseJson.LAB);
           results.DRUGALLERGY.push(...responseJson.DRUGALLERGY);
@@ -38,8 +38,8 @@ export async function fetchByPatient() {
     }
     return results;
   } catch (e) {
-    console.log('Fail to fetch the record: ' + e);
-    return null;
+    //console.log('Fail to fetch the record: ' + e);
+    return {DRUG_OPD: [], DRUGALLERGY: [], LAB: []};
   }
 }
 
@@ -71,8 +71,8 @@ export async function fetchByDoctor(patientSPK, secret, seq) {
           ).toString('base64'),
         }),
       })
-        .then(async (response) => response.json())
-        .then(async (responseJson) => {
+        .then(async response => response.json())
+        .then(async responseJson => {
           results.DRUG_OPD.push(...responseJson.DRUG_OPD);
           results.LAB.push(...responseJson.LAB);
           results.DRUGALLERGY.push(...responseJson.DRUGALLERGY);
@@ -81,7 +81,7 @@ export async function fetchByDoctor(patientSPK, secret, seq) {
     }
     return results;
   } catch (e) {
-    console.log('Fail to fetch the record: ' + e);
+    //console.log('Fail to fetch the record: ' + e);
     return null;
   }
 }

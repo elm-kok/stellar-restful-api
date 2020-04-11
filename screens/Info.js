@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import {SearchBar} from 'react-native-elements';
 import {fetchByPatient} from '../logic/fetch';
@@ -65,9 +66,11 @@ export default class Info extends Component {
       searchDA: '',
       searchDO: '',
       searchLAB: '',
+      refreshing: false,
     };
   }
-  componentDidMount = async () => {
+  setData = async () => {
+    this.setState({refreshing: true});
     try {
       const result = await fetchByPatient();
       this.setState({
@@ -77,9 +80,14 @@ export default class Info extends Component {
         loaded: true,
       });
       this.labGroup();
+      this.setState({refreshing: false});
     } catch (e) {
+      this.setState({refreshing: false});
       console.log(e);
     }
+  };
+  componentDidMount = async () => {
+    await this.setData();
   };
 
   labGroup() {
@@ -117,7 +125,10 @@ export default class Info extends Component {
     var rows = [];
     for (const [key, value] of Object.entries(dataGraph)) {
       rows.push(
-        <View style={styles.chartContainer} key={key}>
+        <View
+          style={styles.chartContainer}
+          key={key}
+          accessibilityLabel={'LabID_' + key}>
           <BarChartScreen
             xAxisVal={xAxisVal[key]}
             yAxisVal={yAxisVal[key]}
@@ -250,7 +261,14 @@ export default class Info extends Component {
               lightTheme={true}
               style={{backgroundColor: '#ffff'}}
             />
-            <ScrollView style={{flex: 1}}>
+            <ScrollView
+              style={{flex: 1}}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this.setData}
+                />
+              }>
               {this.state.bars_r ? this.state.bars_r : null}
             </ScrollView>
           </View>
