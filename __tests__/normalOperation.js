@@ -66,9 +66,17 @@ test('Login', async () => {
 });
 
 test('Add Hospital', async () => {
+  /*
   let action = new wd.TouchAction(driver);
   action.press({x: 670, y: 1949}).release();
   await action.perform();
+  */
+
+  const hospitalTab_element = await driver.elementByAccessibilityId(
+    'Hospital, tab, 3 of 4',
+  );
+  await hospitalTab_element.click();
+  await driver.sleep(3000);
   while (!(await driver.hasElementByAccessibilityId('add_hospital'))) {
     await driver.sleep(1000);
   }
@@ -112,5 +120,22 @@ test('Add Hospital', async () => {
   expect(await driver.hasElementByAccessibilityId('Siriraj Hospital')).toBe(
     true,
   );
+  const Siriraj_element = await driver.elementByAccessibilityId(
+    'Siriraj Hospital',
+  );
+  await Siriraj_element.click();
+  while (!(await driver.hasElementById('android:id/alertTitle'))) {
+    await driver.sleep(1000);
+  }
+  const alertTitle_element = await driver.elementById('android:id/alertTitle');
+  expect(await alertTitle_element.getAttribute('text')).toBe(
+    'Siriraj Hospital',
+  );
+  const message_element = await driver.elementById('android:id/message');
+  expect((await message_element.getAttribute('text')).split('\n')[1]).toBe(
+    'Status : Enable',
+  );
+  const button3_element = await driver.elementById('android:id/button3');
+  await button3_element.click();
   console.debug('Add Hospital Ok.');
 });
