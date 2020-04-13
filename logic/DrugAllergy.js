@@ -30,7 +30,9 @@ export default class DrugAllergy extends React.Component {
     );
   };
   renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => this.actionOnRow(item)}>
+    <TouchableOpacity
+      onPress={() => this.actionOnRow(item)}
+      accessibilityLabel={item.DNAME}>
       <ListItem
         title={item.DNAME}
         subtitle={item.DATERECORD.split('T')[0]}

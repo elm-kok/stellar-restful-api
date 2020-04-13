@@ -31,13 +31,15 @@ export default class DrugOpd extends React.Component {
     );
   };
   renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => this.actionOnRow(item)}>
+    <TouchableOpacity
+      onPress={() => this.actionOnRow(item)}
+      accessibilityLabel={item.DNAME}>
       <ListItem
         title={item.DNAME}
         subtitle={
           item.DATE_SERV.split('T')[0] +
           (item.AMOUNT ? ' Amount: ' + item.AMOUNT : '') +
-          (item.DUNIT ? ' '+item.DUNIT : '')
+          (item.DUNIT ? ' ' + item.DUNIT : '')
         }
         leftAvatar={{
           source: item.avatar_url && {uri: item.avatar_url},

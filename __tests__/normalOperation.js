@@ -10,12 +10,66 @@ const config = {
 const driver = wd.promiseChainRemote('localhost', PORT);
 jest.setTimeout(9999999);
 
+const toggleAction = new wd.TouchAction(driver);
+toggleAction
+  .press({x: 500, y: 500})
+  .moveTo({x: 500, y: 1000})
+  .release();
+
+const swipeRightAction = new wd.TouchAction(driver);
+swipeRightAction
+  .press({x: 1000, y: 500})
+  .wait(1000)
+  .moveTo({x: 100, y: 500})
+  .release();
+
 beforeAll(async () => {
   await driver.init(config);
   while (!(await driver.hasElementByAccessibilityId('ID'))) {
     await driver.sleep(5000);
   }
 });
+
+haveInfo = async () => {
+  const infoTab_element = await driver.elementByAccessibilityId(
+    'Info, tab, 1 of 4',
+  );
+  await infoTab_element.click();
+  await driver.sleep(3000);
+  await toggleAction.perform();
+  await driver.sleep(15000);
+  expect(await driver.hasElementByAccessibilityId('LabID_10')).toBe(true);
+  await swipeRightAction.perform();
+  await driver.sleep(3000);
+  expect(await driver.hasElementByAccessibilityId('Clindamycin')).toBe(true);
+  await swipeRightAction.perform();
+  await driver.sleep(3000);
+  expect(await driver.hasElementByAccessibilityId('DOMPERIDONE TAB10MG.')).toBe(
+    true,
+  );
+  await swipeRightAction.perform();
+  console.debug('Records are available. Ok.');
+};
+haveNotInfo = async () => {
+  const infoTab_element = await driver.elementByAccessibilityId(
+    'Info, tab, 1 of 4',
+  );
+  await infoTab_element.click();
+  await driver.sleep(3000);
+  await toggleAction.perform();
+  await driver.sleep(15000);
+  expect(await driver.hasElementByAccessibilityId('LabID_10')).toBe(false);
+  await swipeRightAction.perform();
+  await driver.sleep(3000);
+  expect(await driver.hasElementByAccessibilityId('Clindamycin')).toBe(false);
+  await swipeRightAction.perform();
+  await driver.sleep(3000);
+  expect(await driver.hasElementByAccessibilityId('DOMPERIDONE TAB10MG.')).toBe(
+    false,
+  );
+  await swipeRightAction.perform();
+  console.debug('Records are not available. Ok.');
+};
 test('Login', async () => {
   expect(await driver.hasElementByAccessibilityId('login')).toBe(true);
   expect(await driver.elementByAccessibilityId('login').isEnabled()).toBe(
@@ -45,23 +99,18 @@ test('Login', async () => {
     await driver.sleep(3000);
   }
   await driver.sleep(1000);
-  let action = new wd.TouchAction(driver);
-  action
-    .press({x: 1000, y: 500})
-    .wait(1000)
-    .moveTo({x: 100, y: 500})
-    .release();
-  await action.perform();
+
+  await swipeRightAction.perform();
   while (!(await driver.hasElementByAccessibilityId('DrugAllergy_header'))) {
     await driver.sleep(3000);
   }
   await driver.sleep(1000);
-  await action.perform();
+  await swipeRightAction.perform();
   while (!(await driver.hasElementByAccessibilityId('DrugDispensing_header'))) {
     await driver.sleep(3000);
   }
   await driver.sleep(1000);
-  await action.perform();
+  await swipeRightAction.perform();
   console.debug('Login Ok.');
 });
 test('Change Name', async () => {
@@ -183,21 +232,7 @@ test('Add Hospital', async () => {
 });
 
 test('Have Info (Patient Record in Info view)', async () => {
-  const infoTab_element = await driver.elementByAccessibilityId(
-    'Info, tab, 1 of 4',
-  );
-  await infoTab_element.click();
-
-  let action = new wd.TouchAction(driver);
-  action
-    .press({x: 500, y: 500})
-    .wait(1000)
-    .moveTo({x: 500, y: 1000})
-    .release();
-  await action.perform();
-  await driver.sleep(5000);
-  expect(await driver.hasElementByAccessibilityId('LabID_10')).toBe(true);
-  console.debug('Records are available. Ok.');
+  await haveInfo();
 });
 
 test('Disable Hospital', async () => {
@@ -253,22 +288,65 @@ test('Disable Hospital', async () => {
   console.debug('Disable Hospital Ok.');
 });
 
-test('Have Info (Patient Record in Info view)', async () => {
-  const infoTab_element = await driver.elementByAccessibilityId(
-    'Info, tab, 1 of 4',
-  );
-  await infoTab_element.click();
+test('Have not Info (Patient Record in Info view)', async () => {
+  await haveNotInfo();
+});
 
-  let action = new wd.TouchAction(driver);
-  action
-    .press({x: 500, y: 500})
-    .wait(1000)
-    .moveTo({x: 500, y: 1000})
-    .release();
-  await action.perform();
-  await driver.sleep(5000);
-  expect(await driver.hasElementByAccessibilityId('LabID_10')).toBe(false);
-  console.debug('Records are available. Ok.');
+test('Enable Hospital', async () => {
+  const hospitalTab_element = await driver.elementByAccessibilityId(
+    'Hospital, tab, 3 of 4',
+  );
+  await hospitalTab_element.click();
+
+  while (!(await driver.hasElementByAccessibilityId('add_hospital'))) {
+    await driver.sleep(1000);
+  }
+  expect(await driver.hasElementByAccessibilityId('Siriraj Hospital')).toBe(
+    true,
+  );
+  const Siriraj_element = await driver.elementByAccessibilityId(
+    'Siriraj Hospital',
+  );
+  await Siriraj_element.click();
+
+  while (!(await driver.hasElementById('android:id/alertTitle'))) {
+    await driver.sleep(1000);
+  }
+  const alertTitle_element = await driver.elementById('android:id/alertTitle');
+  expect(await alertTitle_element.getAttribute('text')).toBe(
+    'Siriraj Hospital',
+  );
+  const message_element = await driver.elementById('android:id/message');
+  expect((await message_element.getAttribute('text')).split('\n')[1]).toBe(
+    'Status : Disable',
+  );
+  const button1_element = await driver.elementById('android:id/button1');
+  await button1_element.click();
+
+  while (!(await driver.hasElementByAccessibilityId('add_hospital'))) {
+    await driver.sleep(1000);
+  }
+
+  await Siriraj_element.click();
+  while (!(await driver.hasElementById('android:id/alertTitle'))) {
+    await driver.sleep(1000);
+  }
+  const alertTitle2_element = await driver.elementById('android:id/alertTitle');
+  expect(await alertTitle2_element.getAttribute('text')).toBe(
+    'Siriraj Hospital',
+  );
+  const message2_element = await driver.elementById('android:id/message');
+  expect((await message2_element.getAttribute('text')).split('\n')[1]).toBe(
+    'Status : Enable',
+  );
+  const button3_element = await driver.elementById('android:id/button3');
+  await button3_element.click();
+
+  console.debug('Enable Hospital Ok.');
+});
+
+test('Have Info (Patient Record in Info view)', async () => {
+  await haveInfo();
 });
 
 test('Remove Hospital', async () => {
@@ -305,6 +383,10 @@ test('Remove Hospital', async () => {
     false,
   );
   console.debug('Remove Hospital Ok.');
+});
+
+test('Have not Info (Patient Record in Info view)', async () => {
+  await haveNotInfo();
 });
 
 test('Info', async () => {
