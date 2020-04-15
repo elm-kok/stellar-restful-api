@@ -1,11 +1,19 @@
 import wd from 'wd';
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-const PORT = 4723;
+const PORT = 5723;
 const config = {
   platformName: 'Android',
-  deviceName: 'Pixel_3_API_29',
+  deviceName: 'emulator-5556',
+  avd: 'Pixel_3_API_29_2',
+  uiautomator2ServerLaunchTimeout: 399999,
+  androidInstallTimeout: 399999,
+  uiautomator2ServerInstallTimeout: 399999,
+  avdLaunchTimeout: 399999,
+  avdReadyTimeout: 399999,
+  adbExecTimeout: 399999,
+  newCommandTimeout: 399999,
   app:
-    '/media/kok/Data/react-native/Frontend/Patient/StellarUI/android/app/build/outputs/apk/debug/app-debug.apk',
+    '/media/kok/Data/react-native/Frontend/Doctor/StellarUI/android/app/build/outputs/apk/debug/app-debug.apk',
 };
 const driver = wd.promiseChainRemote('localhost', PORT);
 jest.setTimeout(9999999);
@@ -39,7 +47,9 @@ haveInfoDoctor = async () => {
 
   await driver.sleep(3000);
   await toggleAction.perform();
-  await driver.sleep(15000);
+  while (!(await driver.hasElementByAccessibilityId('LabID_10'))) {
+    await driver.sleep(1000);
+  }
   expect(await driver.hasElementByAccessibilityId('LabID_10')).toBe(true);
   await swipeRightAction.perform();
   await driver.sleep(3000);
@@ -52,6 +62,9 @@ haveInfoDoctor = async () => {
   await swipeRightAction.perform();
   console.debug('Records are available. Ok.');
 
+  while (!(await driver.hasElementByAccessibilityId('Settings, tab, 4 of 4'))) {
+    await driver.sleep(1000);
+  }
   const settingsTab_element = await driver.elementByAccessibilityId(
     'Settings, tab, 4 of 4',
   );
@@ -90,7 +103,9 @@ haveNotInfoDoctor = async () => {
   );
   await swipeRightAction.perform();
   console.debug('Records are not available. Ok.');
-
+  while (!(await driver.hasElementByAccessibilityId('Settings, tab, 4 of 4'))) {
+    await driver.sleep(1000);
+  }
   const settingsTab_element = await driver.elementByAccessibilityId(
     'Settings, tab, 4 of 4',
   );
@@ -131,9 +146,9 @@ describe('Doctor-Patient', () => {
       false,
     );
     await driver.elementByAccessibilityId('lName').sendKeys('Nava');
-    expect(await driver.elementByAccessibilityId('login').isEnabled()).toBe(
-      true,
-    );
+    while (!(await driver.elementByAccessibilityId('login').isEnabled())) {
+      await driver.sleep(3000);
+    }
     const element = await driver.elementByAccessibilityId('login');
     await element.click();
     while (!(await driver.hasElementByAccessibilityId('LabTesting_header'))) {
@@ -203,7 +218,7 @@ describe('Doctor-Patient', () => {
       'name_patientScan',
     );
     expect(await name_patientScan_element.getAttribute('text')).toBe(
-      'Add Rimuru tempest',
+      'Add Rimuru Tempest',
     );
 
     const add_patientScan_element = await driver.elementByAccessibilityId(
@@ -249,5 +264,38 @@ describe('Doctor-Patient', () => {
   });
   test('No Info (Patient Record in Doctor Info view)', async () => {
     await haveNotInfoDoctor();
+  });
+  test('Remove Patient', async () => {
+    const doctorTab_element = await driver.elementByAccessibilityId(
+      'Doctor, tab, 2 of 4',
+    );
+    await doctorTab_element.click();
+
+    while (!(await driver.hasElementByAccessibilityId('add_Patient'))) {
+      await driver.sleep(1000);
+    }
+    expect(await driver.hasElementByAccessibilityId('Rimuru Tempest')).toBe(
+      true,
+    );
+    const Rimuru_element = await driver.elementByAccessibilityId(
+      'Rimuru Tempest',
+    );
+    await Rimuru_element.click();
+
+    while (!(await driver.hasElementByAccessibilityId('remove_PatientInfo'))) {
+      await driver.sleep(1000);
+    }
+    const remove_PatientInfo_element = await driver.elementByAccessibilityId(
+      'remove_PatientInfo',
+    );
+    await remove_PatientInfo_element.click();
+
+    while (!(await driver.hasElementByAccessibilityId('add_Patient'))) {
+      await driver.sleep(1000);
+    }
+    expect(await driver.hasElementByAccessibilityId('Rimuru Tempest')).toBe(
+      false,
+    );
+    console.debug('Remove Patient Ok.');
   });
 });

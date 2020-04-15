@@ -362,7 +362,8 @@ export default class Info extends Component {
             right: 1,
             height: 30,
           }}
-          onPress={() => this.props.navigation.navigate('Doctor')}>
+          onPress={() => this.props.navigation.navigate('Doctor')}
+          accessibilityLabel="exit_PatientInfo">
           <Icon name="times" size={30} color="#01a699" />
         </TouchableOpacity>
         <TouchableOpacity
@@ -377,7 +378,8 @@ export default class Info extends Component {
           }}
           onPress={() =>
             this.rejectRow(this.props.navigation.state.params.item.spk)
-          }>
+          }
+          accessibilityLabel="remove_PatientInfo">
           <Icon name="trash" size={30} color="#01a699" />
         </TouchableOpacity>
       </>
