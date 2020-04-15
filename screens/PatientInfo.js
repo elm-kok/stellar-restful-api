@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {store} from '../redux/store/store';
 import {SearchBar} from 'react-native-elements';
@@ -72,9 +73,11 @@ export default class Info extends Component {
       searchDO: '',
       searchLAB: '',
       modalVisible: false,
+      refreshing: false,
     };
   }
-  componentDidMount = async () => {
+  setData = async () => {
+    this.setState({refreshing: true});
     const spk = this.props.navigation.state.params.item.spk;
     const secret = this.props.navigation.state.params.item.secretKey;
     const seq = this.props.navigation.state.params.item.seq;
@@ -88,9 +91,14 @@ export default class Info extends Component {
         loaded: true,
       });
       this.labGroup();
+      this.setState({refreshing: false});
     } catch (e) {
+      this.setState({refreshing: false});
       console.log(e);
     }
+  };
+  componentDidMount = async () => {
+    await this.setData();
   };
   async rejectRow(spk) {
     try {
@@ -145,7 +153,10 @@ export default class Info extends Component {
     var rows = [];
     for (const [key, value] of Object.entries(dataGraph)) {
       rows.push(
-        <View style={styles.chartContainer} key={key}>
+        <View
+          style={styles.chartContainer}
+          key={key}
+          accessibilityLabel={'LabID_' + key}>
           <BarChartScreen
             xAxisVal={xAxisVal[key]}
             yAxisVal={yAxisVal[key]}
@@ -286,20 +297,31 @@ export default class Info extends Component {
         </Modal>
         <Swiper style={styles.wrapper} showsButtons={false}>
           <View style={styles.slide1}>
-            <Text style={styles.text}>Lab Testing</Text>
+            <Text style={styles.text} accessibilityLabel="LabTesting_header">
+              Lab Testing
+            </Text>
             <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearchLAB}
               value={this.state.searchLAB}
               lightTheme={true}
             />
-            <ScrollView style={{flex: 1}}>
+            <ScrollView
+              style={{flex: 1}}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this.setData}
+                />
+              }>
               {this.state.bars_r ? this.state.bars_r : null}
             </ScrollView>
           </View>
           <View style={styles.slide2}>
             <SafeAreaView style={{flex: 1}}>
-              <Text style={styles.text}>Drug Allergy</Text>
+              <Text style={styles.text} accessibilityLabel="DrugAllergy_header">
+                Drug Allergy
+              </Text>
               <SearchBar
                 placeholder="Type Here..."
                 onChangeText={this.updateSearchDA}
@@ -313,7 +335,11 @@ export default class Info extends Component {
           </View>
           <View style={styles.slide3}>
             <SafeAreaView style={{flex: 1}}>
-              <Text style={styles.text}>Drug Dispensing</Text>
+              <Text
+                style={styles.text}
+                accessibilityLabel="DrugDispensing_header">
+                Drug Dispensing
+              </Text>
               <SearchBar
                 placeholder="Type Here..."
                 onChangeText={this.updateSearchDO}

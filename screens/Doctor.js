@@ -63,7 +63,8 @@ class Doctor extends React.Component {
                 backgroundColor: '#fff',
                 borderRadius: 100,
               }}
-              onPress={this.onPressDoctor}>
+              onPress={this.onPressDoctor}
+              accessibilityLabel="add_Doctor">
               <Icon name="plus" size={30} color="#01a699" />
             </TouchableOpacity>
           </View>
@@ -75,7 +76,8 @@ class Doctor extends React.Component {
                   color: '#FF9A4C',
                   textAlign: 'right',
                   padding: 15,
-                }}>
+                }}
+                accessibilityLabel="header_Patient">
                 Patient Management
               </Text>
               <Patient navigation={this.props.navigation} />
@@ -93,7 +95,8 @@ class Doctor extends React.Component {
                   backgroundColor: '#fff',
                   borderRadius: 100,
                 }}
-                onPress={this.onPressPatient}>
+                onPress={this.onPressPatient}
+                accessibilityLabel="add_Patient">
                 <Icon name="plus" size={30} color="#01a699" />
               </TouchableOpacity>
             </View>

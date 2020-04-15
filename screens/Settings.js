@@ -114,6 +114,7 @@ export default class Settings extends React.Component {
           accessibilityLabel="changeMode_setting"
           title={this.state.mode + ' Mode'}
           onPress={() => this.changeMode()}
+          accessibilityLabel="mode_setting"
         />
       </>
     );

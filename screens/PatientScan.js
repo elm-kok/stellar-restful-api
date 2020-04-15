@@ -111,7 +111,9 @@ class PatientQR extends React.Component {
             Alert.alert('Modal has been closed.');
           }}>
           <>
-            <Text style={{fontSize: 24}}>Add {this.state.QRString.Name}</Text>
+            <Text style={{fontSize: 24}} accessibilityLabel="name_patientScan">
+              Add {this.state.QRString.Name}
+            </Text>
 
             <TouchableOpacity
               onPress={this.onSubmit}
@@ -123,7 +125,8 @@ class PatientQR extends React.Component {
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-              }}>
+              }}
+              accessibilityLabel="add_patientScan">
               <Icon name="ios-checkmark" size={50} color="#01a699" />
             </TouchableOpacity>
             <TouchableOpacity

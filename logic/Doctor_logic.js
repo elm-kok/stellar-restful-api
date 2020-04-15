@@ -134,7 +134,9 @@ export default class Doctor_logic extends React.Component {
   };
   renderItem = ({item}) =>
     item.status ? (
-      <TouchableOpacity onPress={() => this.actionOnRow(item)}>
+      <TouchableOpacity
+        onPress={() => this.actionOnRow(item)}
+        accessibilityLabel={item.name}>
         <ListItem
           title={item.name}
           subtitle={item.date.split('G')[0]}
@@ -147,7 +149,9 @@ export default class Doctor_logic extends React.Component {
         />
       </TouchableOpacity>
     ) : (
-      <TouchableOpacity onPress={() => this.actionOnRow(item)}>
+      <TouchableOpacity
+        onPress={() => this.actionOnRow(item)}
+        accessibilityLabel={item.name}>
         <ListItem
           title={item.name}
           subtitle="Disable"

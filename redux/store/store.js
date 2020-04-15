@@ -14,6 +14,7 @@ const persistConfig = {
   // Storage Method (React Native)
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
+  timeout: null,
   whitelist: [
     'authReducer',
     'hospitalReducer',

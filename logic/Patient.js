@@ -61,7 +61,9 @@ export default class Patient extends React.Component {
     this.props.navigation.navigate('PatientInfo', {item: item});
   };
   renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => this.navigateInfo(item)}>
+    <TouchableOpacity
+      onPress={() => this.navigateInfo(item)}
+      accessibilityLabel={item.name}>
       <ListItem
         title={item.name}
         subtitle={item.date.split('G')[0]}
