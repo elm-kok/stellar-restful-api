@@ -62,7 +62,7 @@ async function getInfoByKey(publicKey, secretKey, key) {
     .accounts()
     .accountId(publicKey)
     .call()
-    .then(function(accountResult) {
+    .then(function (accountResult) {
       var i;
       for (i = 0; i < 8; ++i) {
         if (accountResult.data_attr[key + "_" + i.toString()]) {
@@ -82,8 +82,9 @@ async function getInfoByKey(publicKey, secretKey, key) {
         }
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.error(err);
+      return [...result][0];
     });
   return result;
 }
@@ -95,7 +96,7 @@ async function getInfoByKeyWithoutEncrypt(publicKey, key) {
     .accounts()
     .accountId(publicKey)
     .call()
-    .then(function(accountResult) {
+    .then(function (accountResult) {
       var i;
       for (i = 0; i < 16; ++i) {
         if (accountResult.data_attr[key + "_" + i.toString()]) {
@@ -112,8 +113,9 @@ async function getInfoByKeyWithoutEncrypt(publicKey, key) {
         }
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.error(err);
+      return [...result][0];
     });
   return [...result][0];
 }
@@ -127,10 +129,10 @@ async function getInfo(publicKey, secretKey) {
     .accounts()
     .accountId(publicKey)
     .call()
-    .then(function(accountResult) {
+    .then(function (accountResult) {
       Object.keys(accountResult.data_attr)
         //.sort()
-        .forEach(function(key) {
+        .forEach(function (key) {
           if (resultOb[key.split("_")[0]] == undefined) {
             resultOb[key.split("_")[0]] = "";
           }
@@ -141,15 +143,16 @@ async function getInfo(publicKey, secretKey) {
         });
       Object.keys(resultOb)
         .sort()
-        .forEach(function(key) {
+        .forEach(function (key) {
           const result_dec = decrypt(resultOb[key], secretKey);
           if (result_dec != undefined) {
             result.add(result_dec);
           }
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.error(err);
+      return [...result][0];
     });
   return result;
 }
@@ -165,5 +168,5 @@ module.exports = {
   StellarSdk,
   server,
   verifySignatureWithoutKey,
-  getInfoByKeyWithoutEncrypt
+  getInfoByKeyWithoutEncrypt,
 };
