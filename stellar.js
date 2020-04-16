@@ -84,7 +84,7 @@ async function getInfoByKey(publicKey, secretKey, key) {
     })
     .catch(function (err) {
       console.error(err);
-      return [...result][0];
+      return result;
     });
   return result;
 }
@@ -152,7 +152,7 @@ async function getInfo(publicKey, secretKey) {
     })
     .catch(function (err) {
       console.error(err);
-      return [...result][0];
+      return result;
     });
   return result;
 }
