@@ -1,9 +1,9 @@
-const StellarSdk = require('stellar-sdk');
-const request = require('request-promise');
-const crypto = require('crypto');
-const fs = require('fs');
-const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-const {PerformanceObserver, performance} = require('perf_hooks');
+const StellarSdk = require("stellar-sdk");
+const request = require("request-promise");
+const crypto = require("crypto");
+const fs = require("fs");
+const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+const { PerformanceObserver, performance } = require("perf_hooks");
 
 num_account = 100;
 num_payload = 1;
@@ -14,7 +14,7 @@ async function submitWithoutEncrypt(
   secretString,
   data,
   seq,
-  account,
+  account
 ) {
   const content = chunkString(data, 63);
   const fee = await server.fetchBaseFee();
@@ -26,9 +26,9 @@ async function submitWithoutEncrypt(
     })
       .addOperation(
         StellarSdk.Operation.manageData({
-          name: seq + '_' + i.toString(),
-          value: content[i].toString('binary'),
-        }),
+          name: seq + "_" + i.toString(),
+          value: content[i].toString("binary"),
+        })
       )
       .setTimeout(100)
       .build();
@@ -45,84 +45,81 @@ async function submitWithoutEncrypt(
 
 function chunkString(str, length) {
   try {
-    return str.match(new RegExp('.{1,' + length + '}', 'g'));
+    return str.match(new RegExp(".{1," + length + "}", "g"));
   } catch (err) {
     console.log(err);
     return null;
   }
 }
 function makeid(length) {
-  var result = '';
+  var result = "";
   var characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < length - 10; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
-  return result;
+  return "-----" + result + "-----";
 }
 
 (async () => {
   try {
-    let accountL = {users: []};
+    let accountL = { users: [] };
     let i = 0;
     let total = 0;
     while (i < num_account) {
       let j = 0;
-      console.log(Math.round((i * 100) / num_account), '%');
-      let r = makeid(10);
-      const hashId = crypto
-        .createHash('sha256')
-        .update(r)
-        .digest();
+      console.log(Math.round((i * 100) / num_account), "%");
+      let r = makeid(63);
+      const hashId = crypto.createHash("sha256").update(r).digest();
       const arrByte = Uint8Array.from(hashId);
       const stellarKeyPair = await StellarSdk.Keypair.fromRawEd25519Seed(
-        arrByte,
+        arrByte
       );
       await request(
         `https://friendbot.stellar.org?addr=${encodeURIComponent(
-          stellarKeyPair.publicKey(),
-        )}`,
+          stellarKeyPair.publicKey()
+        )}`
       )
-        .then(async function(htmlString) {
-          accountL['users'].push({
+        .then(async function (htmlString) {
+          accountL["users"].push({
             publicKey: stellarKeyPair.publicKey(),
             secret: stellarKeyPair.secret(),
           });
           ++i;
           //console.time('accountTest');
-          const obs = new PerformanceObserver(items => {
+          const obs = new PerformanceObserver((items) => {
             console.log(items.getEntries()[0].duration);
             performance.clearMarks();
             const path =
-              'Upload_' +
+              "Upload_" +
               new Date().getDate() +
-              '-' +
+              "-" +
               new Date().getMonth() +
-              '-' +
+              "-" +
               new Date().getFullYear() +
-              '_' +
+              "_" +
               num_payload.toString() +
-              '_' +
+              "_" +
               record_len.toString() +
-              '_' +
-              '.txt';
+              "_" +
+              ".txt";
             if (fs.existsSync(path)) {
               fs.appendFileSync(
                 path,
-                items.getEntries()[0].duration.toString() + '\n',
+                items.getEntries()[0].duration.toString() + "\n"
               );
             } else {
-              console.log('create file.');
+              console.log("create file.");
               fs.writeFileSync(
                 path,
-                items.getEntries()[0].duration.toString() + '\n',
+                items.getEntries()[0].duration.toString() + "\n"
               );
             }
             obs.disconnect();
           });
-          obs.observe({entryTypes: ['measure']});
-          performance.mark('A');
+          obs.observe({ entryTypes: ["measure"] });
+          performance.mark("A");
           const account = await server.loadAccount(stellarKeyPair.publicKey());
           let seq = account.sequenceNumber();
           while (j < num_payload) {
@@ -131,7 +128,7 @@ function makeid(length) {
               stellarKeyPair.secret(),
               makeid(record_len),
               seq,
-              account,
+              account
             );
             if (result) {
               ++j;
@@ -140,37 +137,37 @@ function makeid(length) {
             total++;
           }
           //console.timeEnd('accountTest');
-          performance.mark('B');
-          performance.measure('A to B', 'A', 'B');
+          performance.mark("B");
+          performance.measure("A to B", "A", "B");
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.error(err);
         });
     }
     let data = JSON.stringify(accountL);
-    fs.writeFileSync('accountListDoctor.json', data);
+    fs.writeFileSync("accountListDoctor.json", data);
     const path =
-      'FUpload_' +
+      "FUpload_" +
       new Date().getDate() +
-      '-' +
+      "-" +
       new Date().getMonth() +
-      '-' +
+      "-" +
       new Date().getFullYear() +
-      '_' +
+      "_" +
       num_payload.toString() +
-      '_' +
+      "_" +
       record_len.toString() +
-      '_' +
-      '.txt';
+      "_" +
+      ".txt";
     if (fs.existsSync(path)) {
       fs.appendFileSync(
         path,
-        total.toString() + '_' + all_key.toString() + '\n',
+        total.toString() + "_" + all_key.toString() + "\n"
       );
     } else {
       fs.writeFileSync(
         path,
-        total.toString() + '_' + all_key.toString() + '\n',
+        total.toString() + "_" + all_key.toString() + "\n"
       );
     }
   } catch (e) {}
