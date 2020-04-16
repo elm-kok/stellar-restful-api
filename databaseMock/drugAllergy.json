@@ -1,0 +1,18 @@
+[
+	{
+		"ID" : 1112,
+		"HOSPCODE" : "09082",
+		"PID" : "2670",
+		"DATERECORD" : "2012-10-05",
+		"DRUGALLERGY" : "100207000004320120100000",
+		"DNAME" : "Clindamycin",
+		"TYPEDX" : null,
+		"ALEVEL" : null,
+		"SYMPTOM" : null,
+		"INFORMANT" : "3",
+		"INFORMHOSP" : null,
+		"D_UPDATE" : "2012-10-05 15:01:27",
+		"START_DATE" : "2012-10-05 00:00:00",
+		"END_DATE" : null
+	}
+]
