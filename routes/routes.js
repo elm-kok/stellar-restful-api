@@ -92,12 +92,12 @@ async function SPK2PIDDoctor(
         await getInfoByKeyWithoutEncrypt(PatientSPK, SEQ)
       );
       if (!docSigJson.Status) return callback(false);
-
       const docSig = docSigJson.Signature;
 
       const sigFromDocHash = crypto
         .pbkdf2Sync(DoctorSignature, "", 1000, 64, "sha512")
-        .toString("hex");
+        .toString("base64");
+
       if (
         !verifySignatureWithoutKey(
           DoctorSPK,
@@ -214,15 +214,25 @@ router.post("/fetchByPatient", async function (req, res) {
   const SPK = req.body.SPK;
   const HospCode = req.body.HospCode;
   const Signature = req.body.Signature;
-  if (HospCode.length !== 5 || !/^\d+$/.test(HospCode)) {
+  if (
+    HospCode === undefined ||
+    HospCode.length !== 5 ||
+    !/^\d+$/.test(HospCode)
+  ) {
     res.status(400).send({
-      message: "HOSPCODE must be 4 digits",
+      message: "HOSPCODE must be 5 digits",
     });
     return;
   }
-  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+  if (SPK === undefined || SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
     res.status(400).send({
       message: "SPK must be 56 uppercase characters",
+    });
+    return;
+  }
+  if (Signature === undefined) {
+    res.status(400).send({
+      message: "Signature must not blank",
     });
     return;
   }
@@ -256,26 +266,50 @@ router.post("/fetchByDoctor", async function (req, res) {
   const SEQ = req.body.SEQ;
   const HospitalSignature = req.body.HospitalSignature;
 
-  if (HospCode.length !== 5 || !/^\d+$/.test(HospCode)) {
+  if (DoctorSignature === undefined) {
     res.status(400).send({
-      message: "HOSPCODE must be 4 digits",
+      message: "DoctorSignature must not blank",
     });
     return;
   }
-  if (PatientSPK.length !== 56 || PatientSPK !== PatientSPK.toUpperCase()) {
+  if (HospitalSignature === undefined) {
+    res.status(400).send({
+      message: "HospitalSignature must not blank",
+    });
+    return;
+  }
+  if (
+    HospCode === undefined ||
+    HospCode.length !== 5 ||
+    !/^\d+$/.test(HospCode)
+  ) {
+    res.status(400).send({
+      message: "HOSPCODE must be 5 digits",
+    });
+    return;
+  }
+  if (
+    PatientSPK === undefined ||
+    PatientSPK.length !== 56 ||
+    PatientSPK !== PatientSPK.toUpperCase()
+  ) {
     res.status(400).send({
       message: "PatientSPK must be 56 uppercase characters",
     });
     return;
   }
 
-  if (DoctorSPK.length !== 56 || DoctorSPK !== DoctorSPK.toUpperCase()) {
+  if (
+    DoctorSPK === undefined ||
+    DoctorSPK.length !== 56 ||
+    DoctorSPK !== DoctorSPK.toUpperCase()
+  ) {
     res.status(400).send({
       message: "DoctorSPK must be 56 uppercase characters",
     });
     return;
   }
-  if (!/^\d+$/.test(SEQ)) {
+  if (SEQ === undefined || !/^\d+$/.test(SEQ)) {
     res.status(400).send({
       message: "SEQ must be digits",
     });
@@ -307,35 +341,43 @@ router.post("/fetchByDoctor", async function (req, res) {
         };
         res.json(result);
         return;
-      } catch (e) {}
+      } catch (e) {
+        res.status(503).send({
+          message: "Service Unavailable",
+        });
+      }
     }
   );
 });
 
 router.post("/findPid/", function (req, res) {
   const HOSPCODE = req.body.HOSPCODE;
-  if (HOSPCODE.length !== 5 || !/^\d+$/.test(HOSPCODE)) {
+  if (
+    HOSPCODE === undefined ||
+    HOSPCODE.length !== 5 ||
+    !/^\d+$/.test(HOSPCODE)
+  ) {
     res.status(400).send({
-      message: "HOSPCODE must be 4 digits",
+      message: "HOSPCODE must be 5 digits",
     });
     return;
   }
   const CID = req.body.CID;
-  if (CID.length !== 13 || !/^\d+$/.test(CID)) {
+  if (CID === undefined || CID.length !== 13 || !/^\d+$/.test(CID)) {
     res.status(400).send({
       message: "CID must be 13 digits",
     });
     return;
   }
   const SPK = req.body.SPK;
-  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+  if (SPK === undefined || SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
     res.status(400).send({
       message: "SPK must be 56 uppercase characters",
     });
     return;
   }
   const Seq = req.body.Seq;
-  if (!/^\d+$/.test(Seq)) {
+  if (Seq === undefined || !/^\d+$/.test(Seq)) {
     res.status(400).send({
       message: "Seq must be digits",
     });
@@ -380,28 +422,32 @@ router.post("/findPid/", function (req, res) {
 
 router.post("/findPidPrivate/", function (req, res) {
   const HOSPCODE = req.body.HOSPCODE;
-  if (HOSPCODE.length !== 5 || !/^\d+$/.test(HOSPCODE)) {
+  if (
+    HOSPCODE === undefined ||
+    HOSPCODE.length !== 5 ||
+    !/^\d+$/.test(HOSPCODE)
+  ) {
     res.status(400).send({
-      message: "HOSPCODE must be 4 digits",
+      message: "HOSPCODE must be 5 digits",
     });
     return;
   }
   const CID = req.body.CID;
-  if (CID.length !== 13 || !/^\d+$/.test(CID)) {
+  if (CID === undefined || CID.length !== 13 || !/^\d+$/.test(CID)) {
     res.status(400).send({
       message: "CID must be 13 digits",
     });
     return;
   }
   const SPK = req.body.SPK;
-  if (SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
+  if (SPK === undefined || SPK.length !== 56 || SPK !== SPK.toUpperCase()) {
     res.status(400).send({
       message: "SPK must be 56 uppercase characters",
     });
     return;
   }
   const Seq = req.body.Seq;
-  if (!/^\d+$/.test(Seq)) {
+  if (Seq === undefined || !/^\d+$/.test(Seq)) {
     res.status(400).send({
       message: "Seq must be digits",
     });
